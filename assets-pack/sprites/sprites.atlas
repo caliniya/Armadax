@@ -1,0 +1,21 @@
+
+sprites.png
+size: 512, 512
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+badlogic
+  rotate: false
+  xy: 1, 30
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+ui/button
+  rotate: false
+  xy: 1, 1
+  size: 36, 27
+  split: 12, 12, 12, 12
+  orig: 36, 27
+  offset: 0, 0
+  index: -1

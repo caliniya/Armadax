@@ -1,0 +1,41 @@
+apply plugin: "java-library"
+
+dependencies {
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
+    api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+}
+
+task buildTexturePacker(type: Jar) {
+    archiveBaseName = 'buildTexturePacker'
+    from sourceSets.main.output
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+    
+    manifest {
+        attributes 'Main-Class': 'caliniya.tools.TexturePackerTool'
+    }
+    
+    duplicatesStrategy = 'exclude'
+}
+
+task assetsTool(type: JavaExec) {
+    // 使用运行时类路径而不是仅JAR文件
+    classpath = sourceSets.main.runtimeClasspath
+    
+    mainClass = 'caliniya.tools.TexturePackerTool'
+    
+    args = [
+        "${rootDir}/assets/sprites/", //输入目录
+        "${rootDir}/assets-pack/sprites/", //输出目录
+        "sprites" //打包后的文件名
+    ]
+    
+    // 确保先编译（如果需要）
+    dependsOn classes
+}
+
+artifacts {
+    archives buildTexturePacker
+}

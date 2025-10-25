@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Armadax</string>
+    
+    <!-- Error Report Screen -->
+    <string name="copy_error_report">Copy Error Report</string>
+    <string name="restart">Restart</string>
+    
+    <!-- Optional: Common Error Messages -->
+    <string name="error_occurred">An error occurred</string>
+    <string name="try_again">Try Again</string>
+</resources>
