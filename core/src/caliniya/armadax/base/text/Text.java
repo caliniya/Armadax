@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Matrix4;
 public class Text {
     private BitmapFont font;
     private FreeTypeFontGenerator generator;
-    private Batch batch;
     private GlyphLayout glyphLayout; // 用于测量文本尺寸
     private static Text text;
     
@@ -23,7 +22,6 @@ public class Text {
     
     private Text() {
         initializeFont("font/normal.ttf", 25); 
-        batch = new SpriteBatch();
         glyphLayout = new GlyphLayout(); // 初始化GlyphLayout
     }
 
@@ -43,26 +41,18 @@ public class Text {
     public void dispose() {
         font.dispose();
         generator.dispose();
-        batch.dispose();
     }
     
     public static Text getInstance() {
         return text;
     }
     
-    public void begin() {
-        batch.begin();
+    
+    public void draw(String text, float x, float y , Batch batch) {
+        font.draw(batch ,text, x, y);
     }
     
-    public void end() {
-        batch.end();
-    }
-    
-    public void draw(String text, float x, float y) {
-        font.draw(batch, text, x, y);
-    }
-    
-    public void draw(String text, float x, float y, Color color) {
+    public void draw(String text, float x, float y, Color color, Batch batch) {
         font.setColor(color);
         font.draw(batch, text, x, y);
         font.setColor(Color.WHITE);
@@ -95,9 +85,7 @@ public class Text {
         return font.getLineHeight();
     }
     
-    public Batch getBatch() {
-        return batch;
-    }
+    
     
     public BitmapFont getFont() {
         return font;
@@ -108,6 +96,5 @@ public class Text {
      * @param combined 投影矩阵
      */
     public void setProjectionMatrix(Matrix4 combined) {
-        batch.setProjectionMatrix(combined);
     }
 }

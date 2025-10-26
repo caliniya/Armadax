@@ -23,7 +23,7 @@ public class RenderingProcessor {
     private final Rectangle viewBounds = new Rectangle();
     
     // 测试用颜色
-    private final Color whiteColor = new Color(1, 1, 1, 1);
+    private final Color whiteColor = new Color(1, 1, 1, 0);
     
     public RenderingProcessor(GameRenderData renderData) {
         this.renderData = renderData;
@@ -32,7 +32,7 @@ public class RenderingProcessor {
     
     /**
      * 处理所有需要渲染的物体
-     * 修改：始终在屏幕正中心渲染一个白色矩形
+     * 在屏幕正中心渲染一个白色矩形
      */
     public void process(/*Array<Entity> entities*/) {
         // 清空上一帧的数据
@@ -43,8 +43,6 @@ public class RenderingProcessor {
         
         // 测试代码：在屏幕正中心渲染一个白色矩形
         addCenteredTestRectangle();
-        
-        // 移除之前的随机测试物体，专注于中心矩形测试
     }
     
     /**

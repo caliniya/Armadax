@@ -1,17 +1,32 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/system/BasicSystem.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/srceen/FirstLoadSrceen.java",
       "selection": {
         "end": {
-          "column": 40,
-          "index": 271,
-          "line": 11
+          "column": 1,
+          "index": 2378,
+          "line": 98
         },
         "start": {
-          "column": 40,
-          "index": 271,
-          "line": 11
+          "column": 1,
+          "index": 2378,
+          "line": 98
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/system/render/RenderingProcessor.java",
+      "selection": {
+        "end": {
+          "column": 39,
+          "index": 39,
+          "line": 0
+        },
+        "start": {
+          "column": 39,
+          "index": 39,
+          "line": 0
         }
       }
     },
@@ -19,47 +34,17 @@
       "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/system/render/GameRender.java",
       "selection": {
         "end": {
-          "column": 16,
-          "index": 688,
-          "line": 21
+          "column": 22,
+          "index": 4130,
+          "line": 150
         },
         "start": {
-          "column": 16,
-          "index": 688,
-          "line": 21
-        }
-      }
-    },
-    {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/srceen/FirstLoadSrceen.java",
-      "selection": {
-        "end": {
-          "column": 31,
-          "index": 1321,
-          "line": 44
-        },
-        "start": {
-          "column": 31,
-          "index": 1321,
-          "line": 44
-        }
-      }
-    },
-    {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/Armadax.java",
-      "selection": {
-        "end": {
-          "column": 16,
-          "index": 711,
-          "line": 23
-        },
-        "start": {
-          "column": 16,
-          "index": 711,
-          "line": 23
+          "column": 22,
+          "index": 4130,
+          "line": 150
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/Armadax.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/srceen/FirstLoadSrceen.java"
 }
