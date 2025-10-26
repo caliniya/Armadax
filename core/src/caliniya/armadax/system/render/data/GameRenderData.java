@@ -21,13 +21,12 @@ public class GameRenderData {
     public final Seq<Color> colors = new Seq<>(1024);
     
     // 当前渲染项数量
-    private int count = 0;
+    private int count = 0; // 改为0，从0开始
     // 最大容量
     private int capacity = 1024;
     
     private GameRenderData() {
-        // 初始化默认值
-        ensureCapacity(capacity);
+        // 移除 ensureCapacity(capacity)，因为集合已经初始化了容量
     }
     
     /**
@@ -36,17 +35,18 @@ public class GameRenderData {
     public void add(TextureRegion region, float x, float y, float width, float height) {
         ensureCapacity(count + 1);
         
-        regions.set(count, region);
-        positionsX.set(count, x);
-        positionsY.set(count, y);
-        widths.set(count, width);
-        heights.set(count, height);
-        originsX.set(count, width / 2f); // 默认原点在中心
-        originsY.set(count, height / 2f);
-        scalesX.set(count, 1f);
-        scalesY.set(count, 1f);
-        rotations.set(count, 0f);
-        colors.set(count, Color.WHITE);
+        // 使用 add() 而不是 set()
+        regions.add(region);
+        positionsX.add(x);
+        positionsY.add(y);
+        widths.add(width);
+        heights.add(height);
+        originsX.add(width / 2f); // 默认原点在中心
+        originsY.add(height / 2f);
+        scalesX.add(1f);
+        scalesY.add(1f);
+        rotations.add(0f);
+        colors.add(Color.WHITE);
         
         count++;
     }
@@ -59,17 +59,18 @@ public class GameRenderData {
                    float rotation, Color color) {
         ensureCapacity(count + 1);
         
-        regions.set(count, region);
-        positionsX.set(count, x);
-        positionsY.set(count, y);
-        widths.set(count, width);
-        heights.set(count, height);
-        originsX.set(count, originX);
-        originsY.set(count, originY);
-        scalesX.set(count, scaleX);
-        scalesY.set(count, scaleY);
-        rotations.set(count, rotation);
-        colors.set(count, color);
+        // 使用 add() 而不是 set()
+        regions.add(region);
+        positionsX.add(x);
+        positionsY.add(y);
+        widths.add(width);
+        heights.add(height);
+        originsX.add(originX);
+        originsY.add(originY);
+        scalesX.add(scaleX);
+        scalesY.add(scaleY);
+        rotations.add(rotation);
+        colors.add(color);
         
         count++;
     }
@@ -100,6 +101,18 @@ public class GameRenderData {
      */
     public void clear() {
         count = 0;
+        // 清空所有集合
+        regions.clear();
+        positionsX.clear();
+        positionsY.clear();
+        widths.clear();
+        heights.clear();
+        originsX.clear();
+        originsY.clear();
+        scalesX.clear();
+        scalesY.clear();
+        rotations.clear();
+        colors.clear();
     }
     
     /**

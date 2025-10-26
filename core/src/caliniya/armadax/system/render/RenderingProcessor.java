@@ -3,6 +3,7 @@ package caliniya.armadax.system.render;
 import caliniya.armadax.system.render.data.GameRenderData;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -14,12 +15,15 @@ public class RenderingProcessor {
     
     // 相机属性
     private final Vector2 position = new Vector2(); // 相机中心位置
-    private float viewportWidth = 10f;  // 视野宽度
-    private float viewportHeight = 10f; // 视野高度
+    private float viewportWidth = 1280f;  // 视野宽度
+    private float viewportHeight = 720f; // 视野高度
     private float zoom = 1f;            // 缩放级别
     
     // 视野边界（缓存计算）
     private final Rectangle viewBounds = new Rectangle();
+    
+    // 测试用颜色
+    private final Color whiteColor = new Color(1, 1, 1, 1);
     
     public RenderingProcessor(GameRenderData renderData) {
         this.renderData = renderData;
@@ -28,7 +32,7 @@ public class RenderingProcessor {
     
     /**
      * 处理所有需要渲染的物体
-     * 暂时注释掉实体遍历部分，等物理世界完成后再实现
+     * 修改：始终在屏幕正中心渲染一个白色矩形
      */
     public void process(/*Array<Entity> entities*/) {
         // 清空上一帧的数据
@@ -37,77 +41,41 @@ public class RenderingProcessor {
         // 更新视野边界
         updateViewBounds();
         
-        // TODO: 等物理世界完成后，这里遍历所有实体
-        /*
-        for (Entity entity : entities) {
-            // 这里假设实体有获取位置和纹理的方法
-            Vector2 entityPos = entity.getPosition();
-            TextureRegion entityTexture = entity.getTexture();
-            float entityWidth = entity.getWidth();
-            float entityHeight = entity.getHeight();
-            
-            if (isInView(entityPos, entityWidth, entityHeight)) {
-                // 计算屏幕相对坐标（相对于相机）
-                float screenX = (entityPos.x - viewBounds.x) * zoom;
-                float screenY = (entityPos.y - viewBounds.y) * zoom;
-                
-                // 添加到渲染数据
-                renderData.add(
-                    entityTexture,
-                    screenX,
-                    screenY,
-                    entityWidth * zoom,
-                    entityHeight * zoom,
-                    entityWidth / 2f, // 默认原点在中心
-                    entityHeight / 2f,
-                    1f, 1f, 0f,      // 默认缩放和旋转
-                    null              // 默认颜色
-                );
-            }
-        }
-        */
+        // 测试代码：在屏幕正中心渲染一个白色矩形
+        addCenteredTestRectangle();
         
-        // 临时测试代码：添加一些测试渲染数据
-        addTestRenderData();
+        // 移除之前的随机测试物体，专注于中心矩形测试
     }
     
     /**
-     * 临时测试方法：添加一些测试渲染数据
+     * 在屏幕正中心添加一个测试矩形
      */
-    private void addTestRenderData() {
-        // 这里添加一些在视野内的测试物体
-        if (true) { // 临时条件，确保至少有一些渲染内容
-            // 假设我们有一个测试纹理，这里用null代替
-            // 在实际使用中，这里应该传入真实的TextureRegion
-            
-            // 添加一个在相机中心的物体
-            float centerX = viewportWidth / 2f;
-            float centerY = viewportHeight / 2f;
-            renderData.add(
-                null, // 测试用null纹理
-                centerX - 1f, centerY - 1f, // 位置
-                2f, 2f,                     // 大小
-                1f, 1f,                     // 原点（中心）
-                1f, 1f, 0f,                 // 缩放和旋转
-                null                        // 颜色
-            );
-            
-            // 添加几个随机位置的测试物体
-            for (int i = 0; i < 5; i++) {
-                float x = (float) Math.random() * viewportWidth;
-                float y = (float) Math.random() * viewportHeight;
-                float size = 0.5f + (float) Math.random() * 1f;
-                
-                renderData.add(
-                    null,
-                    x, y,
-                    size, size,
-                    size / 2f, size / 2f,
-                    1f, 1f, 0f,
-                    null
-                );
-            }
-        }
+    private void addCenteredTestRectangle() {
+        // 计算屏幕中心位置（屏幕坐标）
+        float screenCenterX = viewportWidth / 2f;
+        float screenCenterY = viewportHeight / 2f;
+        
+        // 矩形大小（屏幕坐标）
+        float rectWidth = 500f;
+        float rectHeight = 500f;
+        
+        // 计算矩形位置（使其中心在屏幕中心）
+        float rectX = screenCenterX - rectWidth / 2f;
+        float rectY = screenCenterY - rectHeight / 2f;
+        
+        // 添加到渲染数据 - 使用null纹理和白色颜色
+        renderData.add(
+            null,           // 纹理（null表示使用颜色填充）
+            rectX,          // 屏幕X坐标
+            rectY,          // 屏幕Y坐标
+            rectWidth,      // 宽度
+            rectHeight,     // 高度
+            0f,             // 原点X（左上角）
+            0f,             // 原点Y（左上角）
+            1f, 1f, 0f,     // 缩放和旋转
+            whiteColor      // 白色颜色
+        );
+        
     }
     
     /**
@@ -201,5 +169,12 @@ public class RenderingProcessor {
     
     public int getRenderCount() {
         return renderData.getCount();
+    }
+    
+    /**
+     * 获取当前视口尺寸
+     */
+    public Vector2 getViewportSize() {
+        return new Vector2(viewportWidth, viewportHeight);
     }
 }

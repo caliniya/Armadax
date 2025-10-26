@@ -26,21 +26,22 @@ public class FirstLoadSrceen implements Screen {
 
     @Override
     public void render(float delta) {
+        
         // 清屏
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         // 先更新和绘制UI
-        uistage.act(delta);
-        uistage.draw();
+        //uistage.act(delta);
+        //uistage.draw();
         
         // 然后绘制文本元素
-        drawTextElements();
+        //drawTextElements();
         
         // 最后绘制验证框（在UI和文本之上）
         drawValidationBoxes();
         
-        // 测试渲染系统 - 在UI之上绘制
+        // 测试渲染系统
         testGameRenderSystem();
     }
     
@@ -48,28 +49,15 @@ public class FirstLoadSrceen implements Screen {
      * 测试游戏渲染系统
      */
     private void testGameRenderSystem() {
-        if (gameRender != null) {
-            // 更新渲染系统（这会处理渲染数据并绘制）
+        if (gameRender == null) {
             
-            // 可以添加一些简单的相机移动来测试
-            moveCameraForTest();
+        }else{
+            gameRender.start();
+            gameRender.updateManual();
         }
+        
     }
     
-    /**
-     * 简单的相机移动测试
-     */
-    private void moveCameraForTest() {
-        if (gameRender != null) {
-            // 让相机缓慢移动，测试渲染效果
-            float time = Gdx.graphics.getFrameId() * 0.01f;
-            float moveX = (float) Math.sin(time) * 2f;
-            float moveY = (float) Math.cos(time) * 1.5f;
-            
-            gameRender.getRenderingProcessor().move(moveX * Gdx.graphics.getDeltaTime(), 
-                                                   moveY * Gdx.graphics.getDeltaTime());
-        }
-    }
     
     private void drawTextElements() {
         textRenderer.begin();

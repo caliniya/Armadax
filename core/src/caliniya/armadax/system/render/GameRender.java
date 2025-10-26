@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class GameRender extends BasicSystem {
     private SpriteBatch batch;
-    private ShapeRenderer shapeRenderer; // 可选：用于调试绘制
+    private ShapeRenderer shapeRenderer; // 用于几何图形和调试绘制
     
     // 渲染处理器和渲染数据
     private RenderingProcessor renderingProcessor;
@@ -73,65 +73,126 @@ public class GameRender extends BasicSystem {
     }
     
     /**
-     * 执行批量渲染
+     * 执行批量渲染 - 优化版本
      */
     private void renderBatch() {
-        batch.begin();
+        // 先渲染所有带纹理的物体
+        renderTexturedItems();
         
-        final int count = renderData.getCount();
-        for (int i = 0; i < count; i++) {
-            // 获取渲染数据
-            var region = renderData.getRegion(i);
-            float x = renderData.getX(i);
-            float y = renderData.getY(i);
-            float width = renderData.getWidth(i);
-            float height = renderData.getHeight(i);
-            float originX = renderData.getOriginX(i);
-            float originY = renderData.getOriginY(i);
-            float scaleX = renderData.getScaleX(i);
-            float scaleY = renderData.getScaleY(i);
-            float rotation = renderData.getRotation(i);
-            var color = renderData.getColor(i);
-            
-            // 设置颜色
-            batch.setColor(color);
-            
-            // 如果有纹理就绘制纹理，否则绘制占位矩形
-            if (region != null) {
-                batch.draw(region,
-                    x, y,
-                    originX, originY,
-                    width, height,
-                    scaleX, scaleY,
-                    rotation
-                );
-            } else {
-                // 绘制占位矩形（调试用）
-                batch.end(); // 结束纹理批次
-                
-                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                shapeRenderer.setColor(color);
-                shapeRenderer.rect(x, y, width, height);
-                shapeRenderer.end();
-                
-                batch.begin(); // 重新开始纹理批次
-            }
-            
-            // 重置颜色
-            batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
-        }
-        
-        batch.end();
+        // 再渲染所有几何图形
+        renderGeometryItems();
     }
     
     /**
-     * 调试绘制
+     * 渲染带纹理的物体
+     */
+    private void renderTexturedItems() {
+        batch.begin();
+        
+        final int count = renderData.getCount();
+        boolean hasTexturedItems = false;
+        
+        for (int i = 0; i < count; i++) {
+            var region = renderData.getRegion(i);
+            if (region != null) {
+                hasTexturedItems = true;
+                batch.setColor(renderData.getColor(i));
+                batch.draw(region,
+                    renderData.getX(i), renderData.getY(i),
+                    renderData.getOriginX(i), renderData.getOriginY(i),
+                    renderData.getWidth(i), renderData.getHeight(i),
+                    renderData.getScaleX(i), renderData.getScaleY(i),
+                    renderData.getRotation(i)
+                );
+            }
+        }
+        
+        // 重置颜色
+        batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
+        batch.end();
+        
+        // 调试信息：如果有纹理物体被渲染
+        if (hasTexturedItems) {
+            System.out.println("渲染了 " + countTexturedItems() + " 个带纹理的物体");
+        }
+    }
+    
+    /**
+     * 渲染几何图形
+     */
+    private void renderGeometryItems() {
+        final int count = renderData.getCount();
+        boolean hasGeometryItems = false;
+        
+        // 检查是否有几何图形需要渲染
+        for (int i = 0; i < count; i++) {
+            if (renderData.getRegion(i) == null) {
+                hasGeometryItems = true;
+                break;
+            }
+        }
+        
+        if (!hasGeometryItems) {
+            return; // 没有几何图形需要渲染
+        }
+        
+        // 批量渲染所有填充的几何图形
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        
+        for (int i = 0; i < count; i++) {
+            var region = renderData.getRegion(i);
+            if (region == null) {
+                shapeRenderer.setColor(renderData.getColor(i));
+                shapeRenderer.rect(
+                    renderData.getX(i), renderData.getY(i),
+                    renderData.getWidth(i), renderData.getHeight(i)
+                );
+            }
+        }
+        
+        shapeRenderer.end();
+        
+        // 调试信息
+        System.out.println("渲染了 " + countGeometryItems() + " ���几何图形");
+    }
+    
+    /**
+     * 计算带纹理的物体数量
+     */
+    private int countTexturedItems() {
+        int count = 0;
+        final int total = renderData.getCount();
+        for (int i = 0; i < total; i++) {
+            if (renderData.getRegion(i) != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    /**
+     * 计算几何图形数量
+     */
+    private int countGeometryItems() {
+        int count = 0;
+        final int total = renderData.getCount();
+        for (int i = 0; i < total; i++) {
+            if (renderData.getRegion(i) == null) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    /**
+     * 调试绘制 - 优化版本
      */
     private void renderDebug() {
-        // 绘制相机视野边界
+        // 使用单独的ShapeRenderer会话绘制调试信息
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(com.badlogic.gdx.graphics.Color.RED);
         
+        // 绘制相机视野边界
+        shapeRenderer.setColor(com.badlogic.gdx.graphics.Color.RED);
         var viewBounds = renderingProcessor.getViewBounds();
         shapeRenderer.rect(viewBounds.x, viewBounds.y, viewBounds.width, viewBounds.height);
         
@@ -150,12 +211,14 @@ public class GameRender extends BasicSystem {
      * 绘制调试文本信息
      */
     private void drawDebugText() {
-        // 如果你有BitmapFont，可以在这里绘制调试信息
         /*
+        // 如果需要绘制文本，可以在这里实现
         batch.begin();
-        font.draw(batch, "Rendered: " + renderData.getCount(), 10, 700);
-        font.draw(batch, "Camera: " + renderingProcessor.getPosition(), 10, 680);
-        font.draw(batch, "Zoom: " + renderingProcessor.getZoom(), 10, 660);
+        // font.draw(batch, "Rendered: " + renderData.getCount(), 10, 700);
+        // font.draw(batch, "Textured: " + countTexturedItems(), 10, 680);
+        // font.draw(batch, "Geometry: " + countGeometryItems(), 10, 660);
+        // font.draw(batch, "Camera: " + renderingProcessor.getPosition(), 10, 640);
+        // font.draw(batch, "Zoom: " + renderingProcessor.getZoom(), 10, 620);
         batch.end();
         */
     }
@@ -174,8 +237,16 @@ public class GameRender extends BasicSystem {
         return batch;
     }
     
+    /**
+     * 获取ShapeRenderer，用于其他系统绘制几何图形
+     */
+    public ShapeRenderer getShapeRenderer() {
+        return shapeRenderer;
+    }
+    
     @Override
     protected boolean requiresMainThread() {
         return true; // 渲染必须在主线程
     }
+    
 }

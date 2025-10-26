@@ -22,6 +22,7 @@ public class Armadax extends Game {
     @Override
     public void create() {
         aaa = 1;
+        Gdx.graphics.setForegroundFPS(0);
         assets = Assets.getInstance();
         assets.loadAssets();
     }

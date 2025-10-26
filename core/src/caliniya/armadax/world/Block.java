@@ -4,7 +4,8 @@ import caliniya.armadax.world.*;
 
 public class Block {
     public String name;
-    public int[] size;
+    public float W;
+    public float H;
     public boolean solid = false;
     public boolean buildable = true;
     public float health = 100;
@@ -15,7 +16,7 @@ public class Block {
     }
     
     public boolean isMultiblock() {
-        return
+        return true;
     }
     
     public Block createBuilding() {

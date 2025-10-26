@@ -2,14 +2,14 @@ buildscript {
     repositories {
         mavenLocal()
         // 国内镜像源
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+       // maven { url 'https://maven.aliyun.com/repository/public' }
+       // maven { url 'https://maven.aliyun.com/repository/google' }
+       // maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         
-        // 备用原始源（注释状态）
-        // mavenCentral()
-        // gradlePluginPortal()
-        // google()
+        // 备用原始源
+        mavenCentral()
+        gradlePluginPortal()
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.2'
