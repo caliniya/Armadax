@@ -17,11 +17,6 @@ public class World {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 tiles[x][y] = new Tile(x, y);
-                if (Math.random() < 0.1f) {
-                    
-                } else if (Math.random() < 0.05f) {
-                    
-                }
             }
         }
     }

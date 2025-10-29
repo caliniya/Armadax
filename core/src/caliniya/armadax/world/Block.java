@@ -3,23 +3,20 @@ package caliniya.armadax.world;
 import caliniya.armadax.world.*;
 
 public class Block {
-    public String name;
-    public float W;
-    public float H;
-    public boolean solid = false;
+    public String name = "test-building";
+    public float size = 2;
     public boolean buildable = true;
-    public float health = 100;
-    //public TextureRegion region;
+    public float health = 10;
     
-    public void Block() {
+    public Block() {
     	
     }
     
     public boolean isMultiblock() {
-        return true;
+        return size == 1;
     }
     
-    public Block createBuilding() {
+    public Block Block() {
         return new Block();
     }
 }

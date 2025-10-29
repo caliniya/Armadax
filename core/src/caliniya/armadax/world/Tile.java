@@ -11,15 +11,11 @@ public class Tile {
     public Tile(int x, int y) {
         this.x = x;
         this.y = y;
-        //this.floor = Floors.stone;
-        //this.block = Blocks.air;
-    }
-    /**
-    public boolean solid() {
-        return block.solid || (building != null && building.solid());
+        //this.floor =
+        this.block = Blocks.test;
     }
     
     public boolean canBuildOn() {
-        return floor.buildable && block == Blocks.air;
-    }*/
+        return true;
+    }
 }

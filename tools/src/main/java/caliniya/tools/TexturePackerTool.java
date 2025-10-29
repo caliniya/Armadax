@@ -2,7 +2,6 @@ package caliniya.tools;
 
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker.Settings;
-
 import java.io.File;
 
 public class TexturePackerTool {

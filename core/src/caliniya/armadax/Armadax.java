@@ -1,6 +1,6 @@
 package caliniya.armadax;
 
-import caliniya.armadax.srceen.FirstLoadSrceen;
+import caliniya.armadax.srceen.MainGameSrceen;
 import caliniya.armadax.base.text.Text;
 import caliniya.armadax.system.Assets;
 import com.badlogic.gdx.Game;
@@ -15,10 +15,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class Armadax extends Game {
-    private FirstLoadSrceen firstLoadSrceen;
+    private MainGameSrceen MainGameSrceen;
     private int aaa;
     private Assets assets;
-    
     @Override
     public void create() {
         aaa = 1;
@@ -31,8 +30,8 @@ public class Armadax extends Game {
         super.render();
         assets.update();
         if(assets.update() && aaa == 1) {
-        	firstLoadSrceen = new FirstLoadSrceen();
-            setScreen(firstLoadSrceen);
+        	MainGameSrceen = new MainGameSrceen();
+            setScreen(MainGameSrceen);
             aaa = 3;
         } 
     }

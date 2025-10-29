@@ -1,50 +1,35 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/srceen/FirstLoadSrceen.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Tile.java",
       "selection": {
         "end": {
-          "column": 1,
-          "index": 2378,
-          "line": 98
+          "column": 20,
+          "index": 390,
+          "line": 18
         },
         "start": {
-          "column": 1,
-          "index": 2378,
-          "line": 98
+          "column": 20,
+          "index": 390,
+          "line": 18
         }
       }
     },
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/system/render/RenderingProcessor.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Block.java",
       "selection": {
         "end": {
-          "column": 39,
-          "index": 39,
-          "line": 0
+          "column": 5,
+          "index": 400,
+          "line": 20
         },
         "start": {
-          "column": 39,
-          "index": 39,
-          "line": 0
-        }
-      }
-    },
-    {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/system/render/GameRender.java",
-      "selection": {
-        "end": {
-          "column": 22,
-          "index": 4130,
-          "line": 150
-        },
-        "start": {
-          "column": 22,
-          "index": 4130,
-          "line": 150
+          "column": 5,
+          "index": 400,
+          "line": 20
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/srceen/FirstLoadSrceen.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Block.java"
 }

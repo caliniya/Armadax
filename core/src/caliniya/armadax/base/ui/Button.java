@@ -26,7 +26,7 @@ public class Button extends Actor implements Disposable {
     }
 
     /**
-     * 指定图集和区域名称的构造��数
+     * 指定图集和区域名称的构造
      */
     public Button(String atlasName, String regionName) {
         this.assets = Assets.getInstance();
