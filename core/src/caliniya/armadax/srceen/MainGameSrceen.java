@@ -1,5 +1,6 @@
-package caliniya.armadax.srceen;
+package caliniya.armadax.screen;
 
+import caliniya.armadax.base.text.Text;
 import caliniya.armadax.base.ui.Button;
 import caliniya.armadax.system.render.GameRender;
 import com.badlogic.gdx.Gdx;
@@ -10,7 +11,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import caliniya.armadax.base.text.Text;
 
 public class MainGameSrceen implements Screen {
     private Stage uistage;
@@ -54,7 +54,7 @@ public class MainGameSrceen implements Screen {
         text = Text.getInstance();
         
         // 初始化游戏渲染
-            gameRender = new GameRender();
+            gameRender = GameRender.getInstance();
             // 设置相机初始位置
             gameRender.getRenderingProcessor().setPosition(0, 0);
             gameRender.getRenderingProcessor().setViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

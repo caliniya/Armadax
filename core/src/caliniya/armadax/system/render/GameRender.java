@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 
 public class GameRender extends BasicSystem {
+    private static GameRender instance;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer; // 用于几何图形和调试绘制
     
@@ -16,7 +17,15 @@ public class GameRender extends BasicSystem {
     private RenderingProcessor renderingProcessor;
     private GameRenderData renderData;
     
-    public GameRender() {
+    static{
+        instance = new GameRender();
+    }
+    
+    public static GameRender getInstance(){
+        return instance;
+    }
+    
+    protected GameRender() {
         super(1); //在当前阶段，以尽可能快的速度渲染
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();

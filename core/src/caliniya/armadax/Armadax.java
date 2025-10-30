@@ -2,7 +2,7 @@ package caliniya.armadax;
 
 import caliniya.armadax.base.language.LanguageManager;
 import caliniya.armadax.base.text.Text;
-import caliniya.armadax.srceen.MainGameSrceen;
+import caliniya.armadax.screen.*;
 import caliniya.armadax.system.Assets;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -14,7 +14,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class Armadax extends Game {
-    private MainGameSrceen MainGameSrceen;
+    private Screen mapTest;
     private int aaa;
     private Assets assets;
     @Override
@@ -29,8 +29,8 @@ public class Armadax extends Game {
         super.render();
         assets.update();
         if(assets.update() && aaa == 1) {
-        	MainGameSrceen = new MainGameSrceen();
-            setScreen(MainGameSrceen);
+        	mapTest = new MapTest();
+            setScreen(mapTest);
             aaa = 3;
         } 
     }

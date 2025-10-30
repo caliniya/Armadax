@@ -1,20 +1,50 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/build.gradle",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/Armadax.java",
       "selection": {
         "end": {
-          "column": 1,
-          "index": 2900,
-          "line": 90
+          "column": 23,
+          "index": 939,
+          "line": 32
         },
         "start": {
-          "column": 1,
-          "index": 2900,
-          "line": 90
+          "column": 23,
+          "index": 939,
+          "line": 32
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/srceen/MapTest.java",
+      "selection": {
+        "end": {
+          "column": 35,
+          "index": 344,
+          "line": 13
+        },
+        "start": {
+          "column": 35,
+          "index": 344,
+          "line": 13
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/World.java",
+      "selection": {
+        "end": {
+          "column": 0,
+          "index": 0,
+          "line": 0
+        },
+        "start": {
+          "column": 0,
+          "index": 0,
+          "line": 0
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/build.gradle"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/World.java"
 }

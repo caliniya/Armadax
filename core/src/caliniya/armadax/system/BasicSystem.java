@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 默认在主线程运行，子类可以选择启用多线程
  */
 public abstract class BasicSystem {
-    private static BasicSystem instance;
     private long lastUpdateTime;
     private final AtomicBoolean running = new AtomicBoolean(false);
     
@@ -25,21 +24,19 @@ public abstract class BasicSystem {
     }
     
     protected BasicSystem(long updateIntervalMs, boolean multiThreaded) {
-        if (instance != null) {
-            throw new IllegalStateException("BaseSystem already instantiated!");
-        }
         this.updateInterval = updateIntervalMs;
         this.multiThreaded = multiThreaded;
-        instance = this;
     }
     
     /**
      * 获取单例实例
      */
+    
+    /**
+    所有子系统应该实现此方法
     @SuppressWarnings("unchecked")
-    public static <T extends BasicSystem> T getInstance() {
-        return (T) instance;
-    }
+    public static <T extends BasicSystem> T getInstance();
+    */
     
     /**
      * 启动系统
