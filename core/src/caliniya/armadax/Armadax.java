@@ -1,14 +1,13 @@
 package caliniya.armadax;
 
-import caliniya.armadax.srceen.MainGameSrceen;
+import caliniya.armadax.base.language.LanguageManager;
 import caliniya.armadax.base.text.Text;
+import caliniya.armadax.srceen.MainGameSrceen;
 import caliniya.armadax.system.Assets;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-
-import caliniya.armadax.base.language.LanguageManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
