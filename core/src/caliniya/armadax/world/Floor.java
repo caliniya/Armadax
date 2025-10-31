@@ -3,10 +3,11 @@ package caliniya.armadax.world;
 import caliniya.armadax.world.*;
 
 public class Floor {
+    
     public String name;
     
-    public Floor(){
-        
+    public Floor(String BlockName){
+        name = BlockName;
     }
 	
 }

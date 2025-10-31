@@ -2,6 +2,7 @@ package caliniya.armadax;
 
 import caliniya.armadax.base.language.LanguageManager;
 import caliniya.armadax.base.text.Text;
+import caliniya.armadax.content.*;
 import caliniya.armadax.screen.*;
 import caliniya.armadax.system.Assets;
 import com.badlogic.gdx.Game;
@@ -22,6 +23,8 @@ public class Armadax extends Game {
         aaa = 1;
         assets = Assets.getInstance();
         assets.loadAssets();
+        Blocks.load();
+        Floors.load();
     }
 
     @Override

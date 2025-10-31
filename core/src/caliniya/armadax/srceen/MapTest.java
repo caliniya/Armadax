@@ -1,23 +1,21 @@
 package caliniya.armadax.screen;
 
 import caliniya.armadax.system.render.GameRender;
-import caliniya.armadax.world.World;
+import caliniya.armadax.world.*;
 import com.badlogic.gdx.Screen;
 
 public class MapTest implements Screen {
     
     public static GameRender gamerender;
-    public World world;
     
     @Override
     public void show() {
-        world = new World(200 , 200);
         gamerender = GameRender.getInstance();
         gamerender.start();
         
     }
     @Override
-    public void render(float ar) {
+    public void render(float delte) {
         gamerender.updateManual();
     }
     

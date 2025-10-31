@@ -8,15 +8,19 @@ public class Block {
     public boolean buildable = true;
     public float health = 10;
     
-    public Block() {
-    	
+    public Block(){
+        this("test-building");
+    }
+    
+    public Block(String BlockName) {
+    	name = BlockName;
     }
     
     public boolean isMultiblock() {
         return size == 1;
     }
     
-    public Block Block() {
+    public Block CreatBlock() {
         return new Block();
     }
 }

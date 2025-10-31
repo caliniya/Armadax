@@ -1,50 +1,35 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/Armadax.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Tile.java",
       "selection": {
         "end": {
-          "column": 23,
-          "index": 939,
-          "line": 32
+          "column": 19,
+          "index": 267,
+          "line": 12
         },
         "start": {
-          "column": 23,
-          "index": 939,
-          "line": 32
+          "column": 19,
+          "index": 267,
+          "line": 12
         }
       }
     },
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/srceen/MapTest.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Space.java",
       "selection": {
         "end": {
-          "column": 35,
-          "index": 344,
-          "line": 13
+          "column": 37,
+          "index": 325,
+          "line": 15
         },
         "start": {
-          "column": 35,
-          "index": 344,
-          "line": 13
-        }
-      }
-    },
-    {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/World.java",
-      "selection": {
-        "end": {
-          "column": 0,
-          "index": 0,
-          "line": 0
-        },
-        "start": {
-          "column": 0,
-          "index": 0,
-          "line": 0
+          "column": 37,
+          "index": 325,
+          "line": 15
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/World.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Space.java"
 }

@@ -11,8 +11,6 @@ public class Tile {
     public Tile(int x, int y) {
         this.x = x;
         this.y = y;
-        //this.floor =
-        this.block = Blocks.test;
     }
     
     public boolean canBuildOn() {

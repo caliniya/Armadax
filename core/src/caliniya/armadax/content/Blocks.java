@@ -5,11 +5,11 @@ import caliniya.armadax.world.*;
 public class Blocks {
     
     public static Block 
-    test
+    TestBlock
     ;
     
-    public void load(){
-        test = new Block();
+    public static void load(){
+        TestBlock = new Block();
     }
 	
 }
