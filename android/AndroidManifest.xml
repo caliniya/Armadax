@@ -32,6 +32,6 @@
             android:name=".ErrorActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="true" />
     </application>
 </manifest>

@@ -6,8 +6,8 @@ public class Floor {
     
     public String name;
     
-    public Floor(String BlockName){
-        name = BlockName;
+    public Floor(String Name){
+        name = Name;
     }
 	
 }

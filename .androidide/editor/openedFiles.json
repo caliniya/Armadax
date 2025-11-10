@@ -1,35 +1,35 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Tile.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/game/data/WorldData.java",
       "selection": {
         "end": {
-          "column": 19,
-          "index": 267,
-          "line": 12
+          "column": 4,
+          "index": 308,
+          "line": 13
         },
         "start": {
-          "column": 19,
-          "index": 267,
-          "line": 12
+          "column": 4,
+          "index": 308,
+          "line": 13
         }
       }
     },
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Space.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/World.java",
       "selection": {
         "end": {
-          "column": 37,
-          "index": 325,
-          "line": 15
+          "column": 16,
+          "index": 184,
+          "line": 8
         },
         "start": {
-          "column": 37,
-          "index": 325,
-          "line": 15
+          "column": 16,
+          "index": 184,
+          "line": 8
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/Space.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/world/World.java"
 }
