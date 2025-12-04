@@ -1,4 +1,4 @@
-package caliniya.armadax.system;
+package caliniya.armadax.base.system;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
@@ -36,6 +36,7 @@ public class Assets extends AssetManager implements Disposable {
         loadAtlas("sprites");
         
     }
+    
     
     /**
      * 加载单个纹理图集

@@ -1,10 +1,8 @@
 package caliniya.armadax;
 
-import caliniya.armadax.base.language.LanguageManager;
-import caliniya.armadax.base.text.Text;
 import caliniya.armadax.content.*;
 import caliniya.armadax.screen.*;
-import caliniya.armadax.system.Assets;
+import caliniya.armadax.base.system.*;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -15,12 +13,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class Armadax extends Game {
-    private Screen mapTest;
-    private int aaa;
+    
+    public boolean inited;//所以内容已经初始化
     private Assets assets;
+    
     @Override
     public void create() {
-        aaa = 1;
         assets = Assets.getInstance();
         assets.loadAssets();
         Blocks.load();
@@ -30,16 +28,16 @@ public class Armadax extends Game {
     @Override
     public void render() {
         super.render();
-        assets.update();
-        if(assets.update() && aaa == 1) {
-        	mapTest = new MapTest();
-            setScreen(mapTest);
-            aaa = 3;
-        } 
+        if(assets.update()){
+        	inited = true;
+        }else{
+            assets.update();
+        }
     }
     
     @Override
     public void dispose() {
         super.dispose();
+        assets.dispose();
     }
 }

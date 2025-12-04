@@ -1,4 +1,4 @@
-package caliniya.armadax.base.struct;
+package caliniya.armadax.base.tool;
 
 import caliniya.armadax.base.math.*;
 import com.badlogic.gdx.ai.btree.decorator.Random;
@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 @SuppressWarnings("unchecked")
-public class Seq<T> implements Iterable<T> {
+public class Ar<T> implements Iterable<T> {
     /** 调试变量，统计分配的迭代器数量 */
     public static int iteratorsAllocated = 0;
     
@@ -21,62 +21,62 @@ public class Seq<T> implements Iterable<T> {
     /** 是否有序 */
     public boolean ordered;
     
-    private SeqIterable<T> iterable;
+    private ArIterable<T> iterable;
 
     /** 创建有序数组，容量16 */
-    public Seq() {
+    public Ar() {
         this(true, 16);
     }
 
     /** 创建有序数组，指定容量 */
-    public Seq(int capacity) {
+    public Ar(int capacity) {
         this(true, capacity);
     }
 
     /** 创建有序/无序数组，容量16 */
-    public Seq(boolean ordered) {
+    public Ar(boolean ordered) {
         this(ordered, 16);
     }
 
     /** 创建有序/无序数组，指定容量 */
-    public Seq(boolean ordered, int capacity) {
+    public Ar(boolean ordered, int capacity) {
         this.ordered = ordered;
         this.items = (T[])new Object[capacity];
     }
 
     /** TODO 这是复制过来的，需要理解 */
-    public Seq(boolean ordered, int capacity, Class<?> arrayType) {
+    public Ar(boolean ordered, int capacity, Class<?> arrayType) {
         this.ordered = ordered;
         this.items = (T[])java.lang.reflect.Array.newInstance(arrayType, capacity);
     }
 
     /** 从数组创建有序 */
-    public Seq(T[] array) {
+    public Ar(T[] array) {
         this(true, array, 0, array.length);
     }
     
     
     //创建一个容量等于参数数组元素量的数组
-    public Seq(Seq<? extends T> array){
+    public Ar(Ar<? extends T> array){
         this(array.ordered, array.size, array.items.getClass().getComponentType());
         size = array.size;
         System.arraycopy(array.items, 0, items, 0, size);
     }
 
     /** 从数组创建，指定范围 */
-    public Seq(boolean ordered, T[] array, int start, int count){
+    public Ar(boolean ordered, T[] array, int start, int count){
         this(ordered, count, array.getClass().getComponentType());
         size = count;
         System.arraycopy(array, start, items, 0, size);
     }
 
     /** 静态工厂方法 */
-    public static <T> Seq<T> with(T... array) {
-        return new Seq<>(array);
+    public static <T> Ar<T> with(T... array) {
+        return new Ar<>(array);
     }
 
-    public static <T> Seq<T> with(Iterable<T> iterable) {
-        Seq<T> out = new Seq<>();
+    public static <T> Ar<T> with(Iterable<T> iterable) {
+        Ar<T> out = new Ar<>();
         for (T item : iterable) {
             out.add(item);
         }
@@ -99,14 +99,14 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /** 添加元素 */
-    public Seq<T> add(T value){
+    public Ar<T> add(T value){
         T[] items = this.items;
         if(size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
         items[size++] = value;
         return this;
     }
 
-    public Seq<T> add(T value1, T value2){
+    public Ar<T> add(T value1, T value2){
         T[] items = this.items;
         if(size + 1 >= items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
         items[size] = value1;
@@ -115,7 +115,7 @@ public class Seq<T> implements Iterable<T> {
         return this;
     }
 
-    public Seq<T> add(T value1, T value2, T value3){
+    public Ar<T> add(T value1, T value2, T value3){
         T[] items = this.items;
         if(size + 2 >= items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
         items[size] = value1;
@@ -125,7 +125,7 @@ public class Seq<T> implements Iterable<T> {
         return this;
     }
 
-    public Seq<T> add(T value1, T value2, T value3, T value4){
+    public Ar<T> add(T value1, T value2, T value3, T value4){
         T[] items = this.items;
         if(size + 3 >= items.length) items = resize(Math.max(8, (int)(size * 1.8f))); // 1.75 isn't enough when size=5.
         items[size] = value1;
@@ -136,34 +136,34 @@ public class Seq<T> implements Iterable<T> {
         return this;
     }
 
-    public Seq<T> add(Seq<? extends T> array){
+    public Ar<T> add(Ar<? extends T> array){
         addAll(array.items, 0, array.size);
         return this;
     }
 
-    public Seq<T> add(T[] array){
+    public Ar<T> add(T[] array){
         addAll(array, 0, array.length);
         return this;
     }
 
-    public Seq<T> addAll(Seq<? extends T> array){
+    public Ar<T> addAll(Ar<? extends T> array){
         addAll(array.items, 0, array.size);
         return this;
     }
 
-    public Seq<T> addAll(Seq<? extends T> array, int start, int count){
+    public Ar<T> addAll(Ar<? extends T> array, int start, int count){
         if(start + count > array.size)
             throw new IllegalArgumentException("start + count must be <= size: " + start + " + " + count + " <= " + array.size);
         addAll(array.items, start, count);
         return this;
     }
 
-    public Seq<T> addAll(T... array){
+    public Ar<T> addAll(T... array){
         addAll(array, 0, array.length);
         return this;
     }
 
-    public Seq<T> addAll(T[] array, int start, int count){
+    public Ar<T> addAll(T[] array, int start, int count){
         T[] items = this.items;
         int sizeNeeded = size + count;
         if(sizeNeeded > items.length) items = resize(Math.max(8, (int)(sizeNeeded * 1.75f)));
@@ -172,9 +172,9 @@ public class Seq<T> implements Iterable<T> {
         return this;
     }
 
-    public Seq<T> addAll(Iterable<? extends T> items){
-        if(items instanceof Seq){
-            addAll((Seq)items);
+    public Ar<T> addAll(Iterable<? extends T> items){
+        if(items instanceof Ar){
+            addAll((Ar)items);
         }else{
             for(T t : items){
                 add(t);
@@ -193,7 +193,7 @@ public class Seq<T> implements Iterable<T> {
         return items[0];
     }
 
-    /** Returns the first item, or null if this Seq is empty. */
+    /** Returns the first item, or null if this Ar is empty. */
     public T firstOpt(){
         if(size == 0) return null;
         return items[0];
@@ -243,15 +243,15 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /** 包含检查 */
-    public boolean containsAll(Seq<T> seq){
-        return containsAll(seq, false);
+    public boolean containsAll(Ar<T> Ar){
+        return containsAll(Ar, false);
     }
 
-    /** @return whether this sequence contains every other element in the other sequence. */
-    public boolean containsAll(Seq<T> seq, boolean identity){
-        T[] others = seq.items;
+    /** @return whether this Aruence contains every other element in the other Aruence. */
+    public boolean containsAll(Ar<T> Ar, boolean identity){
+        T[] others = Ar.items;
 
-        for(int i = 0; i < seq.size; i++){
+        for(int i = 0; i < Ar.size; i++){
             if(!contains(others[i], identity)){
                 return false;
             }
@@ -405,7 +405,7 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /** @return this object */
-    public Seq<T> removeAll(Boolf<T> pred){
+    public Ar<T> removeAll(Boolf<T> pred){
         Iterator<T> iter = iterator();
         while(iter.hasNext()){
             if(pred.get(iter.next())){
@@ -415,7 +415,7 @@ public class Seq<T> implements Iterable<T> {
         return this;
     }
 
-    public boolean removeAll(Seq<? extends T> array){
+    public boolean removeAll(Ar<? extends T> array){
         return removeAll(array, false);
     }
 
@@ -424,7 +424,7 @@ public class Seq<T> implements Iterable<T> {
      * @param identity True to use ==, false to use .equals().
      * @return true if this array was modified.
      */
-    public boolean removeAll(Seq<? extends T> array, boolean identity){
+    public boolean removeAll(Ar<? extends T> array, boolean identity){
         int size = this.size;
         int startSize = size;
         T[] items = this.items;
@@ -455,7 +455,7 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /** 清空 */
-    public Seq<T> clear(){
+    public Ar<T> clear(){
         T[] items = this.items;
         for(int i = 0, n = size; i < n; i++)
             items[i] = null;
@@ -487,24 +487,24 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /** 排序 */
-    public Seq<T> sort(){
+    public Ar<T> sort(){
         Sort.instance().sort(items, 0, size);
         return this;
     }
 
     /** Sorts the array. This method is not thread safe (uses {@link Sort#instance()}). */
-    public Seq<T> sort(Comparator<? super T> comparator){
+    public Ar<T> sort(Comparator<? super T> comparator){
         Sort.instance().sort(items, comparator, 0, size);
         return this;
     }
 
-    public Seq<T> sort(Floatf<? super T> comparator){
+    public Ar<T> sort(Floatf<? super T> comparator){
         Sort.instance().sort(items, (c1, c2) -> Float.compare(comparator.get(c1), comparator.get(c2)), 0, size);
         return this;
     }
 
     /** 反转 */
-    public Seq<T> reverse(){
+    public Ar<T> reverse(){
         T[] items = this.items;
         for(int i = 0, lastIndex = size - 1, n = size / 2; i < n; i++){
             int ii = lastIndex - i;
@@ -517,7 +517,7 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /** 洗牌 */
-    public Seq<T> shuffle(){
+    public Ar<T> shuffle(){
         T[] items = this.items;
         for(int i = size - 1; i >= 0; i--){
             int ii = Mathf.random(i);
@@ -593,8 +593,8 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /**  映射 */
-    public <R> Seq<R> map(Func<T, R> mapper){
-        Seq<R> arr = new Seq<>(size);
+    public <R> Ar<R> map(Func<T, R> mapper){
+        Ar<R> arr = new Ar<>(size);
         for(int i = 0; i < size; i++){
             arr.add(mapper.get(items[i]));
         }
@@ -602,8 +602,8 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /** 函数式操作 - 过滤 */
-    public Seq<T> select(Boolf<T> predicate){
-        Seq<T> arr = new Seq<>();
+    public Ar<T> select(Boolf<T> predicate){
+        Ar<T> arr = new Ar<>();
         for(int i = 0; i < size; i++){
             if(predicate.get(items[i])){
                 arr.add(items[i]);
@@ -613,7 +613,7 @@ public class Seq<T> implements Iterable<T> {
     }
 
     /** 函数式操作 - 移除所有不匹配的 */
-    public Seq<T> retainAll(Boolf<T> predicate){
+    public Ar<T> retainAll(Boolf<T> predicate){
         return removeAll(e -> !predicate.get(e));
     }
 
@@ -703,22 +703,22 @@ public class Seq<T> implements Iterable<T> {
     /** 迭代器 */
     @Override
     public Iterator<T> iterator() {
-        if (iterable == null) iterable = new SeqIterable<>(this);
+        if (iterable == null) iterable = new ArIterable<>(this);
         return iterable.iterator();
     }
 
     /** 内部迭代器类 */
-    private static class SeqIterable<T> implements Iterable<T> {
-        final Seq<T> array;
+    private static class ArIterable<T> implements Iterable<T> {
+        final Ar<T> array;
         final boolean allowRemove;
-        private SeqIterator iterator1 = new SeqIterator(), iterator2 = new SeqIterator();
+        private ArIterator iterator1 = new ArIterator(), iterator2 = new ArIterator();
 
 
-        public SeqIterable(Seq<T> array){
+        public ArIterable(Ar<T> array){
             this(array, true);
         }
 
-        public SeqIterable(Seq<T> array, boolean allowRemove){
+        public ArIterable(Ar<T> array, boolean allowRemove){
             this.array = array;
             this.allowRemove = allowRemove;
         }
@@ -737,10 +737,10 @@ public class Seq<T> implements Iterable<T> {
                 return iterator2;
             }
             
-            return new SeqIterator();
+            return new ArIterator();
         }
 
-        private class SeqIterator implements Iterator<T> {
+        private class ArIterator implements Iterator<T> {
             int index;
             boolean done = true;
 

@@ -6,11 +6,11 @@ import com.badlogic.gdx.utils.I18NBundle;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class LanguageManager {
+public class Language {
     // 默认语言设置为中文
     private static final String DEFAULT_LANGUAGE = "zh_CN";
     // 单例实例
-    private static LanguageManager instance;
+    private static Language instance;
     // 国际化资源包
     private I18NBundle bundle;
     // 缓存已加载的字符串，提高性能
@@ -20,11 +20,11 @@ public class LanguageManager {
 
     // 静态初始化块，用于创建单例实例
     static {
-        instance = new LanguageManager();
+        instance = new Language();
     }
 
     // 私有构造函数，防止外部直接创建实例
-    private LanguageManager() {
+    private Language() {
         cache = new HashMap<>();
         detectAndSetDeviceLanguage();
     }
@@ -68,10 +68,13 @@ public class LanguageManager {
             return value;
         } catch(Exception e){
             Gdx.app.error("LanguageManager", "不存在此字段: " + key);
-            return "ERROR: " + key + " 此字段丢失";
+            return "!?" + key + "?!缺失";
             
         }
     }
+    
+    
+    
     // 支持占位符的字符串获取方法
     public String get(String key, Object... args) {
         try {
@@ -92,7 +95,7 @@ public class LanguageManager {
     }
 
     // 获取单例实例
-    public static LanguageManager getInstance() {
+    public static Language getInstance() {
         return instance;
     }
 }

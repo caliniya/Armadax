@@ -1,4 +1,4 @@
-package caliniya.armadax.base.text;
+package caliniya.armadax.base.system;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;

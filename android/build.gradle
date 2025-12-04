@@ -21,7 +21,7 @@ android {
         applicationId "caliniya.armadax"
         minSdkVersion 21
         targetSdkVersion 34
-        buildToolsVersion "34.0.0"
+        buildToolsVersion "34.0.4"
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.version
 }

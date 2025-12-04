@@ -1,4 +1,4 @@
-package caliniya.armadax.base.ui;
+package caliniya.armadax.base.system;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Disposable;
-import caliniya.armadax.system.Assets;
+import caliniya.armadax.base.system.*;
 
 public class Button extends Actor implements Disposable {
     private NinePatch ninePatch;

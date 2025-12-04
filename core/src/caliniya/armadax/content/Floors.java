@@ -1,5 +1,5 @@
 package caliniya.armadax.content;
-import caliniya.armadax.system.Assets;
+import caliniya.armadax.base.system.*;
 import caliniya.armadax.world.Floor;
 
 public class Floors {

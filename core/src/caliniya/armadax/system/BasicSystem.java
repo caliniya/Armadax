@@ -75,7 +75,7 @@ public abstract class BasicSystem {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    Gdx.app.error("BasicSystem", "Update thread interrupted", e);
+                    Gdx.app.error("System", "Update thread interrupted", e);
                     Thread.currentThread().interrupt();
                     break;
                 }
@@ -96,7 +96,7 @@ public abstract class BasicSystem {
         long currentTime = TimeUtils.millis();
         if (currentTime - lastUpdateTime >= updateInterval) {
             lastUpdateTime = currentTime;
-            update();
+        update();
         }
     }
     
@@ -175,4 +175,5 @@ public abstract class BasicSystem {
     public void resetTimer() {
         lastUpdateTime = TimeUtils.millis();
     }
-}
+
+} 
