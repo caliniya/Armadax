@@ -1,14 +1,13 @@
 package caliniya.armadax.screen;
 
 import caliniya.armadax.base.system.*;
-import caliniya.armadax.system.render.GameRender;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
-public class MainGameSrceen implements Screen {
+public class MenuScreen implements Screen {
     private Stage uistage;
-    private ShapeRenderer shapeRenderer;
     private Text text;
 
     @Override
@@ -20,8 +19,8 @@ public class MainGameSrceen implements Screen {
     
     @Override
     public void show() {
-        shapeRenderer = new ShapeRenderer();
-        text = Text.getInstance();   
+        text = Text.getInstance();
+        
     }
     
     @Override
@@ -32,8 +31,6 @@ public class MainGameSrceen implements Screen {
     @Override
     public void dispose() {
         uistage.dispose();
-        shapeRenderer.dispose();
-        
     }
     
     @Override 

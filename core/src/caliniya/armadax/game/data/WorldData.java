@@ -10,7 +10,7 @@ public class WorldData {
     public static WorldData Instance;
     public World world;//静态地图内容
     public Floor[] floors;
-    //public Unit[] units;
+    public Unit[] units;
     
     static{
         Instance = new WorldData();
@@ -25,7 +25,7 @@ public class WorldData {
     }
     
     public void initWorld(int worldW , int worldH, boolean space){
-        world = new World(worldW , worldH ,space);
+        world = new World();
     }
 	
 }

@@ -1,20 +1,20 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/Armadax.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/system/input/UiInput.java",
       "selection": {
         "end": {
-          "column": 37,
-          "index": 523,
-          "line": 16
+          "column": 1,
+          "index": 3653,
+          "line": 136
         },
         "start": {
-          "column": 37,
-          "index": 523,
-          "line": 16
+          "column": 1,
+          "index": 3653,
+          "line": 136
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/Armadax.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/system/input/UiInput.java"
 }

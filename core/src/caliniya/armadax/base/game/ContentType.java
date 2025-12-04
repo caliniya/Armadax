@@ -7,7 +7,7 @@ public class ContentType {
     public String name;
     public String type;
     
-    public ContentType(String name , CType.type type){
+    public ContentType(String name , CType type){
         this.name = name;
         this.type = type.name();
     }

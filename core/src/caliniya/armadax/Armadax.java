@@ -1,5 +1,6 @@
 package caliniya.armadax;
 
+import caliniya.armadax.base.type.*;
 import caliniya.armadax.content.*;
 import caliniya.armadax.screen.*;
 import caliniya.armadax.base.system.*;
@@ -14,11 +15,14 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class Armadax extends Game {
     
-    public boolean inited;//所以内容已经初始化
+    public boolean inited;//内容已经初始化
     private Assets assets;
+    
+    public Platform.platform plat;
     
     @Override
     public void create() {
+        plat = Platform.getPlat();
         assets = Assets.getInstance();
         assets.loadAssets();
         Blocks.load();

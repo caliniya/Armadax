@@ -8,8 +8,11 @@ public class Floor extends ContentType {
     
     public String name;
     
+    public int X;
+    public int Y;
+    
     public Floor(String Name){
-        super(Name , CType.type.Block);
+        super(Name , CType.Block);
     }
 	
 }

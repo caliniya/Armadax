@@ -5,19 +5,18 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.ObjectMap;
 
 public class Assets extends AssetManager implements Disposable {
     
     private static Assets instance;
-    private final ObjectMap<String, TextureAtlas> loadedAtlases;
+    public TextureAtlas atlas; // 唯一的图集
     
-    // 图集目录常量
-    public static final String ATLASES_DIR = "sprites/";
+    // 图集文件路径
+    public static final String ATLAS_PATH = "sprites/sprites.atlas";
+    public static final String ATLAS_NAME = "sprites";
     
     private Assets() {
         super(new InternalFileHandleResolver());
-        this.loadedAtlases = new ObjectMap<>();
     }
     
     public static Assets getInstance() {
@@ -28,94 +27,70 @@ public class Assets extends AssetManager implements Disposable {
     }
     
     /**
-     * 加载
+     * 加载唯一的图集
      */
     public void loadAssets() {
-        // 加载主要的游戏纹理图集
-        // TODO: 等等素材完善
-        loadAtlas("sprites");
-        
-    }
-    
-    
-    /**
-     * 加载单个纹理图集
-     */
-    public void loadAtlas(String atlasName) {
-        String fileName = ATLASES_DIR + atlasName + ".atlas";
-        load(fileName, TextureAtlas.class);
+        load(ATLAS_PATH, TextureAtlas.class);
+        finishLoading();
+        atlas = get(ATLAS_PATH, TextureAtlas.class);
     }
     
     /**
-     * 完成加载并缓存图集引用
+     * 从图集获取纹理区域（简化的单图集版本）
      */
-    public void finishLoading() {
-        super.finishLoading();
-    }
-    
-    /**
-     * 获取纹理图集
-     */
-    public TextureAtlas getAtlas(String atlasName) {
-        // 首先尝试从缓存获取
-        TextureAtlas atlas = loadedAtlases.get(atlasName);
-        if (atlas != null) {
-            return atlas;
+    public TextureAtlas.AtlasRegion getRegion(String regionName) {
+        if (atlas == null) {
+            // 如果还没有加载，尝试获取
+            if (contains(ATLAS_PATH, TextureAtlas.class)) {
+                atlas = get(ATLAS_PATH, TextureAtlas.class);
+            } else {
+                // 图集未加载，尝试加载
+                loadAssets();
+            }
         }
-        
-        // 如果缓存中没有，尝试加载
-        String fileName = ATLASES_DIR + atlasName + ".atlas";
-        if (contains(fileName, TextureAtlas.class)) {
-            atlas = get(fileName, TextureAtlas.class);
-            loadedAtlases.put(atlasName, atlas);
-            return atlas;
-        }
-        return null;
+        return atlas.findRegion(regionName);
     }
     
     /**
-     * 从图集获取纹理区域
+     * 从图集获取多个相同前缀的纹理区域（用于动画帧）
      */
-    public TextureAtlas.AtlasRegion getRegion(String atlasName, String regionName) {
-        TextureAtlas atlas = getAtlas(atlasName);
-        if (atlas != null) {
-            TextureAtlas.AtlasRegion region = atlas.findRegion(regionName);
-            if (region != null) {
-            return region;
-                }
+    public Array<TextureAtlas.AtlasRegion> getRegions(String regionName) {
+        if (atlas == null) {
+            loadAssets();
         }
-        return null;
+        return atlas.findRegions(regionName);
     }
     
     @Override
     public void dispose() {
-        Array<String> atlasFiles = new Array<>();
-        for (String fileName : getAssetNames()) {
-            if (fileName.endsWith(".atlas")) {
-                atlasFiles.add(fileName);
-            }
+        // 卸载图集文件
+        if (contains(ATLAS_PATH, TextureAtlas.class)) {
+            unload(ATLAS_PATH);
         }
-        for (String fileName : atlasFiles) {
-            unload(fileName);
-        }
-        loadedAtlases.clear();
+        
+        // 清除引用
+        atlas = null;
+        
+        // 调用父类清理
         super.dispose();
         instance = null;
     }
     
     /**
-     * 静态便捷方法
+     * 静态方法
      */
-    public static TextureAtlas getAtlasStatic(String atlasName) {
-        return getInstance().getAtlas(atlasName);
+    public static TextureAtlas.AtlasRegion getRegionStatic(String regionName) {
+        return getInstance().getRegion(regionName);
     }
     
-    public static TextureAtlas.AtlasRegion getRegionStatic(String atlasName, String regionName) {
-        return getInstance().getRegion(atlasName, regionName);
+    public static Array<TextureAtlas.AtlasRegion> getRegionsStatic(String regionName) {
+        return getInstance().getRegions(regionName);
     }
     
-    public static void loadAllStatic() {
-        getInstance().loadAssets();
-        getInstance().finishLoading();
+    /**
+     * 检查是否已加载图集
+     */
+    public boolean isLoaded() {
+        return instance.update();
     }
 }

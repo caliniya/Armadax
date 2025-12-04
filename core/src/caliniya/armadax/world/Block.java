@@ -11,10 +11,10 @@ public class Block extends ContentType {
     public float health = 10;
     
     public Block(){
-        this("test-building" , CType.type.Block);
+        this("test-building" , CType.Block);
     }
     
-    public Block(String BlockName , CType.type type){
+    public Block(String BlockName , CType type){
     	super(BlockName , type);
     }
     
