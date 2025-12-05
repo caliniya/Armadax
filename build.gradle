@@ -2,26 +2,19 @@ import java.text.SimpleDateFormat
 
 buildscript {
     ext {
-        arcVersion = 'v153'  // https://github.com/Anuken/Arc
+        arcVersion =  '52269919b2'  // https://github.com/Anuken/Arc
     }
     
     repositories {
         mavenLocal()
-        maven { url "https://jitpack.io" }
-        // 国内镜像源
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        
-        // 备用原始源
         mavenCentral()
         gradlePluginPortal()
         google()
+        maven { url "https://jitpack.io" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.2'
         // 构建脚本需要的 Arc 模块
-        classpath "com.github.Anuken.Arc:packer:$arcVersion"
         classpath "com.github.Anuken.Arc:arc-core:$arcVersion"
     }
 }
@@ -38,19 +31,8 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
-        // 国内镜像源
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/sonatype-snapshots' }
-        maven { url 'https://maven.aliyun.com/repository/sonatype-releases' }
-        
-        // 备用镜像源
-        maven { url 'https://repo.huaweicloud.com/repository/maven/' }
-        
-        // Arc 在 JitPack
+        mavenLocal()      
         maven { url "https://jitpack.io" }
-        
         mavenCentral()
         google()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -109,10 +91,8 @@ project(":core") {
         api "com.github.Anuken.Arc:g3d:$arcVersion"
         api "com.github.Anuken.Arc:fx:$arcVersion"
         api "com.github.Anuken.Arc:arcnet:$arcVersion"
+        api "com.github.Anuken.Arc:filedialogs:$arcVersion"
         
-        implementation "com.github.Anuken.Arc:filedialogs:$arcVersion"
-        
-        api "com.github.Anuken.Arc:packer:$arcVersion"
     }
 }
 
