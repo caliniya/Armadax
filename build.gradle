@@ -1,10 +1,25 @@
+import java.text.SimpleDateFormat
+
 buildscript {
+    
+    ext{
+        arcVersion = 'v153'  //https://github.com/Anuken/Arc
+        localArc = !project.hasProperty("release") && new File(rootDir.parent, 'Arc').exists() && !project.hasProperty("noLocalArc")
+
+        arcModule = { String name ->
+            //skip to last submodule
+            name = name.substring(name.lastIndexOf(':') + 1)
+            return "com.github.Anuken${localArc ? "" : ".Arc"}:$name:$arcVersion"
+        }
+    }
+    
     repositories {
         mavenLocal()
+        maven { url "https://jitpack.io" }
         // 国内镜像源
-       // maven { url 'https://maven.aliyun.com/repository/public' }
-       // maven { url 'https://maven.aliyun.com/repository/google' }
-       // maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+       maven { url 'https://maven.aliyun.com/repository/public' }
+       maven { url 'https://maven.aliyun.com/repository/google' }
+       maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         
         // 备用原始源
         mavenCentral()
@@ -13,6 +28,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.2'
+        classpath arcModule(":extensions:packer")
+        classpath arcModule(":arc-core")
     }
 }
 
@@ -22,9 +39,9 @@ allprojects {
     version = '1.0'
     ext {
         appName = "armadax"
+        arcVersion = 'v153'  //https://github.com/Anuken/Arc
         gdxVersion = '1.12.1'
         versionCode = 1
-        aiVersion = '1.8.2'
         version = '1.0'
     }
 
@@ -39,56 +56,86 @@ allprojects {
         // 备用镜像源
         maven { url 'https://repo.huaweicloud.com/repository/maven/' }
         
+        // Arc 在 JitPack
         maven { url "https://jitpack.io" }
         
         mavenCentral()
         google()
-        // maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        // maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
     }
 }
 
 project(":desktop") {
-    apply plugin: "java-library"
+    apply plugin: "java"
 
-    dependencies {
+    compileJava.options.fork = true
+
+    dependencies{
         implementation project(":core")
-        api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
-    }
+        implementation arcModule("extensions:profiling")
+        implementation arcModule("extensions:discord")
+        implementation arcModule("natives:natives-filedialogs")
+        implementation arcModule("natives:natives-desktop")
+        implementation arcModule("natives:natives-freetype-desktop")
+
+        implementation arcModule("backends:backend-sdl")
+        annotationProcessor 'com.github.Anuken:jabel:0.9.0'
+        }
+   
 }
 
 project(":android") {
     apply plugin: "com.android.application"
-    configurations { natives }
+    
     dependencies {
         implementation project(":core")
+        
+        // Arc Android 特定模块
+        implementation "com.github.Anuken.Arc:backend-android:$arcVersion"
+        implementation "com.github.Anuken.Arc:natives-android:$arcVersion"
+        implementation "com.github.Anuken.Arc:natives-freetype-android:$arcVersion"
+        
+        // 核心扩展模块
+        implementation "com.github.Anuken.Arc:extensions-g3d:$arcVersion"
+        implementation "com.github.Anuken.Arc:extensions-freetype:$arcVersion"
+        implementation "com.github.Anuken.Arc:extensions-flabel:$arcVersion"
+        implementation "com.github.Anuken.Arc:extensions-arcnet:$arcVersion"
+
+        // 崩溃处理库
         implementation 'cat.ereza:customactivityoncrash:2.1.0'
-        api "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
-        api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
     }
 }
 
 project(":core") {
     apply plugin: "java-library"
-    // 在编译Java之前运行纹理打包
-    //compileJava.dependsOn ':tools:assetsTool'
-    dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-            }
+    
+    compileJava {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     
+    dependencies {
+        // Arc 核心模块
+        api "org.lz4:lz4-java:1.8.0"
+        api arcModule("arc-core")
+        api arcModule("extensions:flabel")
+        api arcModule("extensions:freetype")
+        api arcModule("extensions:g3d")
+        api arcModule("extensions:fx")
+        api arcModule("extensions:arcnet")
+}
+
 project(":tools") {
     apply plugin: "java-library"
+    
     dependencies {
-    api "com.badlogicgames.gdx:gdx:$gdxVersion"
-    api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+        
+        // 如果需要 Arc 的工具类
+        implementation "com.github.Anuken.Arc:arc-core:$arcVersion"
+        implementation "com.github.Anuken.Arc:backend-headless:$arcVersion"
+        }
     }
 }

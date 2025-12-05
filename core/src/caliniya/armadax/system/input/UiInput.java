@@ -1,6 +1,7 @@
 package caliniya.armadax.system.input;
 
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.scenes.scene2d.Event;
 
 public class UiInput implements InputProcessor {
     
@@ -55,7 +56,9 @@ public class UiInput implements InputProcessor {
      */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        // TODO: 实现触摸/鼠标按下逻辑
+        if(button == 0 || pointer == 0) {
+            
+        }
         return false;
     }
 
@@ -134,4 +137,8 @@ public class UiInput implements InputProcessor {
         // TODO: 实现鼠标滚轮滚动逻辑
         return false;
     }
+    
+    
+    
+    
 }
