@@ -1,15 +1,18 @@
 package caliniya.atmadax;
 
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import arc.backend.sdl.SdlApplication;
+import arc.backend.sdl.SdlConfig;
 import caliniya.armadax.Armadax;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
-public class DesktopLauncher {
+public class DesktopLauncher  {
 	public static void main (String[] arg) {
-		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setForegroundFPS(60);
-		config.setTitle("armadax");
-		new Lwjgl3Application(new Armadax(), config);
+		new SdlApplication(new Armadax(), new SdlConfig(){{
+            title = "Armadax";
+            maximized = true;
+            width = 900;
+            height = 700;
+            }}
+        );
 	}
 }

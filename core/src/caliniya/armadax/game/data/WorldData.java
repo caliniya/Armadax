@@ -3,7 +3,6 @@ package caliniya.armadax.game.data;
 import caliniya.armadax.game.Unit;
 import caliniya.armadax.world.Floor;
 import caliniya.armadax.world.World;
-import com.badlogic.gdx.Gdx;
 
 public class WorldData {
     //游戏地图的世界数据

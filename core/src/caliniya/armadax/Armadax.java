@@ -1,28 +1,37 @@
 package caliniya.armadax;
 
+import arc.ApplicationCore;
+import arc.ApplicationListener;
+import arc.Core;
+import arc.assets.Loadable;
 import caliniya.armadax.base.type.*;
 import caliniya.armadax.content.*;
-import caliniya.armadax.screen.*;
 import caliniya.armadax.base.system.*;
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
-public class Armadax extends Game {
+
+public class Armadax extends ApplicationCore {
     
-    public boolean inited;//内容已经初始化
     private Assets assets;
     
-    public Platform.platform plat;
+    @Override
+    public void add(ApplicationListener module){
+        super.add(module);
+
+        //autoload modules when necessary
+        if(module instanceof Loadable l){
+            assets.load(l);
+        }
+    }
     
     @Override
-    public void create() {
-        plat = Platform.getPlat();
+    public void setup() {
+        // TODO
+    }
+    
+    
+    @Override
+    public void init() {
+        super.init();
         assets = Assets.getInstance();
         assets.loadAssets();
         Blocks.load();
@@ -30,8 +39,8 @@ public class Armadax extends Game {
     }
 
     @Override
-    public void render() {
-        super.render();
+    public void update() {
+        super.update();
         if(assets.update()){
         	inited = true;
         }else{

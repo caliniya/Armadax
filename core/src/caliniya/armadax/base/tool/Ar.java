@@ -1,104 +1,390 @@
 package caliniya.armadax.base.tool;
 
-import caliniya.armadax.base.math.*;
-import com.badlogic.gdx.ai.btree.decorator.Random;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.RandomXS128;
-import com.badlogic.gdx.utils.*;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import arc.func.*;
+import arc.math.*;
+import arc.util.*;
+import arc.struct.*;
+import caliniya.armadax.base.tool.*;
 
+import java.util.*;
+
+/**
+ * A resizable, ordered or unordered array of objects. If unordered, this class avoids a memory copy when removing elements (the
+ * last element is moved to the removed element's position).
+ * @author Nathan Sweet
+ */
 @SuppressWarnings("unchecked")
-public class Ar<T> implements Iterable<T> {
-    /** 调试变量，统计分配的迭代器数量 */
+public class Ar<T> implements Iterable<T>, Eachable<T>{
+    /** Debugging variable to count total number of iterators allocated. */
     public static int iteratorsAllocated = 0;
-    
-    public int size;
-    
+    /**
+     * Provides direct access to the underlying array. If the Array's generic type is not Object, this field may only be accessed
+     * if the {@link Ar#Ar(boolean, int, Class)} constructor was used.
+     */
     public T[] items;
     
-    /** 是否有序 */
+    public int size;
     public boolean ordered;
-    
-    private ArIterable<T> iterable;
 
-    /** 创建有序数组，容量16 */
-    public Ar() {
+    private @Nullable ArIterable<T> iterable;
+
+    /** Creates an ordered array with a capacity of 16. */
+    public Ar(){
         this(true, 16);
     }
 
-    /** 创建有序数组，指定容量 */
-    public Ar(int capacity) {
+    /** Creates an ordered array with the specified capacity. */
+    public Ar(int capacity){
         this(true, capacity);
     }
 
-    /** 创建有序/无序数组，容量16 */
-    public Ar(boolean ordered) {
+    /** Creates an ordered/unordered array with the specified capacity. */
+    public Ar(boolean ordered){
         this(ordered, 16);
     }
 
-    /** 创建有序/无序数组，指定容量 */
-    public Ar(boolean ordered, int capacity) {
+    /**
+     * @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
+     * memory copy.
+     * @param capacity Any elements added beyond this will cause the backing array to be grown.
+     */
+    public Ar(boolean ordered, int capacity){
         this.ordered = ordered;
-        this.items = (T[])new Object[capacity];
+        items = (T[])new Object[capacity];
     }
 
-    /** TODO 这是复制过来的，需要理解 */
-    public Ar(boolean ordered, int capacity, Class<?> arrayType) {
+    /**
+     * Creates a new array with {@link #items} of the specified type.
+     * @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
+     * memory copy.
+     * @param capacity Any elements added beyond this will cause the backing array to be grown.用指定类型的{@link#items}创建一个新数组。*@param ordered如果为false，移除元素的方法可能会改变数组中其他元素的顺序。这避免了一个*内存复制。*@param capacity添加超过此值的任何元素都将导致支持数组增长。
+     */
+    public Ar(boolean ordered, int capacity, Class<?> arrayType){
         this.ordered = ordered;
-        this.items = (T[])java.lang.reflect.Array.newInstance(arrayType, capacity);
+        items = (T[])java.lang.reflect.Array.newInstance(arrayType, capacity);
     }
 
-    /** 从数组创建有序 */
-    public Ar(T[] array) {
-        this(true, array, 0, array.length);
+    /** Creates an ordered array with {@link #items} of the specified type and a capacity of 16创建一个指定类型的有序数组{@link#items}，其容量为16。. */
+    public Ar(Class<?> arrayType){
+        this(true, 16, arrayType);
     }
-    
-    
-    //创建一个容量等于参数数组元素量的数组
+
+    /**
+     * Creates a new array containing the elements in the specified array. The new array will have the same type of backing array
+     * and will be ordered if the specified array is ordered. The capacity is set to the number of elements, so any subAruent
+     * elements added will cause the backing array to be grown.创建一个包含指定数组中元素的新数组。新阵列将具有相同类型的支持阵列*如果指定的数组已排序，则将对其进行排序。容量设置为元素的数量，因此任何后续*添加的元素将导致支持阵列增长。
+     */
     public Ar(Ar<? extends T> array){
         this(array.ordered, array.size, array.items.getClass().getComponentType());
         size = array.size;
         System.arraycopy(array.items, 0, items, 0, size);
     }
 
-    /** 从数组创建，指定范围 */
+    /**
+     * Creates a new ordered array containing the elements in the specified array. The new array will have the same type of
+     * backing array. The capacity is set to the number of elements, so any subAruent elements added will cause the backing array
+     * to be grown.
+     */
+    public Ar(T[] array){
+        this(true, array, 0, array.length);
+    }
+
+    /**
+     * Creates a new array containing the elements in the specified array. The new array will have the same type of backing array.
+     * The capacity is set to the number of elements, so any subAruent elements added will cause the backing array to be grown.
+     * @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
+     * memory copy.创建一个包含指定数组中元素的新数组。新阵列将具有相同类型的支持阵列。*容量设置为元素的数量，因此，添加的任何后续元素都将导致支持阵列增长。*@param ordered如果为false，则移除元素的方法可能会改变数组中其他元素的顺序，从而避免*内存复制。
+     */
     public Ar(boolean ordered, T[] array, int start, int count){
         this(ordered, count, array.getClass().getComponentType());
         size = count;
         System.arraycopy(array, start, items, 0, size);
     }
 
-    /** 静态工厂方法 */
-    public static <T> Ar<T> with(T... array) {
+    public static <T> Ar<T> withArrays(Object... arrays){
+        Ar<T> result = new Ar<>();
+        for(Object a : arrays){
+            if(a instanceof Ar){
+                result.addAll((Ar<? extends T>)a);
+            }else{
+                result.add((T)a);
+            }
+        }
+        return result;
+    }
+
+    /** @see #Ar(Object[]) */
+    public static <T> Ar<T> with(T... array){
         return new Ar<>(array);
     }
 
-    public static <T> Ar<T> with(Iterable<T> iterable) {
+    public static <T> Ar<T> with(Iterable<T> array){
         Ar<T> out = new Ar<>();
-        for (T item : iterable) {
-            out.add(item);
+        for(T thing : array){
+            out.add(thing);
         }
         return out;
     }
 
-    /** 获取元素数量 */
-    public int size() {
-        return size;
+    /** @see #Ar(Object[]) */
+    public static <T> Ar<T> select(T[] array, Boolf<T> test){
+        Ar<T> out = new Ar<>(array.length);
+        for(T t : array){
+            if(test.get(t)){
+                out.add(t);
+            }
+        }
+        return out;
     }
 
-    //空的？
-    public boolean isEmpty() {
-        return size == 0;
+    public <K, V> ObjectMap<K, V> asMap(Func<T, K> keygen, Func<T, V> valgen){
+        ObjectMap<K, V> map = new ObjectMap<>();
+        for(int i = 0; i < size; i++){
+            map.put(keygen.get(items[i]), valgen.get(items[i]));
+        }
+        return map;
     }
 
-    //有没有东西
-    public boolean any() {
-        return size > 0;
+    public <K> ObjectMap<K, T> asMap(Func<T, K> keygen){
+        return asMap(keygen, t -> t);
     }
 
-    /** 添加元素 */
+    public ObjectSet<T> asSet(){
+        return caliniya.armadax.base.tool.ObjectSet.with(this);
+    }
+    
+    public Ar<T> copy(){
+        return new Ar<>(this);
+        
+    }
+
+    public ArrayList<T> list(){
+        ArrayList<T> list = new ArrayList<>(size);
+        each(list::add);
+        return list;
+    }
+
+    public float sumf(Floatf<T> summer){
+        float sum = 0;
+        for(int i = 0; i < size; i++){
+            sum += summer.get(items[i]);
+        }
+        return sum;
+    }
+
+    public int sum(Intf<T> summer){
+        int sum = 0;
+        for(int i = 0; i < size; i++){
+            sum += summer.get(items[i]);
+        }
+        return sum;
+    }
+
+    public <E extends T> void each(Boolf<? super T> pred, Cons<E> consumer){
+        for(int i = 0; i < size; i++){
+            if(pred.get(items[i])) consumer.get((E)items[i]);
+        }
+    }
+
+    @Override
+    public void each(Cons<? super T> consumer){
+        for(int i = 0; i < size; i++){
+            consumer.get(items[i]);
+        }
+    }
+
+    /** Replaces values without creating a new array. 在不创建新数组的情况下替换值。*/
+    public void replace(Func<T, T> mapper){
+        for(int i = 0; i < size; i++){
+            items[i] = mapper.get(items[i]);
+        }
+    }
+
+    /** Flattens this array of arrays into one array. Allocates a new instance将此数组的数组展平为一个数组。分配新实例. */
+    public <R> Ar<R> flatten(){
+        Ar<R> arr = new Ar<>();
+        for(int i = 0; i < size; i++){
+            arr.addAll((Ar<R>)items[i]);
+        }
+        return arr;
+    }
+
+    /** Returns a new array with the mapped values. */
+    public <R> Ar<R> flatMap(Func<T, Iterable<R>> mapper){
+        Ar<R> arr = new Ar<>(size);
+        for(int i = 0; i < size; i++){
+            arr.addAll(mapper.get(items[i]));
+        }
+        return arr;
+    }
+
+    /** Returns a new array with the mapped values. */
+    public <R> Ar<R> map(Func<T, R> mapper){
+        Ar<R> arr = new Ar<>(size);
+        for(int i = 0; i < size; i++){
+            arr.add(mapper.get(items[i]));
+        }
+        return arr;
+    }
+
+    /** @return a new int array with the mapped values. */
+    public IntAr mapInt(Intf<T> mapper){
+        IntAr arr = new IntAr(size);
+        for(int i = 0; i < size; i++){
+            arr.add(mapper.get(items[i]));
+        }
+        return arr;
+    }
+
+    /** @return a new int array with the mapped values. */
+    public IntAr mapInt(Intf<T> mapper, Boolf<T> retain){
+        IntAr arr = new IntAr(size);
+        for(int i = 0; i < size; i++){
+            T item = items[i];
+            if(retain.get(item)){
+                arr.add(mapper.get(item));
+            }
+        }
+        return arr;
+    }
+
+    /** @return a new float array with the mapped values. */
+    public FloatAr mapFloat(Floatf<T> mapper){
+        FloatAr arr = new FloatAr(size);
+        for(int i = 0; i < size; i++){
+            arr.add(mapper.get(items[i]));
+        }
+        return arr;
+    }
+
+    public <R> R reduce(R initial, Func2<T, R, R> reducer){
+        R result = initial;
+        for(int i = 0; i < size; i++){
+            result = reducer.get(items[i], result);
+        }
+        return result;
+    }
+
+    public boolean allMatch(Boolf<T> predicate){
+        for(int i = 0; i < size; i++){
+            if(!predicate.get(items[i])){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean contains(Boolf<T> predicate){
+        for(int i = 0; i < size; i++){
+            if(predicate.get(items[i])){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public T min(Comparator<T> func){
+        T result = null;
+        for(int i = 0; i < size; i++){
+            T t = items[i];
+            if(result == null || func.compare(result, t) > 0){
+                result = t;
+            }
+        }
+        return result;
+    }
+
+    public T max(Comparator<T> func){
+        T result = null;
+        for(int i = 0; i < size; i++){
+            T t = items[i];
+            if(result == null || func.compare(result, t) < 0){
+                result = t;
+            }
+        }
+        return result;
+    }
+
+    public T min(Boolf<T> filter, Floatf<T> func){
+        T result = null;
+        float min = Float.MAX_VALUE;
+        for(int i = 0; i < size; i++){
+            T t = items[i];
+            if(!filter.get(t)) continue;
+            float val = func.get(t);
+            if(val <= min){
+                result = t;
+                min = val;
+            }
+        }
+        return result;
+    }
+
+    public T min(Boolf<T> filter, Comparator<T> func){
+        T result = null;
+        for(int i = 0; i < size; i++){
+            T t = items[i];
+            if(filter.get(t) && (result == null || func.compare(result, t) > 0)){
+                result = t;
+            }
+        }
+        return result;
+    }
+
+    public T min(Floatf<T> func){
+        T result = null;
+        float min = Float.MAX_VALUE;
+        for(int i = 0; i < size; i++){
+            T t = items[i];
+            float val = func.get(t);
+            if(val <= min){
+                result = t;
+                min = val;
+            }
+        }
+        return result;
+    }
+
+    public T max(Floatf<T> func){
+        T result = null;
+        float max = Float.NEGATIVE_INFINITY;
+        for(int i = 0; i < size; i++){
+            T t = items[i];
+            float val = func.get(t);
+            if(val >= max){
+                result = t;
+                max = val;
+            }
+        }
+        return result;
+    }
+
+    public @Nullable T find(Boolf<T> predicate){
+        for(int i = 0; i < size; i++){
+            if(predicate.get(items[i])){
+                return items[i];
+            }
+        }
+        return null;
+    }
+
+    public Ar<T> with(Cons<Ar<T>> cons){
+        cons.get(this);
+        return this;
+    }
+
+    /**
+     * Adds a value if it was not already in this Aruence.
+     * @return whether this value was added successfully添加一个值（如果该值不在此序列中）。*@返回此值是否添加成功。.
+     */
+    public boolean addUnique(T value){
+        if(!contains(value)){
+            add(value);
+            return true;
+        }
+        return false;
+    }
+
     public Ar<T> add(T value){
         T[] items = this.items;
         if(size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
@@ -182,44 +468,35 @@ public class Ar<T> implements Iterable<T> {
         }
         return this;
     }
-    /** 获取元素 */
+
+    /** Sets this array's contents to the specified array. */
+    public void set(Ar<? extends T> array){
+        clear();
+        addAll(array);
+    }
+
+    /** Sets this array's contents to the specified array. */
+    public void set(T[] array){
+        clear();
+        addAll(array);
+    }
+
+    @Nullable
+    public T getFrac(float index){
+        if(isEmpty()) return null;
+        return get(Mathf.clamp((int)(index * size), 0, size - 1));
+    }
+
     public T get(int index){
         if(index >= size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + size);
         return items[index];
     }
 
-    public T first(){
-        if(size == 0) throw new IllegalStateException("Array is empty.");
-        return items[0];
-    }
-
-    /** Returns the first item, or null if this Ar is empty. */
-    public T firstOpt(){
-        if(size == 0) return null;
-        return items[0];
-    }
-
-    public T peek(){
-        if(size == 0) throw new IllegalStateException("Array is empty.");
-        return items[size - 1];
-    }
-
-    /** Removes and returns the last item. */
-    public T pop(){
-        if(size == 0) throw new IllegalStateException("Array is empty.");
-        --size;
-        T item = items[size];
-        items[size] = null;
-        return item;
-    }
-
-    /** 设置元素 */
     public void set(int index, T value){
         if(index >= size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + size);
         items[index] = value;
     }
 
-    /** 插入元素 */
     public void insert(int index, T value){
         if(index > size) throw new IndexOutOfBoundsException("index can't be > size: " + index + " > " + size);
         T[] items = this.items;
@@ -232,7 +509,6 @@ public class Ar<T> implements Iterable<T> {
         items[index] = value;
     }
 
-    /** 交换元素 */
     public void swap(int first, int second){
         if(first >= size) throw new IndexOutOfBoundsException("first can't be >= size: " + first + " >= " + size);
         if(second >= size) throw new IndexOutOfBoundsException("second can't be >= size: " + second + " >= " + size);
@@ -242,7 +518,20 @@ public class Ar<T> implements Iterable<T> {
         items[second] = firstValue;
     }
 
-    /** 包含检查 */
+    /**
+     * Replaces the first occurrence of 'from' with 'to'.
+     * @return whether anything was replaced.
+     * */
+    public boolean replace(T from, T to){
+        int idx = indexOf(from);
+        if(idx != -1){
+            items[idx] = to;
+            return true;
+        }
+        return false;
+    }
+
+    /** @return whether this Aruence contains every other element in the other Aruence. */
     public boolean containsAll(Ar<T> Ar){
         return containsAll(Ar, false);
     }
@@ -282,7 +571,6 @@ public class Ar<T> implements Iterable<T> {
         return false;
     }
 
-    /** 索引查找 */
     public int indexOf(T value){
         return indexOf(value, false);
     }
@@ -331,7 +619,7 @@ public class Ar<T> implements Iterable<T> {
         return -1;
     }
 
-    /** 移除元素 */
+    /** Removes a value, without using identity. */
     public boolean remove(T value){
         return remove(value, false);
     }
@@ -454,7 +742,50 @@ public class Ar<T> implements Iterable<T> {
         return size != startSize;
     }
 
-    /** 清空 */
+    /** If this array is empty, returns an object specified by the constructor.
+     * Otherwise, acts like pop(). 如果此数组为空，则返回由构造函数指定的对象。\n*否则，其行为类似于pop（）。*/
+    public T pop(Prov<T> constructor){
+        if(size == 0) return constructor.get();
+        return pop();
+    }
+
+    /** Removes and returns the last item. */
+    public T pop(){
+        if(size == 0) throw new IllegalStateException("Array is empty.");
+        --size;
+        T item = items[size];
+        items[size] = null;
+        return item;
+    }
+
+    /** Returns the last item.返回最后一项。 */
+    public T peek(){
+        if(size == 0) throw new IllegalStateException("Array is empty.");
+        return items[size - 1];
+    }
+
+    /** Returns the first item. */
+    public T first(){
+        if(size == 0) throw new IllegalStateException("Array is empty.");
+        return items[0];
+    }
+
+    /** Returns the first item, or null if this Ar is empty. */
+    @Nullable
+    public T firstOpt(){
+        if(size == 0) return null;
+        return items[0];
+    }
+
+    /** Returns true if the array is empty. */
+    public boolean isEmpty(){
+        return size == 0;
+    }
+
+    public boolean any(){
+        return size > 0;
+    }
+
     public Ar<T> clear(){
         T[] items = this.items;
         for(int i = 0, n = size; i < n; i++)
@@ -462,7 +793,22 @@ public class Ar<T> implements Iterable<T> {
         size = 0;
         return this;
     }
-    /** 确保容量 */
+
+    /**
+     * Reduces the size of the backing array to the size of the actual items. This is useful to release memory when many items
+     * have been removed, or if it is known that more items will not be added.
+     * @return {@link #items}
+     */
+    public T[] shrink(){
+        if(items.length != size) resize(size);
+        return items;
+    }
+
+    /**
+     * Increases the size of the backing array to accommodate the specified number of additional items. Useful before adding many
+     * items to avoid multiple backing array resizes.
+     * @return {@link #items}增加支持数组的大小以容纳指定数量的附加项。在添加许多之前很有用*避免多个支持阵列调整大小的项目。*@return{@link#items}
+     */
     public T[] ensureCapacity(int additionalCapacity){
         if(additionalCapacity < 0)
             throw new IllegalArgumentException("additionalCapacity must be >= 0: " + additionalCapacity);
@@ -471,22 +817,31 @@ public class Ar<T> implements Iterable<T> {
         return items;
     }
 
-    /** 缩容 */
-    public T[] shrink(){
-        if(items.length != size) resize(size);
+    /**
+     * Sets the array size, leaving any values beyond the current size null.
+     * @return {@link #items}
+     */
+    public T[] setSize(int newSize){
+        truncate(newSize);
+        if(newSize > items.length) resize(Math.max(8, newSize));
+        size = newSize;
         return items;
     }
 
-    /** 设置大小 */
+    /** Creates a new backing array with the specified size containing the current items.创建包含当前项的指定大小的新后备数组。 */
     protected T[] resize(int newSize){
         T[] items = this.items;
+        //avoid reflection when possible
         T[] newItems = (T[])(items.getClass() == Object[].class ? new Object[newSize] : java.lang.reflect.Array.newInstance(items.getClass().getComponentType(), newSize));
         System.arraycopy(items, 0, newItems, 0, Math.min(size, newItems.length));
         this.items = newItems;
         return newItems;
     }
 
-    /** 排序 */
+    /**
+     * Sorts this array. The array elements must implement {@link Comparable}. This method is not thread safe (uses
+     * {@link Sort#instance()}).
+     */
     public Ar<T> sort(){
         Sort.instance().sort(items, 0, size);
         return this;
@@ -499,11 +854,93 @@ public class Ar<T> implements Iterable<T> {
     }
 
     public Ar<T> sort(Floatf<? super T> comparator){
-        Sort.instance().sort(items, (c1, c2) -> Float.compare(comparator.get(c1), comparator.get(c2)), 0, size);
+        Sort.instance().sort(items, Structs.comparingFloat(comparator), 0, size);
         return this;
     }
 
-    /** 反转 */
+    public <U extends Comparable<? super U>> Ar<T> sortComparing(Func<? super T, ? extends U> keyExtractor){
+        sort(Structs.comparing(keyExtractor));
+        return this;
+    }
+
+    public Ar<T> selectFrom(Ar<T> base, Boolf<T> predicate){
+        clear();
+        base.each(t -> {
+            if(predicate.get(t)){
+                add(t);
+            }
+        });
+        return this;
+    }
+
+    /** Note that this allocates a new set. Mutates. */
+    public Ar<T> distinct(){
+        ObjectSet<T> set = asSet();
+        clear();
+        addAll(set);
+        return this;
+    }
+
+    public <R> Ar<R> as(){
+        return (Ar<R>)this;
+    }
+
+    /** Allocates a new array with all elements that match the predicate. */
+    public Ar<T> select(Boolf<T> predicate){
+        Ar<T> arr = new Ar<>();
+        for(int i = 0; i < size; i++){
+            if(predicate.get(items[i])){
+                arr.add(items[i]);
+            }
+        }
+        return arr;
+    }
+
+    /** Removes everything that does not match this predicate. */
+    public Ar<T> retainAll(Boolf<T> predicate){
+        return removeAll(e -> !predicate.get(e));
+    }
+
+    public int count(Boolf<T> predicate){
+        int count = 0;
+        for(int i = 0; i < size; i++){
+            if(predicate.get(items[i])){
+                count ++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Selects the nth-lowest element from the Ar according to Comparator ranking. This might partially sort the Array. The
+     * array must have a size greater than 0, or a {@link ArcRuntimeException} will be thrown.
+     * @param comparator used for comparison
+     * @param kthLowest rank of desired object according to comparison, n is based on ordinal numbers, not array indices. for min
+     * value use 1, for max value use size of array, using 0 results in runtime exception.
+     * @return the value of the Nth lowest ranked object.
+     * @see Select
+     */
+    public T selectRanked(Comparator<T> comparator, int kthLowest){
+        if(kthLowest < 1){
+            throw new ArcRuntimeException("nth_lowest must be greater than 0, 1 = first, 2 = second...");
+        }
+        return Select.instance().select(items, comparator, kthLowest, size);
+    }
+
+    /**
+     * @param comparator used for comparison
+     * @param kthLowest rank of desired object according to comparison, n is based on ordinal numbers, not array indices. for min
+     * value use 1, for max value use size of array, using 0 results in runtime exception.
+     * @return the index of the Nth lowest ranked object.
+     * @see Ar#selectRanked(java.util.Comparator, int)
+     */
+    public int selectRankedIndex(Comparator<T> comparator, int kthLowest){
+        if(kthLowest < 1){
+            throw new ArcRuntimeException("nth_lowest must be greater than 0, 1 = first, 2 = second...");
+        }
+        return Select.instance().selectIndex(items, comparator, kthLowest, size);
+    }
+
     public Ar<T> reverse(){
         T[] items = this.items;
         for(int i = 0, lastIndex = size - 1, n = size / 2; i < n; i++){
@@ -516,7 +953,6 @@ public class Ar<T> implements Iterable<T> {
         return this;
     }
 
-    /** 洗牌 */
     public Ar<T> shuffle(){
         T[] items = this.items;
         for(int i = size - 1; i >= 0; i--){
@@ -529,7 +965,10 @@ public class Ar<T> implements Iterable<T> {
         return this;
     }
 
-    /** 截断 */
+    /**
+     * Reduces the size of the array to the specified size. If the array is already smaller than the specified size, no action is
+     * taken.
+     */
     public void truncate(int newSize){
         if(newSize < 0) throw new IllegalArgumentException("newSize must be >= 0: " + newSize);
         if(size <= newSize) return;
@@ -538,7 +977,6 @@ public class Ar<T> implements Iterable<T> {
         size = newSize;
     }
 
-    /** 随机元素 */
     public T random(Rand rand){
         if(size == 0) return null;
         return items[rand.random(0, size - 1)];
@@ -568,7 +1006,10 @@ public class Ar<T> implements Iterable<T> {
         return items[index];
     }
 
-    /** 转换为数组 */
+    /**
+     * Returns the items as an array. Note the array is typed, so the {@link #Ar(Class)} constructor must have been used.
+     * Otherwise use {@link #toArray(Class)} to specify the array type.
+     */
     public T[] toArray(){
         return toArray(items.getClass().getComponentType());
     }
@@ -578,101 +1019,44 @@ public class Ar<T> implements Iterable<T> {
         System.arraycopy(items, 0, result, 0, size);
         return result;
     }
-    
-    /** 遍历 */
-    public <E extends T> void each(Boolf<? super T> pred, Cons<E> consumer){
-        for(int i = 0; i < size; i++){
-            if(pred.get(items[i])) consumer.get((E)items[i]);
+
+    @Override
+    public int hashCode(){
+        if(!ordered) return super.hashCode();
+        Object[] items = this.items;
+        int h = 1;
+        for(int i = 0, n = size; i < n; i++){
+            h *= 31;
+            Object item = items[i];
+            if(item != null) h += item.hashCode();
         }
+        return h;
     }
 
-    public void each(Cons<? super T> consumer){
-        for(int i = 0; i < size; i++){
-            consumer.get(items[i]);
-        }
-    }
-
-    /**  映射 */
-    public <R> Ar<R> map(Func<T, R> mapper){
-        Ar<R> arr = new Ar<>(size);
-        for(int i = 0; i < size; i++){
-            arr.add(mapper.get(items[i]));
-        }
-        return arr;
-    }
-
-    /** 函数式操作 - 过滤 */
-    public Ar<T> select(Boolf<T> predicate){
-        Ar<T> arr = new Ar<>();
-        for(int i = 0; i < size; i++){
-            if(predicate.get(items[i])){
-                arr.add(items[i]);
-            }
-        }
-        return arr;
-    }
-
-    /** 函数式操作 - 移除所有不匹配的 */
-    public Ar<T> retainAll(Boolf<T> predicate){
-        return removeAll(e -> !predicate.get(e));
-    }
-
-    public int count(Boolf<T> predicate){
-        int count = 0;
-        for(int i = 0; i < size; i++){
-            if(predicate.get(items[i])){
-                count ++;
-            }
-        }
-        return count;
-    }
-
-    /** 查找 */
-    public T find(Boolf<T> predicate){
-        for(int i = 0; i < size; i++){
-            if(predicate.get(items[i])){
-                return items[i];
-            }
-        }
-        return null;
-    }
-
-    /** 所有匹配 */
-    public boolean allMatch(Boolf<T> predicate){
-        for(int i = 0; i < size; i++){
-            if(!predicate.get(items[i])){
-                return false;
-            }
+    @Override
+    public boolean equals(Object object){
+        if(object == this) return true;
+        if(!ordered) return false;
+        if(!(object instanceof Ar)) return false;
+        Ar array = (Ar)object;
+        if(!array.ordered) return false;
+        int n = size;
+        if(n != array.size) return false;
+        Object[] items1 = this.items;
+        Object[] items2 = array.items;
+        for(int i = 0; i < n; i++){
+            Object o1 = items1[i];
+            Object o2 = items2[i];
+            if(!(o1 == null ? o2 == null : o1.equals(o2))) return false;
         }
         return true;
     }
 
-    /** 函数式操作 - 任意匹配 
-    public boolean anyMatch(Boolf<T> predicate) {
-        for (int i = 0; i < size; i++) {
-            if (predicate.get(array.get(i))) {
-                return true;
-            }
-        }
-        return false;
-    }*/
-
-    /** 转换为集合 */
-    public ObjectSet<T> asSet(){
-    ObjectSet<T> set = new ObjectSet<>(size);
-    for(int i = 0; i < size; i++){
-        set.add(items[i]);
-    }
-    return set;
-}
-
-   
-    /** 转换为字符串 */
     @Override
     public String toString(){
         if(size == 0) return "[]";
         T[] items = this.items;
-        java.lang.StringBuilder buffer = new java.lang.StringBuilder(32);
+        StringBuilder buffer = new StringBuilder(32);
         buffer.append('[');
         buffer.append(items[0]);
         for(int i = 1; i < size; i++){
@@ -686,7 +1070,7 @@ public class Ar<T> implements Iterable<T> {
     public String toString(String separator, Func<T, String> stringifier){
         if(size == 0) return "";
         T[] items = this.items;
-        java.lang.StringBuilder buffer = new java.lang.StringBuilder(32);
+        StringBuilder buffer = new StringBuilder(32);
         buffer.append(stringifier.get(items[0]));
         for(int i = 1; i < size; i++){
             buffer.append(separator);
@@ -699,20 +1083,22 @@ public class Ar<T> implements Iterable<T> {
         return toString(separator, String::valueOf);
     }
 
-
-    /** 迭代器 */
+    /**
+     * Returns an iterator for the items in the array. Remove is supported. Note that the same iterator instance is returned each
+     * time this method is called, unless you are using nested loops.
+     * <b>Never, ever</b> access this iterator's method manually, e.g. hasNext()/next().
+     * Note that calling 'break' while iterating will permanently clog this iterator, falling back to an implementation that allocates new ones.返回数组中项的迭代器。支持删除。请注意，每次都返回相同的迭代器实例。*调用此方法的时间，除非使用嵌套循环。*<b>永远不要手动</b>访问此迭代器的方法，例如hasNext（）/Next（）。*请注意，在迭代时调用“ break ”将永久阻塞此迭代器，从而退回到分配新迭代器的实现。
+     */
     @Override
-    public Iterator<T> iterator() {
-        if (iterable == null) iterable = new ArIterable<>(this);
+    public Iterator<T> iterator(){
+        if(iterable == null) iterable = new ArIterable<>(this);
         return iterable.iterator();
     }
 
-    /** 内部迭代器类 */
-    private static class ArIterable<T> implements Iterable<T> {
+    public static class ArIterable<T> implements Iterable<T>{
         final Ar<T> array;
         final boolean allowRemove;
         private ArIterator iterator1 = new ArIterator(), iterator2 = new ArIterator();
-
 
         public ArIterable(Ar<T> array){
             this(array, true);
@@ -722,71 +1108,53 @@ public class Ar<T> implements Iterable<T> {
             this.array = array;
             this.allowRemove = allowRemove;
         }
-        
+
         @Override
-        public Iterator<T> iterator() {
-            if (iterator1.done) {
+        public Iterator<T> iterator(){
+            if(iterator1.done){
                 iterator1.index = 0;
                 iterator1.done = false;
                 return iterator1;
             }
 
-            if (iterator2.done) {
+            if(iterator2.done){
                 iterator2.index = 0;
                 iterator2.done = false;
                 return iterator2;
             }
-            
+            //allocate new iterator in the case of 3+ nested loops.
             return new ArIterator();
         }
 
-        private class ArIterator implements Iterator<T> {
+        private class ArIterator implements Iterator<T>{
             int index;
             boolean done = true;
 
             {
-                iteratorsAllocated++;
+                iteratorsAllocated ++;
+            }
+
+            ArIterator(){
             }
 
             @Override
-            public boolean hasNext() {
-                if (index >= array.size) done = true;
+            public boolean hasNext(){
+                if(index >= array.size) done = true;
                 return index < array.size;
             }
 
             @Override
-            public T next() {
-                if (index >= array.size) throw new NoSuchElementException(String.valueOf(index));
-                return array.get(index++);
+            public T next(){
+                if(index >= array.size) throw new NoSuchElementException(String.valueOf(index));
+                return array.items[index++];
             }
 
             @Override
             public void remove(){
-                if(!allowRemove) throw new RuntimeException("Remove not allowed.");
+                if(!allowRemove) throw new ArcRuntimeException("Remove not allowed.");
                 index--;
                 array.remove(index);
             }
         }
-    }
-
-    /** 函数式接口定义*/
-    public interface Cons<T> {
-        void get(T t);
-    }
-
-    public interface Boolf<T> {
-        boolean get(T t);
-    }
-
-    public interface Func<T, R> {
-        R get(T t);
-    }
-
-    public interface Floatf<T> {
-        float get(T t);
-    }
-
-    public interface Intf<T> {
-        int get(T t);
     }
 }

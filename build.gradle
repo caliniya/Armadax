@@ -73,14 +73,10 @@ project(":desktop") {
 
     dependencies{
         implementation project(":core")
-        implementation arcModule("extensions:profiling")
-        implementation arcModule("extensions:discord")
-        implementation arcModule("natives:natives-filedialogs")
+        
         implementation arcModule("natives:natives-desktop")
         implementation arcModule("natives:natives-freetype-desktop")
-
         implementation arcModule("backends:backend-sdl")
-        annotationProcessor 'com.github.Anuken:jabel:0.9.0'
         }
    
 }
@@ -91,17 +87,13 @@ project(":android") {
     dependencies {
         implementation project(":core")
         
+        configurations { natives }
+        
         // Arc Android 特定模块
         implementation "com.github.Anuken.Arc:backend-android:$arcVersion"
-        implementation "com.github.Anuken.Arc:natives-android:$arcVersion"
-        implementation "com.github.Anuken.Arc:natives-freetype-android:$arcVersion"
+        natives "com.github.Anuken.Arc:natives-android:$arcVersion"
+        natives "com.github.Anuken.Arc:natives-freetype-android:$arcVersion"
         
-        // 核心扩展模块
-        implementation "com.github.Anuken.Arc:extensions-g3d:$arcVersion"
-        implementation "com.github.Anuken.Arc:extensions-freetype:$arcVersion"
-        implementation "com.github.Anuken.Arc:extensions-flabel:$arcVersion"
-        implementation "com.github.Anuken.Arc:extensions-arcnet:$arcVersion"
-
         // 崩溃处理库
         implementation 'cat.ereza:customactivityoncrash:2.1.0'
     }
@@ -116,7 +108,8 @@ project(":core") {
     }
     
     dependencies {
-        // Arc 核心模块
+        
+        //全平台逻辑 arc的原生库没有这些，需要用api传递
         api "org.lz4:lz4-java:1.8.0"
         api arcModule("arc-core")
         api arcModule("extensions:flabel")
@@ -124,16 +117,20 @@ project(":core") {
         api arcModule("extensions:g3d")
         api arcModule("extensions:fx")
         api arcModule("extensions:arcnet")
+        
+        implementation arcModule("extensions:filedialogs")
+        if(localArc && debugged()) api arcModule("extensions:recorder")
+        if(localArc) api arcModule(":extensions:packer")
 }
 
 project(":tools") {
     apply plugin: "java-library"
     
     dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
         
-        // 如果需要 Arc 的工具类
+        //Arc 的工具类
         implementation "com.github.Anuken.Arc:arc-core:$arcVersion"
         implementation "com.github.Anuken.Arc:backend-headless:$arcVersion"
         }
