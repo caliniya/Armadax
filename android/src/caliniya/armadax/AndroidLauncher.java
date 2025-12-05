@@ -12,11 +12,7 @@ import caliniya.armadax.ErrorActivity;
 public class AndroidLauncher extends AndroidApplication {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.loadLibrary("arc");
-        
-        
         super.onCreate(savedInstanceState);
-        
         
         CaocConfig.Builder.create()
             .enabled(true)

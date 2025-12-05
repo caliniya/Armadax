@@ -42,7 +42,6 @@ public class Armadax extends ApplicationCore {
     public void update() {
         super.update();
         if(assets.update()){
-        	inited = true;
         }else{
             assets.update();
         }

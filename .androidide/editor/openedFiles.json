@@ -1,20 +1,20 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/android/src/caliniya/armadax/ErrorActivity.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/build.gradle",
       "selection": {
         "end": {
-          "column": 0,
-          "index": 0,
-          "line": 0
+          "column": 1,
+          "index": 3609,
+          "line": 125
         },
         "start": {
-          "column": 0,
-          "index": 0,
-          "line": 0
+          "column": 1,
+          "index": 3609,
+          "line": 125
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/android/src/caliniya/armadax/ErrorActivity.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armadax/build.gradle"
 }

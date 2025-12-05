@@ -1,25 +1,17 @@
 import java.text.SimpleDateFormat
 
 buildscript {
-    
-    ext{
-        arcVersion = 'v153'  //https://github.com/Anuken/Arc
-        localArc = !project.hasProperty("release") && new File(rootDir.parent, 'Arc').exists() && !project.hasProperty("noLocalArc")
-
-        arcModule = { String name ->
-            //skip to last submodule
-            name = name.substring(name.lastIndexOf(':') + 1)
-            return "com.github.Anuken${localArc ? "" : ".Arc"}:$name:$arcVersion"
-        }
+    ext {
+        arcVersion = 'v153'  // https://github.com/Anuken/Arc
     }
     
     repositories {
         mavenLocal()
         maven { url "https://jitpack.io" }
         // 国内镜像源
-       maven { url 'https://maven.aliyun.com/repository/public' }
-       maven { url 'https://maven.aliyun.com/repository/google' }
-       maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         
         // 备用原始源
         mavenCentral()
@@ -28,8 +20,9 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.2'
-        classpath arcModule(":extensions:packer")
-        classpath arcModule(":arc-core")
+        // 构建脚本需要的 Arc 模块
+        classpath "com.github.Anuken.Arc:packer:$arcVersion"
+        classpath "com.github.Anuken.Arc:arc-core:$arcVersion"
     }
 }
 
@@ -39,7 +32,6 @@ allprojects {
     version = '1.0'
     ext {
         appName = "armadax"
-        arcVersion = 'v153'  //https://github.com/Anuken/Arc
         gdxVersion = '1.12.1'
         versionCode = 1
         version = '1.0'
@@ -71,14 +63,13 @@ project(":desktop") {
 
     compileJava.options.fork = true
 
-    dependencies{
+    dependencies {
         implementation project(":core")
         
-        implementation arcModule("natives:natives-desktop")
-        implementation arcModule("natives:natives-freetype-desktop")
-        implementation arcModule("backends:backend-sdl")
-        }
-   
+        implementation "com.github.Anuken.Arc:natives-desktop:$arcVersion"
+        implementation "com.github.Anuken.Arc:natives-freetype-desktop:$arcVersion"
+        implementation "com.github.Anuken.Arc:backend-sdl:$arcVersion"
+    }
 }
 
 project(":android") {
@@ -108,19 +99,21 @@ project(":core") {
     }
     
     dependencies {
-        
-        //全平台逻辑 arc的原生库没有这些，需要用api传递
+        // 全平台逻辑
         api "org.lz4:lz4-java:1.8.0"
-        api arcModule("arc-core")
-        api arcModule("extensions:flabel")
-        api arcModule("extensions:freetype")
-        api arcModule("extensions:g3d")
-        api arcModule("extensions:fx")
-        api arcModule("extensions:arcnet")
         
-        implementation arcModule("extensions:filedialogs")
-        if(localArc && debugged()) api arcModule("extensions:recorder")
-        if(localArc) api arcModule(":extensions:packer")
+        // Arc
+        api "com.github.Anuken.Arc:arc-core:$arcVersion"
+        api "com.github.Anuken.Arc:flabel:$arcVersion"
+        api "com.github.Anuken.Arc:freetype:$arcVersion"
+        api "com.github.Anuken.Arc:g3d:$arcVersion"
+        api "com.github.Anuken.Arc:fx:$arcVersion"
+        api "com.github.Anuken.Arc:arcnet:$arcVersion"
+        
+        implementation "com.github.Anuken.Arc:filedialogs:$arcVersion"
+        
+        api "com.github.Anuken.Arc:packer:$arcVersion"
+    }
 }
 
 project(":tools") {
@@ -129,10 +122,5 @@ project(":tools") {
     dependencies {
         implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
         implementation "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-        
-        //Arc 的工具类
-        implementation "com.github.Anuken.Arc:arc-core:$arcVersion"
-        implementation "com.github.Anuken.Arc:backend-headless:$arcVersion"
-        }
     }
 }
