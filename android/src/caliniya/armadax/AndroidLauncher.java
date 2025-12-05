@@ -2,6 +2,7 @@ package caliniya.armadax;
 
 import android.os.Bundle;
 
+import arc.ApplicationListener;
 import arc.backend.android.AndroidApplicationConfiguration;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.customactivityoncrash.config.CaocConfig;
@@ -27,4 +28,10 @@ public class AndroidLauncher extends AndroidApplication {
             }}
         );
     }
+    
+    @Override
+    public void addListener(ApplicationListener appl) {
+        super.addListener(appl);
+    }
+    
 }

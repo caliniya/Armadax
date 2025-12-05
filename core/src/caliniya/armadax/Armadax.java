@@ -8,7 +8,6 @@ import caliniya.armadax.base.type.*;
 import caliniya.armadax.content.*;
 import caliniya.armadax.base.system.*;
 
-
 public class Armadax extends ApplicationCore {
     
     private Assets assets;
@@ -41,8 +40,7 @@ public class Armadax extends ApplicationCore {
     @Override
     public void update() {
         super.update();
-        if(assets.update()){
-        }else{
+        if(!assets.update()){
             assets.update();
         }
     }
