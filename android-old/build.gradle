@@ -30,7 +30,7 @@ android {
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
-            assets.srcDirs = ['../assets-pack']
+            assets.srcDirs = ['../assets']
             jniLibs.srcDirs = ['libs']
         }
     }
@@ -39,7 +39,7 @@ android {
     }
     defaultConfig {
         multiDexEnabled false
-        applicationId "caliniya.armadax"
+        applicationId "caliniya.armadax.old"
         minSdkVersion 14
         targetSdkVersion 34
         versionCode rootProject.ext.versionCode
@@ -50,7 +50,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     buildTypes {
-        devOld{
+        dev{
             initWith debug
             minifyEnabled = true
             shrinkResources = true

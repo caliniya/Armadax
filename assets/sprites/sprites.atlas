@@ -1,0 +1,44 @@
+
+sprites.png
+size: 256, 128
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+blocks/test/test
+  rotate: false
+  xy: 99, 65
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+blocks/test/test-building
+  rotate: false
+  xy: 1, 30
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+ui/button
+  rotate: false
+  xy: 39, 1
+  size: 36, 27
+  split: 12, 12, 12, 12
+  orig: 36, 27
+  offset: 0, 0
+  index: -1
+ui/button-disabled
+  rotate: false
+  xy: 1, 1
+  size: 36, 27
+  split: 12, 12, 12, 12
+  orig: 36, 27
+  offset: 0, 0
+  index: -1
+ui/button-down
+  rotate: false
+  xy: 99, 99
+  size: 36, 27
+  split: 12, 12, 12, 12
+  orig: 36, 27
+  offset: 0, 0
+  index: -1

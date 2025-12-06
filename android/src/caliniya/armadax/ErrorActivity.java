@@ -10,6 +10,8 @@ import android.widget.Toast;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 
+import caliniya.armadax.R;
+
 public class ErrorActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +32,7 @@ public class ErrorActivity extends Activity {
         ClipData clip = ClipData.newPlainText("", errorDetails);
         clipboard.setPrimaryClip(clip);
                     }
-            Toast.makeText(this, "c", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "copyed", Toast.LENGTH_SHORT).show();
         });
         // 处理“重启应用”按钮
         Button restartButton = findViewById(R.id.restart_button);

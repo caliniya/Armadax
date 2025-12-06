@@ -20,8 +20,8 @@ task assetsTool(type: JavaExec) {
     mainClass = 'caliniya.tools.TexturePackerTool'
     
     args = [
-        "${rootDir}/assets/sprites/", //输入目录
-        "${rootDir}/assets-pack/sprites/", //输出目录
+        "${rootDir}/assets-origin/sprites/", //输入目录
+        "${rootDir}/assets/sprites/", //输出目录
         "sprites" //打包后的文件名
     ]
     
