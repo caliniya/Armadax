@@ -32,7 +32,11 @@ tasks.register('debug', JavaExec) {
 }
 
 tasks.register('dist', Jar) {
+    destinationDirectory = file("$buildDir/output")
+    archiveFileName = "${appName}-${version}.jar"
+    
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
@@ -47,7 +51,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
-
 
 dist.dependsOn classes
 
