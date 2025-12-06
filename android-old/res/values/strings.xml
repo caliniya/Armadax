@@ -8,5 +8,6 @@
     
     <!-- Optional: Common Error Messages -->
     <string name="error_occurred">An error occurred</string>
-    <string name="try_again">Try Again</string>
+    <string name="try_again"
+    translatable="false">Try Again</string>
 </resources>

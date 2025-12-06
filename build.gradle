@@ -82,7 +82,7 @@ project(":tools") {
     apply plugin: "java-library"
     
     dependencies {
-        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
-        implementation "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+        implementation "com.github.Anuken.Arc:packer:$arcVersion"
+        implementation "com.github.Anuken.Arc:arc-core:$arcVersion"
     }
 }

@@ -3,36 +3,26 @@ package caliniya.armadax;
 import arc.ApplicationCore;
 import arc.ApplicationListener;
 import arc.Core;
+import arc.assets.AssetManager;
 import arc.assets.Loadable;
+import arc.graphics.g2d.TextureAtlas;
+import arc.util.Log;
 import caliniya.armadax.base.type.*;
 import caliniya.armadax.content.*;
-import caliniya.armadax.base.system.*;
+//import caliniya.armadax.base.system.*;
 
 public class Armadax extends ApplicationCore {
     
-    private Assets assets;
-    
-    @Override
-    public void add(ApplicationListener module){
-        super.add(module);
-
-        //autoload modules when necessary
-        if(module instanceof Loadable l){
-            assets.load(l);
-        }
-    }
-    
     @Override
     public void setup() {
-        // TODO
+        Core.assets = new AssetManager();
+        Core.assets.load("sprites/sprites.aatls" , TextureAtlas.class);
     }
     
     
     @Override
     public void init() {
         super.init();
-        assets = Assets.getInstance();
-        assets.loadAssets();
         Blocks.load();
         Floors.load();
     }
@@ -40,14 +30,15 @@ public class Armadax extends ApplicationCore {
     @Override
     public void update() {
         super.update();
-        if(!assets.update()){
-            assets.update();
+        if(!Core.assets.update()){
+            Core.assets.update();
+            Log.info("A1");
         }
     }
     
     @Override
     public void dispose() {
         super.dispose();
-        assets.dispose();
+        Core.assets.dispose();
     }
 }

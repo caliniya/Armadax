@@ -7,6 +7,8 @@ import arc.struct.*;
 import caliniya.armadax.base.tool.*;
 
 import java.util.*;
+//他和Seq除了名字以外没有任何不同……
+//但我喜欢这个名字…………
 
 /**
  * A resizable, ordered or unordered array of objects. If unordered, this class avoids a memory copy when removing elements (the

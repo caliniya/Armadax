@@ -7,7 +7,7 @@ import caliniya.armadax.game.Unit;
 //这个类表示一个世界
 //数据不在这里，数据在WorrldData里
 //在初始化世界数据时同步创建一个此世界对象
-//此类用于实现世界数据查询工具
+//这个类表示的是世界静态内容
 public class World {
     public boolean space;
     public int W;
