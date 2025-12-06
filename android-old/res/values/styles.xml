@@ -1,0 +1,8 @@
+<resources>
+        <!--<style name="Theme.NativeMinimal" parent="android:Theme.Material.NoActionBar">-->
+        <style name="Theme.NativeDefault" parent="android:Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@color/ic_background_color</item>
+        <!-- 全屏模式（可选） -->
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>
