@@ -13,7 +13,7 @@ buildscript {
         maven { url "https://jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.2'
+        //classpath 'com.android.tools.build:gradle:8.1.2'
         // 构建脚本需要的 Arc 模块
         classpath "com.github.Anuken.Arc:arc-core:$arcVersion"
     }
@@ -51,24 +51,6 @@ project(":desktop") {
         implementation "com.github.Anuken.Arc:natives-desktop:$arcVersion"
         implementation "com.github.Anuken.Arc:natives-freetype-desktop:$arcVersion"
         implementation "com.github.Anuken.Arc:backend-sdl:$arcVersion"
-    }
-}
-
-project(":android") {
-    apply plugin: "com.android.application"
-    
-    dependencies {
-        implementation project(":core")
-        
-        configurations { natives }
-        
-        // Arc Android 特定模块
-        implementation "com.github.Anuken.Arc:backend-android:$arcVersion"
-        natives "com.github.Anuken.Arc:natives-android:$arcVersion"
-        natives "com.github.Anuken.Arc:natives-freetype-android:$arcVersion"
-        
-        // 崩溃处理库
-        implementation 'cat.ereza:customactivityoncrash:2.1.0'
     }
 }
 

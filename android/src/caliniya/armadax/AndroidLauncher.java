@@ -31,7 +31,8 @@ public class AndroidLauncher extends AndroidApplication {
     
     @Override
     public void addListener(ApplicationListener appl) {
-        super.addListener(appl);
+        synchronized(this.getListeners()){
+            this.getListeners().add(appl);
+        }
     }
-    
 }

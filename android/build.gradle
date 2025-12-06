@@ -1,3 +1,24 @@
+buildscript{
+    repositories{
+        mavenLocal()
+        mavenCentral()
+        google()
+        maven{ url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+    dependencies{
+        classpath 'com.android.tools.build:gradle:7.4.2'
+    }
+}
+
+apply plugin: "com.android.application"
+
+configurations{ natives }
+
+repositories{
+    mavenCentral()
+    maven{ url "https://maven.google.com" }
+}
+
 android {
     namespace "caliniya.armadax"
     buildToolsVersion "34.0.4"
@@ -19,22 +40,45 @@ android {
     defaultConfig {
         multiDexEnabled false
         applicationId "caliniya.armadax"
-        minSdkVersion 21
+        minSdkVersion 14
         targetSdkVersion 34
-        buildToolsVersion "34.0.4"
+        buildToolsVersion "34.0.0"
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.version
 }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     buildTypes {
-        release {
+        all{
+            //minifyEnabled = true
+            //shrinkResources = true
+            proguardFiles("proguard-rules.pro")
+        }
+        dev{
+            initWith debug
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            shrinkResources true
+            proguardFiles("proguard-rules.pro")
+        }
+        debug{
+            minifyEnabled false
+            shrinkResources false
         }
     }
+}
+
+dependencies{
+    implementation project(":core")
+        
+        // Arc Android 特定模块
+        implementation "com.github.Anuken.Arc:backend-android:$arcVersion"
+        natives "com.github.Anuken.Arc:natives-android:$arcVersion"
+        natives "com.github.Anuken.Arc:natives-freetype-android:$arcVersion"
+        
+        // 崩溃处理库
+        implementation 'cat.ereza:customactivityoncrash:2.1.0'
 }
 
 // 复制原生库到libs目录
@@ -51,7 +95,6 @@ task copyAndroidNatives {
     }
 }
 
-// 在文件末尾添加
 tasks.whenTaskAdded { task ->
     if (task.name.contains("merge") && task.name.contains("JniLibFolders")) {
         task.dependsOn 'copyAndroidNatives'
@@ -78,6 +121,26 @@ tasks.register('run', Exec) {
 
     def adb = path + "/platform-tools/adb"
     commandLine "$adb", 'shell', 'am', 'start', '-n', 'caliniya.armadax/caliniya.armadax.AndroidLauncher'
+}
+
+// 在 minifyDebugWithR8 任务之前检查
+tasks.whenTaskAdded { task ->
+    if (task.name == "minifyDebugWithR8") {
+        task.doFirst {
+            def baseJar = file("$buildDir/intermediates/merged_java_res/debug/base.jar")
+            if (!baseJar.exists()) {
+                println "ERROR: base.jar does not exist before minify!"
+                println "Current directory contents:"
+                baseJar.parentFile.listFiles()?.each { f ->
+                    println "  - ${f.name} (${f.length()} bytes)"
+                }
+                
+                // 尝试重新生成
+                println "Attempting to run mergeDebugJavaResource..."
+                tasks.getByName("mergeDebugJavaResource").execute()
+            }
+        }
+    }
 }
 
 eclipse.project.name = appName + "-android"
