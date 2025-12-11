@@ -54,4 +54,5 @@ java {
 
 dist.dependsOn classes
 
+
 eclipse.project.name = appName + "-desktop"

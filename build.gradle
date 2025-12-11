@@ -43,7 +43,7 @@ allprojects {
 project(":desktop") {
     apply plugin: "java"
 
-    compileJava.options.fork = true
+    //compileJava.options.fork = true
 
     dependencies {
         implementation project(":core")

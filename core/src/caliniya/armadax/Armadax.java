@@ -6,20 +6,19 @@ import arc.Core;
 import arc.assets.AssetManager;
 import arc.assets.Loadable;
 import arc.graphics.g2d.TextureAtlas;
+import arc.util.ArcRuntimeException;
 import arc.util.Log;
 import caliniya.armadax.content.*;
 
 public class Armadax extends ApplicationCore {
 
   public boolean inited;
-    public Init init;
 
   @Override
   public void setup() {
     Core.assets = new AssetManager();
     Core.assets.load("sprites/sprites.aatls", TextureAtlas.class);
-    init = new Init();
-    init.load();
+    Init.load();
   }
 
   @Override
@@ -32,16 +31,12 @@ public class Armadax extends ApplicationCore {
     super.update();
     if (!Core.assets.update()) {
       Core.assets.update();
-    } else {
-        Log.info("AAAAA");
     }
   }
 
   @Override
   public void add(ApplicationListener module) {
     super.add(module);
-
-    // autoload modules when necessary
     if (module instanceof Loadable l) {
       Core.assets.load(l);
     }
