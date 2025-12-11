@@ -8,7 +8,7 @@ import java.io.File;
 public class TexturePackerTool {
     public static void main(String[] args) {
         if (args.length < 3) {
-            System.out.println("Usage: TexturePackerTool <inputDir> <outputDir> <packName> [settingsFile]");
+            System.out.println("TexturePackerTool work need: <inputDir> <outputDir> <packName> [settingsFile]");
             System.exit(1);
         }
 
@@ -37,20 +37,21 @@ public class TexturePackerTool {
         settings.edgePadding = false; 
         
         settings.alias = true; 
+        settings.flattenPaths = true;
         
         settings.stripWhitespaceX = false;
         settings.stripWhitespaceY = false;
 
         if (!outputDir.exists() && !outputDir.mkdirs()) {
-            System.err.println("Error: Failed to create output directory");
+            System.err.println("Failed to create output directory");
             System.exit(1);
         }
         
         try {
             long startTime = System.currentTimeMillis();
-            System.out.println("Packing textures...");
+            System.out.println("Start Packing textures");
             
-            // 清理旧产物 (静默模式)
+            // 清理旧产物
             cleanPreviousOutput(outputDir, packName);
             
             // 执行打包
@@ -98,14 +99,13 @@ public class TexturePackerTool {
     
     private static void cleanPreviousOutput(File outputDir, String packName) {
         if (!outputDir.exists()) return;
-        // 不再打印具体删除了哪个文件，只默默做事
         deleteFile(new File(outputDir, packName + ".png"));
         deleteFile(new File(outputDir, packName + ".aatls"));
     }
     
     private static void deleteFile(File file) {
         if (file.exists()) {
-            file.delete(); // 不再输出 Deleted xyz...
+            file.delete();
         }
     }
 }

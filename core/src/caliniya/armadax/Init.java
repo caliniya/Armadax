@@ -1,7 +1,15 @@
 package caliniya.armadax;
 
 import arc.*;
+import arc.assets.AssetManager;
+import arc.graphics.Camera;
+import arc.graphics.g2d.SpriteBatch;
+import arc.graphics.g2d.TextureAtlas;
+import arc.scene.Scene;
+import arc.util.viewport.ScreenViewport;
 import arc.util.*;
+
+import caliniya.armadax.ui.*;
 
 import static arc.Core.*;
 
@@ -12,8 +20,17 @@ public class Init {
   public static boolean init;
 
   public static void load() {
-    settings.setAppName("Armadax");
     init = false;
+    settings.setAppName("Armadax");
+    camera = new Camera();
+    scene = new Scene(new ScreenViewport(camera));
+    batch = new SpriteBatch();
+    assets = new AssetManager();
+    assets.load("sprites/sprites.aatls", TextureAtlas.class);
+    Fonts.loadSystem();
+    Fonts.loadFonts();
+    //assets.load("");
+    
     if (desktop) {
       // TODO: 在这里实现桌面端的日志处理器，但是桌面端长什么样?
       Log.info("desktop");
@@ -25,15 +42,15 @@ public class Init {
     if (gl30 == null)
       Log.warn(
           "[Init-Info] [Waning] device or video drivers do not support OpenGL 3. This will cause performance issues.");
-    if(assets == null) {
-    	Log.info("load assets(unexpected)");
+    if (assets == null) {
+      Log.info("load assets(unexpected)");
+      assets = new AssetManager();
     }
+    inited();
   }
-  
-  public static void inited(){
+
+  public static void inited() {
     init = true;
     Log.info("inited");
   }
-  
-  
 }
