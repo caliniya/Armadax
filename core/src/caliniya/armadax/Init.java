@@ -2,13 +2,18 @@ package caliniya.armadax;
 
 import arc.*;
 import arc.assets.AssetManager;
+import arc.assets.loaders.I18NBundleLoader;
 import arc.graphics.Camera;
 import arc.graphics.g2d.SpriteBatch;
 import arc.graphics.g2d.TextureAtlas;
+import arc.math.Scaled;
 import arc.scene.Scene;
 import arc.util.viewport.ScreenViewport;
 import arc.util.*;
 
+import java.util.*;
+
+import caliniya.armadax.core.UI;
 import caliniya.armadax.ui.*;
 
 import static arc.Core.*;
@@ -17,40 +22,51 @@ public class Init {
 
   public static boolean android = app.isAndroid();
   public static boolean desktop = app.isDesktop();
-  public static boolean init;
+  
+  public static boolean inited;
+  
+  public static Locale locale = Locale.getDefault();
 
-  public static void load() {
-    init = false;
+  @SuppressWarnings("unused")
+  public static void init() {
+    // assets.load("");
+    inited = false;
+    
     settings.setAppName("Armadax");
-    camera = new Camera();
-    scene = new Scene(new ScreenViewport(camera));
-    batch = new SpriteBatch();
-    assets = new AssetManager();
-    assets.load("sprites/sprites.aatls", TextureAtlas.class);
-    Fonts.loadSystem();
-    Fonts.loadFonts();
-    //assets.load("");
     
     if (desktop) {
       // TODO: 在这里实现桌面端的日志处理器，但是桌面端长什么样?
-      Log.info("desktop");
     }
+
     // 基本平台信息
     Log.info("Graphics init");
-    Log.infoTag("Init-Info", "[GL] Version:" + graphics.getGLVersion());
-    Log.info("[Init-Info] [GL] Using " + (gl30 != null ? "OpenGL 3" : "OpenGL 2"));
-    if (gl30 == null)
+    Log.infoTag("Init", "[GL] Version:" + graphics.getGLVersion());
+    Log.info("[Init] [GL] Using " + (gl30 != null ? "OpenGL 3" : "OpenGL 2"));
+    if (gl30 == null) {
       Log.warn(
-          "[Init-Info] [Waning] device or video drivers do not support OpenGL 3. This will cause performance issues.");
+          "[Waning] device or video drivers do not support OpenGL 3. This will cause performance issues.");
+    }
+    bundle = I18NBundle.createBundle(files.internal("language/language") , locale);
+    assets = new AssetManager();
+    camera = new Camera();
+    scene = new Scene(new ScreenViewport(camera));
+    batch = new SpriteBatch();
+    input.addProcessor(scene);
+    Fonts.loadSystem();
+    Fonts.loadFonts();
+    Log.info("inited basic system");
+    
     if (assets == null) {
-      Log.info("load assets(unexpected)");
+      Log.info("init assets(unexpected)");
       assets = new AssetManager();
     }
+    
+    assets.load("sprites/sprites.aatls", TextureAtlas.class);
     inited();
   }
 
   public static void inited() {
-    init = true;
-    Log.info("inited");
+    inited = true;
+    Log.info("Inited");
   }
 }

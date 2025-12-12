@@ -1,32 +1,17 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/screen/LoadScreen.java",
-      "selection": {
-        "end": {
-          "column": 0,
-          "index": 0,
-          "line": 0
-        },
-        "start": {
-          "column": 0,
-          "index": 0,
-          "line": 0
-        }
-      }
-    },
-    {
       "file": "/storage/emulated/0/AndroidIDEProjects/Armadax/core/src/caliniya/armadax/Init.java",
       "selection": {
         "end": {
-          "column": 5,
-          "index": 1398,
-          "line": 47
+          "column": 3,
+          "index": 1839,
+          "line": 70
         },
         "start": {
-          "column": 5,
-          "index": 1398,
-          "line": 47
+          "column": 3,
+          "index": 1839,
+          "line": 70
         }
       }
     }

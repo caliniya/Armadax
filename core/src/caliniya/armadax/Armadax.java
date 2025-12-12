@@ -1,32 +1,28 @@
 package caliniya.armadax;
 
+import arc.scene.ui.Dialog;
+import arc.scene.ui.layout.Table;
+import caliniya.armadax.core.UI;
+import caliniya.armadax.ui.fragment.*;
 import arc.ApplicationCore;
 import arc.ApplicationListener;
-import arc.assets.AssetManager;
 import arc.assets.Loadable;
 import arc.graphics.Color;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.ScreenQuad;
 import arc.graphics.g2d.TextureAtlas;
-import arc.scene.Scene;
-import arc.util.ArcRuntimeException;
 import arc.util.Log;
-import arc.util.ScreenRecorder;
-import arc.util.ScreenUtils;
-import arc.util.viewport.ScreenViewport;
-import arc.util.viewport.Viewport;
 import caliniya.armadax.content.*;
-import caliniya.armadax.ui.Fonts;
+import caliniya.armadax.ui.*;
 
 import static arc.Core.*;
 
-public class Armadax extends ApplicationCore{
+public class Armadax extends ApplicationCore {
 
-  public boolean inited;
-
+  public boolean assinited = false;
+  
   @Override
   public void setup() {
-    Init.load();
+    //初始化加载内容
+    Init.init();
   }
 
   @Override
@@ -38,15 +34,16 @@ public class Armadax extends ApplicationCore{
   public void update() {
     super.update();
     graphics.clear(Color.black);
-    if (!assets.update()) {
-      assets.update();
-    }else{
-      if(Fonts.def != null) {
-      Draw.batch(batch);
-      Fonts.def.draw("test" ,500 ,500);
-      }
+    assets.update();
+    if (assets.update() && !assinited) {
+      //在这里进行二次加载内容
+      atlas = assets.get("sprites/sprites.aatls", TextureAtlas.class);
+      Styles.load();
+      UI.Menu();
+      assinited = true;
     }
-  
+    scene.act();
+    scene.draw();
   }
 
   @Override
@@ -61,5 +58,11 @@ public class Armadax extends ApplicationCore{
   public void dispose() {
     super.dispose();
     assets.dispose();
+  }
+
+  @Override
+  public void resize(int width, int height) {
+    super.resize(width, height);
+    scene.resize(width, height);
   }
 }
