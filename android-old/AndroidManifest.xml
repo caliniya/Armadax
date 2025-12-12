@@ -18,7 +18,7 @@
 
         <!-- 主 Activity（游戏入口） -->
         <activity
-            android:name="caliniya.armadax.AndroidLauncher"
+            android:name="caliniya.armavoke.AndroidLauncher"
             android:label="@string/app_name" 
             android:screenOrientation="landscape"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"
