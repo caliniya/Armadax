@@ -21,7 +21,6 @@ public class Armavoke extends ApplicationCore {
   
   @Override
   public void setup() {
-    //初始化加载内容
     Init.init();
   }
 
@@ -36,12 +35,13 @@ public class Armavoke extends ApplicationCore {
     graphics.clear(Color.black);
     assets.update();
     if (assets.update() && !assinited) {
-      //在这里进行二次加载内容
+      //在这里进行二次引用
       atlas = assets.get("sprites/sprites.aatls", TextureAtlas.class);
       Styles.load();
       UI.Menu();
       assinited = true;
     }
+    //绘制ui
     scene.act();
     scene.draw();
   }
