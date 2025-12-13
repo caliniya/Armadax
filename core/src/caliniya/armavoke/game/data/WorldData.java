@@ -9,7 +9,7 @@ public class WorldData {
   // 游戏地图的世界数据
 
   public static World world; // 静态地图内容
-  public static Ar<Unit> units;
+  public static Ar<Unit> units = new Ar<Unit>(1000);
 
   private WorldData() {}
 
@@ -18,4 +18,12 @@ public class WorldData {
     world.test = true;
     world.init();
   }
+  
+  public static void clearunits() {
+        for(int i = 0; i < units.size; i++) {
+            units.get(i).remove();
+        }
+        units.clear();
+    }
+  
 }

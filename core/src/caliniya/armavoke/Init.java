@@ -52,7 +52,7 @@ public class Init {
     bundle = I18NBundle.createBundle(files.internal("language/language") , locale);
     assets = new AssetManager();
     camera = new Camera();
-    scene = new Scene(new ScreenViewport(camera));
+    scene = new Scene(new ScreenViewport(new Camera()));
     batch = new SpriteBatch();
     input.addProcessor(scene);
     Fonts.loadSystem();
@@ -75,8 +75,6 @@ public class Init {
   }
 
   public static void inited() {
-    InitGame.load();
-    
     inited = true;
     Log.info("Inited");
   }

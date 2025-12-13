@@ -1,8 +1,14 @@
 package caliniya.armavoke;
 
+import arc.input.InputMultiplexer;
+import arc.input.GestureDetector;
+import caliniya.armavoke.base.tool.Ar;
 import arc.graphics.g2d.Draw;
 import caliniya.armavoke.core.UI;
+import caliniya.armavoke.game.type.UnitType;
+import caliniya.armavoke.system.BasicSystem;
 import caliniya.armavoke.system.render.MapRender;
+import caliniya.armavoke.system.input.*;
 import caliniya.armavoke.ui.fragment.*;
 import arc.ApplicationCore;
 import arc.ApplicationListener;
@@ -18,7 +24,9 @@ import static arc.Core.*;
 public class Armavoke extends ApplicationCore {
 
   public boolean assinited = false;
-  public MapRender m;
+  public CameraInput camInput;
+
+  public static Ar<BasicSystem> systems = new Ar<BasicSystem>();
 
   @Override
   public void setup() {
@@ -37,26 +45,35 @@ public class Armavoke extends ApplicationCore {
   public void update() {
     super.update();
     graphics.clear(Color.black);
+
+    // 资源加载完成后的初始化
     if (assets.update() && !assinited) {
-      // 在这里进行二次引用
       atlas = assets.get("sprites/sprites.aatls", TextureAtlas.class);
       Styles.load();
       UI.Menu();
       scene.resize(graphics.getWidth(), graphics.getHeight());
-      m = new MapRender();
+      camInput = new CameraInput().init();
       Log.info("loaded");
-      //camera.position.set(200, 200);
+      InputMultiplexer multiplexer =
+          new InputMultiplexer(scene, new GestureDetector(camInput), camInput);
+      input.addProcessor(multiplexer);
+      systems.add(camInput);
+      UnitTypes.load();
       assinited = true;
     }
+
+    // 加载界面
     if (!assinited) {
       UI.Loading();
-    }
-    if (assinited) {
-      camera.update();
+    } else {
       Draw.proj(camera);
-      m.render();
+      for (int i = 0; i < systems.size; i++) {
+        BasicSystem sys = systems.get(i);
+        sys.update();
+      }
+      
+      camera.update();
       Draw.flush();
-      //Draw.proj().setOrtho(0, 0, graphics.getWidth(), graphics.getHeight());
     }
     scene.act();
     scene.draw();

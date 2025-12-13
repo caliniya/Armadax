@@ -5,6 +5,7 @@ import arc.Events;
 import arc.scene.Group;
 import arc.scene.ui.layout.Table;
 import arc.util.Log;
+import caliniya.armavoke.core.InitGame;
 import caliniya.armavoke.ui.*;
 
 import static caliniya.armavoke.base.type.EventType.*;
@@ -25,7 +26,7 @@ public class MenuFragment {
             menu -> {
               menu.defaults().width(menuWidth).height(70f).padBottom(0);
 
-              menu.add(new Button("开始", () -> Events.fire(new GameInit())));
+              menu.add(new Button("开始", () -> InitGame.testinit()));
               menu.row();
 
               menu.add(new Button("A1", () -> Log.info("A1")));

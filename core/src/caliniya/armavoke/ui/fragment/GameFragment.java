@@ -3,7 +3,7 @@ import arc.scene.Group;
 
 public class GameFragment {
   
-	private void build(Group root) {
-		
+	public void build(Group root){
+    
 	}
 }

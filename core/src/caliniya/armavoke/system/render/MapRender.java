@@ -1,5 +1,6 @@
 package caliniya.armavoke.system.render;
 
+import caliniya.armavoke.system.BasicSystem;
 import arc.Core;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
@@ -11,25 +12,16 @@ import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.world.World;
 import caliniya.armavoke.world.Floor;
 
-public class MapRender {
+public class MapRender extends BasicSystem<MapRender>{
   // 定义单个网格的大小（像素）
   public static final float TILE_SIZE = 32f;
   public static World world;
-  public static boolean a = false;
   public Camera camera = Core.camera;
 
-  /**
-   * 渲染地图
-   *
-   * @param camera 当前使用的相机，用于计算视野范围
-   */
-  public void render() {
-    if (!a) {
-      a = true;
-      WorldData.initWorld();
-      world = WorldData.world;
-    }
-
+  /** 渲染地图 */
+  @Override
+  public void update() {
+    if(!inited) return;
     // 获取相机可视区域的左下角和右上角坐标 (世界坐标)
     // 相机位置是中心点，所以要减去/加上 宽高的一半
     float viewLeft = camera.position.x - camera.width / 2f;
@@ -89,5 +81,13 @@ public class MapRender {
 
     // 绘制
     Draw.rect(region, drawX, drawY, TILE_SIZE, TILE_SIZE);
+  }
+
+  @Override
+  public MapRender init() {
+    WorldData.initWorld();
+    world = WorldData.world;
+    priority = 10;
+    return super.init();
   }
 }
