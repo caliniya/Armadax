@@ -16,6 +16,7 @@ import arc.assets.Loadable;
 import arc.graphics.Color;
 import arc.graphics.g2d.TextureAtlas;
 import arc.util.Log;
+import caliniya.armavoke.system.world.*;
 import caliniya.armavoke.content.*;
 import caliniya.armavoke.ui.*;
 
@@ -52,10 +53,12 @@ public class Armavoke extends ApplicationCore {
       Styles.load();
       UI.Menu();
       scene.resize(graphics.getWidth(), graphics.getHeight());
+      UnitControl unitCtrl = new UnitControl().init();
+    systems.add(unitCtrl);
       camInput = new CameraInput().init();
       Log.info("loaded");
       InputMultiplexer multiplexer =
-          new InputMultiplexer(scene, new GestureDetector(camInput), camInput);
+          new InputMultiplexer(scene,new GestureDetector(unitCtrl) ,new GestureDetector(camInput),unitCtrl,camInput);
       input.addProcessor(multiplexer);
       systems.add(camInput);
       UnitTypes.load();

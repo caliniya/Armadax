@@ -9,8 +9,8 @@ public class UnitType {
     
     // 基础属性
     public float health = 100f;
-    public float speed = 1f;
-    public float hitSize = 10f; // 碰撞体积
+    public float speed = 5f;
+    public float hitSize = 100f; // 碰撞体积
     
     // 渲染资源
     public TextureRegion region;
@@ -21,7 +21,6 @@ public class UnitType {
     
     // 加载资源 (在 Assets 加载完成后调用)
     public void load() {
-        // 假设图集里单位名字叫 "unit-名字"
         region = Core.atlas.find(name, "white"); 
     }
     
