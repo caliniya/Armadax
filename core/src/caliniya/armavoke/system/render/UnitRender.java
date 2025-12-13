@@ -60,7 +60,7 @@ public class UnitRender extends BasicSystem<UnitRender> {
 
     // 2. 绘制
     // Draw.rect 会自动处理旋转
-    Draw.rect(reg, u.x, u.y, u.rotation);
+    Draw.rect(reg, u.x, u.y, u.rotation - 90);
 
     // 如果有阴影，可以先画阴影
     // Draw.rect("shadow", u.x, u.y, u.rotation);
