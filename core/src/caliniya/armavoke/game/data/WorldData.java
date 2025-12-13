@@ -1,30 +1,21 @@
 package caliniya.armavoke.game.data;
 
+import caliniya.armavoke.base.tool.Ar;
 import caliniya.armavoke.game.Unit;
 import caliniya.armavoke.world.Floor;
 import caliniya.armavoke.world.World;
 
 public class WorldData {
-    //游戏地图的世界数据
-    public static WorldData Instance;
-    public World world;//静态地图内容
-    public Floor[] floors;
-    public Unit[] units;
-    
-    static{
-        Instance = new WorldData();
-    }
-    
-    public WorldData getInstance(){
-        return Instance;
-    }
-    
-    private World getWorld(){
-        return world;
-    }
-    
-    public void initWorld(int worldW , int worldH, boolean space){
-        world = new World();
-    }
-	
+  // 游戏地图的世界数据
+
+  public static World world; // 静态地图内容
+  public static Ar<Unit> units;
+
+  private WorldData() {}
+
+  public static void initWorld() {
+    world = new World();
+    world.test = true;
+    world.init();
+  }
 }

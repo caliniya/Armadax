@@ -4,13 +4,16 @@ import arc.*;
 import arc.assets.AssetManager;
 import arc.assets.loaders.I18NBundleLoader;
 import arc.graphics.Camera;
+import arc.graphics.Texture;
 import arc.graphics.g2d.SpriteBatch;
 import arc.graphics.g2d.TextureAtlas;
+import arc.graphics.g2d.TextureRegion;
 import arc.math.Scaled;
 import arc.scene.Scene;
 import arc.util.viewport.ScreenViewport;
 import arc.util.*;
 
+import caliniya.armavoke.core.InitGame;
 import java.util.*;
 
 import caliniya.armavoke.core.UI;
@@ -61,11 +64,19 @@ public class Init {
       assets = new AssetManager();
     }
     
+    assets.load("sprites/white.png" , Texture.class);
+    assets.finishLoading();
+    //在这里阻塞加载让加载界面能用
+    atlas = new TextureAtlas();
+    atlas.addRegion("white",assets.get("sprites/white.png") , 1,1,1,1);
+    
     assets.load("sprites/sprites.aatls", TextureAtlas.class);
     inited();
   }
 
   public static void inited() {
+    InitGame.load();
+    
     inited = true;
     Log.info("Inited");
   }

@@ -1,8 +1,8 @@
 package caliniya.armavoke;
 
-import arc.scene.ui.Dialog;
-import arc.scene.ui.layout.Table;
+import arc.graphics.g2d.Draw;
 import caliniya.armavoke.core.UI;
+import caliniya.armavoke.system.render.MapRender;
 import caliniya.armavoke.ui.fragment.*;
 import arc.ApplicationCore;
 import arc.ApplicationListener;
@@ -18,10 +18,14 @@ import static arc.Core.*;
 public class Armavoke extends ApplicationCore {
 
   public boolean assinited = false;
-  
+  public MapRender m;
+
   @Override
   public void setup() {
+    graphics.clear(Color.black);
     Init.init();
+    Floors.load();
+    camera.resize(graphics.getWidth(), graphics.getHeight());
   }
 
   @Override
@@ -33,15 +37,27 @@ public class Armavoke extends ApplicationCore {
   public void update() {
     super.update();
     graphics.clear(Color.black);
-    assets.update();
     if (assets.update() && !assinited) {
-      //在这里进行二次引用
+      // 在这里进行二次引用
       atlas = assets.get("sprites/sprites.aatls", TextureAtlas.class);
       Styles.load();
       UI.Menu();
+      scene.resize(graphics.getWidth(), graphics.getHeight());
+      m = new MapRender();
+      Log.info("loaded");
+      //camera.position.set(200, 200);
       assinited = true;
     }
-    //绘制ui
+    if (!assinited) {
+      UI.Loading();
+    }
+    if (assinited) {
+      camera.update();
+      Draw.proj(camera);
+      m.render();
+      Draw.flush();
+      //Draw.proj().setOrtho(0, 0, graphics.getWidth(), graphics.getHeight());
+    }
     scene.act();
     scene.draw();
   }
@@ -64,5 +80,6 @@ public class Armavoke extends ApplicationCore {
   public void resize(int width, int height) {
     super.resize(width, height);
     scene.resize(width, height);
+    camera.resize(width, height);
   }
 }

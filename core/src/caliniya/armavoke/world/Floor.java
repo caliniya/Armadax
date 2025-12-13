@@ -6,8 +6,6 @@ import caliniya.armavoke.world.*;
 
 public class Floor extends ContentType {
     
-    public String name;
-    
     public int X;
     public int Y;
     

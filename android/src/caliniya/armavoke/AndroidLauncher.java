@@ -1,5 +1,8 @@
 package caliniya.armavoke;
 
+import android.graphics.drawable.ColorDrawable;
+import android.view.Window;
+import android.view.WindowManager;
 import static arc.Core.*;
 
 import android.os.Bundle;
@@ -8,6 +11,7 @@ import arc.ApplicationListener;
 import arc.backend.android.AndroidApplication;
 import arc.backend.android.AndroidApplicationConfiguration;
 import arc.files.Fi;
+import arc.graphics.Color;
 import arc.util.Log;
 import arc.util.Log.*;
 import cat.ereza.customactivityoncrash.config.CaocConfig;
@@ -19,7 +23,11 @@ public class AndroidLauncher extends AndroidApplication {
     super.onCreate(savedInstanceState);
 
     CaocConfig.Builder.create().enabled(true).errorActivity(ErrorActivity.class).apply();
-
+    
+    Window win = getWindow();
+    win.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.BLACK));
+    win.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    
     initialize(
         new Armavoke(),
         new AndroidApplicationConfiguration() {
@@ -29,6 +37,7 @@ public class AndroidLauncher extends AndroidApplication {
             useGL30 = true;
           }
         });
+
     Fi data = Core.files.absolute(this.getExternalFilesDir(null).getAbsolutePath());
     // throw new ArcRuntimeException(data.toString());
     Core.settings.setDataDirectory(data);
@@ -36,7 +45,7 @@ public class AndroidLauncher extends AndroidApplication {
       Writer writer = settings.getDataDirectory().child("log.txt").writer(false);
       LogHandler originalLogger = Log.logger;
       // 要过滤的标签列表(它们太多了而且一般没有用)
-      String[] filteredTags = {"AndroidGraphics", "GL30", "OtherTag"};
+      String[] filteredTags = {"AndroidGraphics", "GL30"};
       // 例外列表：这些消息不过滤
       String[] exceptions = {"[pause]", "[resume]"};
 

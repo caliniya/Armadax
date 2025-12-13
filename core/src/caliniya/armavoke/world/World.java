@@ -9,16 +9,20 @@ import caliniya.armavoke.game.Unit;
 //在初始化世界数据时同步创建一个此世界对象
 //这个类表示的是世界静态内容
 public class World {
-    public boolean space;
-    public int W;
+  
+    public boolean space;//表示这是太空还是地表(当然离实现太空还早)
+    public int W; 
     public int H;
     public int index;
     
-    public boolean test = true;
+    public boolean test = true;//还早着
     
     public Ar<Floor> floors = new Ar<Floor>(10000);
     
     public World(){
+      test = true;
+      W = 100;
+      H = 100;
     }
     
     public World(int W, int H,boolean space){
@@ -32,7 +36,7 @@ public class World {
     
     public void init(){
         if(test) {
-        	for(int i = 0; i < 10000; ++i) {
+        	for(int i = 0; i < 10000; i++) {
         		floors.add(Floors.TestFloor);
         	}
         }
