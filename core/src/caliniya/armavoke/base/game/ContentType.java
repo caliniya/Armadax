@@ -13,7 +13,7 @@ public class ContentType {
     }
     
     public String getLName(){
-        return (type + name);
+        return (type + "." +name);
     }
     
 }

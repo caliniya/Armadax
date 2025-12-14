@@ -50,7 +50,6 @@ public class UnitControl extends BasicSystem<UnitControl> implements InputProces
         // PC 右键：仅移动
         if (button == KeyCode.mouseRight) {
             if (selectedUnit != null) {
-                selectedUnit.commandMoveTo(wx, wy);
                 return true;
             }
         }
@@ -83,7 +82,6 @@ public class UnitControl extends BasicSystem<UnitControl> implements InputProces
             // 2. 如果点到了空地 (没点到单位)
             if (selectedUnit != null) {
                 // 如果当前有选中的单位 -> 移动到该位置
-                selectedUnit.commandMoveTo(wx, wy);
                 return true;
             } else {
                 // 如果没选中单位且点了空地 -> 什么都不做，或者取消选择

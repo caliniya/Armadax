@@ -2,13 +2,12 @@ package caliniya.armavoke.game.type;
 
 import arc.Core;
 import arc.graphics.g2d.TextureRegion;
+import caliniya.armavoke.base.game.ContentType;
+import caliniya.armavoke.base.type.CType;
 import caliniya.armavoke.game.Unit;
 
-public class UnitType {
-    public String name;
+public class UnitType extends ContentType {
     
-    // 基础属性
-    public float health = 100f;
     public float speed = 5f;
     public float hitSize = 100f; // 碰撞体积
     
@@ -16,7 +15,7 @@ public class UnitType {
     public TextureRegion region;
     
     public UnitType(String name) {
-        this.name = name;
+        super(name , CType.Unit);
     }
     
     // 加载资源 (在 Assets 加载完成后调用)

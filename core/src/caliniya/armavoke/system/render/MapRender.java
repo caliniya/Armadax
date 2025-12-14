@@ -6,38 +6,31 @@ import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
 import arc.graphics.Camera;
 import arc.math.Mathf;
-import arc.util.Align;
-import arc.util.Log;
 import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.world.World;
 import caliniya.armavoke.world.Floor;
+import caliniya.armavoke.world.ENVBlock; // 【1. 新增】导入 ENVBlock 类
 
-public class MapRender extends BasicSystem<MapRender>{
-  // 定义单个网格的大小（像素）
+public class MapRender extends BasicSystem<MapRender> {
   public static final float TILE_SIZE = 32f;
   public static World world;
   public Camera camera = Core.camera;
 
-  /** 渲染地图 */
   @Override
   public void update() {
-    if(!inited) return;
-    // 获取相机可视区域的左下角和右上角坐标 (世界坐标)
-    // 相机位置是中心点，所以要减去/加上 宽高的一半
+    if (!inited) return;
+    
+    // ... (计算 startX, startY, endX, endY 的代码保持不变) ...
     float viewLeft = camera.position.x - camera.width / 2f;
     float viewBottom = camera.position.y - camera.height / 2f;
     float viewRight = camera.position.x + camera.width / 2f;
     float viewTop = camera.position.y + camera.height / 2f;
 
-    // 将世界坐标转换为网格坐标 (Grid Coordinates)
-    // 使用 Math.floor 向下取整确保覆盖边缘，并扩充 1-2 个格子防止边缘闪烁
     int startX = (int) Math.floor(viewLeft / TILE_SIZE) - 1;
     int startY = (int) Math.floor(viewBottom / TILE_SIZE) - 1;
     int endX = (int) Math.ceil(viewRight / TILE_SIZE) + 1;
     int endY = (int) Math.ceil(viewTop / TILE_SIZE) + 1;
 
-    // 限制范围在地图边界内 (Clamping)
-    // 防止索引越界 (比如相机移到了地图外面，不能去读 -1 的索引)
     startX = Mathf.clamp(startX, 0, world.W - 1);
     startY = Mathf.clamp(startY, 0, world.H - 1);
     endX = Mathf.clamp(endX, 0, world.W - 1);
@@ -45,41 +38,52 @@ public class MapRender extends BasicSystem<MapRender>{
 
     for (int y = startY; y <= endY; y++) {
       for (int x = startX; x <= endX; x++) {
-        // 计算该坐标在数组中的索引
         int index = world.coordToIndex(x, y);
 
-        // 安全检查：防止计算出的索引超出数组范围
-        if (index < 0 || index >= world.floors.size) continue;
-
-        // 获取地板对象
-        Floor floor = world.floors.get(index);
-
-        // 如果该位置没有地板或者地板为空，跳过
-        if (floor == null) continue;
-
-        drawFloor(floor, x, y);
+        // --- 绘制地板 (保持不变) ---
+        if (index >= 0 && index < world.floors.size) {
+            Floor floor = world.floors.get(index);
+            if (floor != null) {
+                drawFloor(floor, x, y);
+            }
+        }
+        
+        // --- 【2. 新增】绘制环境块 ---
+        if (index >= 0 && index < world.envblocks.size) {
+            ENVBlock block = world.envblocks.get(index);
+            // 如果这个位置有环境块，就绘制它
+            if (block != null) {
+                drawBlock(block, x, y);
+            }
+        }
       }
     }
   }
 
   private void drawFloor(Floor floor, int x, int y) {
-    // 从图集中查找纹理
-    // 优化什么的，下辈子再做吧
     TextureRegion region = Core.atlas.find(floor.name);
-
-    if (!Core.atlas.isFound(region)) {
-      // region = Core.atlas.find("error")
-      // (这玩意我还没做出来)
-      return;
-    }
-
-    // 计算绘制位置
-    // Arc 的 Draw.rect 默认是以 (wx, wy) 为中心绘制的
-    // 所以网格 (0,0) 的中心点应该是 (16, 16)
+    if (!Core.atlas.isFound(region)) return;
+    
     float drawX = x * TILE_SIZE + TILE_SIZE / 2f;
     float drawY = y * TILE_SIZE + TILE_SIZE / 2f;
+    Draw.rect(region, drawX, drawY, TILE_SIZE, TILE_SIZE);
+  }
 
-    // 绘制
+  /**
+   * 【3. 新增】绘制环境块的方法
+   * @param block 要绘制的方块
+   * @param x 网格 X 坐标
+   * @param y 网格 Y 坐标
+   */
+  private void drawBlock(ENVBlock block, int x, int y) {
+    // 假设 ENVBlock 也有一个 'name' 字段来获取纹理
+    TextureRegion region = Core.atlas.find(block.name); 
+    
+    if (!Core.atlas.isFound(region)) return;
+
+    // 绘制位置和地板一样
+    float drawX = x * TILE_SIZE + TILE_SIZE / 2f;
+    float drawY = y * TILE_SIZE + TILE_SIZE / 2f;
     Draw.rect(region, drawX, drawY, TILE_SIZE, TILE_SIZE);
   }
 

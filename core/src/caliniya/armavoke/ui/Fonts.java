@@ -16,7 +16,6 @@ import arc.struct.*;
 import arc.util.*;
 
 public class Fonts {
-  // 这里修改为你自己的字体文件路径 (放在 assets/fonts/ 目录下)
   public static final String fontFile = "font/normal.ttf";
 
   // 用于字体生成的纹理打包器
@@ -26,7 +25,7 @@ public class Fonts {
   public static Font def; // 默认字体
   public static Font outline; // 描边字体
 
-  // 不需要缩放的字体名称集合 (如果有特殊需求可添加)
+  // 不需要缩放的字体名称集合
   private static final ObjectSet<String> unscaled = new ObjectSet<>();
 
   /** 初始化字体加载器。 应该在游戏启动早期（如 ClientLoad 阶段）调用。 */

@@ -34,6 +34,7 @@ public class Armavoke extends ApplicationCore {
     graphics.clear(Color.black);
     Init.init();
     Floors.load();
+    ENVBlocks.load();
     camera.resize(graphics.getWidth(), graphics.getHeight());
   }
 
@@ -70,10 +71,12 @@ public class Armavoke extends ApplicationCore {
       UI.Loading();
     } else {
       Draw.proj(camera);
+      
       for (int i = 0; i < systems.size; i++) {
         BasicSystem sys = systems.get(i);
         sys.update();
       }
+      
       
       camera.update();
       Draw.flush();

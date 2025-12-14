@@ -26,10 +26,15 @@ public class MenuFragment {
             menu -> {
               menu.defaults().width(menuWidth).height(70f).padBottom(0);
 
-              menu.add(new Button("开始", () -> InitGame.testinit()));
+              menu.add(new Button(Core.bundle.get("UI.start"), () -> InitGame.testinit()));
               menu.row();
 
-              menu.add(new Button("A1", () -> Log.info("A1")));
+              menu.add(new Button("A1", () ->
+                {
+                  Log.info("aa");
+                  Log.info("aaa");
+                  Log.info("aaaaa");
+                }));
               menu.row();
 
               menu.add(new Button("A2", () -> Log.info("A2")));

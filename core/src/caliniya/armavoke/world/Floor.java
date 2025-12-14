@@ -10,7 +10,7 @@ public class Floor extends ContentType {
     public int Y;
     
     public Floor(String Name){
-        super(Name , CType.Block);
+        super(Name , CType.Floor);
     }
 	
 }
