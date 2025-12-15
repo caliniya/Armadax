@@ -1,0 +1,35 @@
+{
+  "allFiles": [
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/data/WorldData.java",
+      "selection": {
+        "end": {
+          "column": 0,
+          "index": 323,
+          "line": 12
+        },
+        "start": {
+          "column": 0,
+          "index": 323,
+          "line": 12
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/Unit.java",
+      "selection": {
+        "end": {
+          "column": 3,
+          "index": 1413,
+          "line": 69
+        },
+        "start": {
+          "column": 3,
+          "index": 1413,
+          "line": 69
+        }
+      }
+    }
+  ],
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/data/WorldData.java"
+}
