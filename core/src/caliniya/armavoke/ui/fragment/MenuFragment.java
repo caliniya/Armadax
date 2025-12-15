@@ -5,7 +5,11 @@ import arc.Events;
 import arc.scene.Group;
 import arc.scene.ui.layout.Table;
 import arc.util.Log;
+import caliniya.armavoke.content.UnitTypes;
 import caliniya.armavoke.core.InitGame;
+import caliniya.armavoke.core.UI;
+import caliniya.armavoke.game.Unit;
+import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.ui.*;
 
 import static caliniya.armavoke.base.type.EventType.*;
@@ -26,15 +30,28 @@ public class MenuFragment {
             menu -> {
               menu.defaults().width(menuWidth).height(70f).padBottom(0);
 
-              menu.add(new Button(Core.bundle.get("UI.start"), () -> InitGame.testinit()));
+              menu.add(
+                  new Button(
+                      "@start",
+                      () -> {
+                        InitGame.testinit();
+                        UI.Game();
+                        Unit ttt = UnitTypes.test.create();
+                        ttt.x = 100;
+                        ttt.y = 100;
+                        WorldData.units.add(ttt);
+              
+                      }));
               menu.row();
 
-              menu.add(new Button("A1", () ->
-                {
-                  Log.info("aa");
-                  Log.info("aaa");
-                  Log.info("aaaaa");
-                }));
+              menu.add(
+                  new Button(
+                      "A1",
+                      () -> {
+                        Log.info("aa");
+                        Log.info("aaa");
+                        Log.info("aaaaa");
+                      }));
               menu.row();
 
               menu.add(new Button("A2", () -> Log.info("A2")));

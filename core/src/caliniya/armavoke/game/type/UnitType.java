@@ -9,7 +9,7 @@ import caliniya.armavoke.game.Unit;
 public class UnitType extends ContentType {
     
     public float speed = 5f;
-    public float hitSize = 100f; // 碰撞体积
+    public float w = 100f , h = 180f;
     
     // 渲染资源
     public TextureRegion region;

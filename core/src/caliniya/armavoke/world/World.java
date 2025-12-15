@@ -41,7 +41,7 @@ public class World {
       // 初始化地板和环境块数组
       for (int i = 0; i < W * H; i++) {
         floors.add(Floors.TestFloor);
-        envblocks.add(null ,null); // 默认所有地方都没有环境块
+        envblocks.add((ENVBlock)null); // 默认所有地方都没有环境块
       }
 
       // 放置一堵墙作为障碍物来测试寻路

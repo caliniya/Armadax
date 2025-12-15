@@ -5,6 +5,7 @@ import arc.input.GestureDetector;
 import caliniya.armavoke.base.tool.Ar;
 import arc.graphics.g2d.Draw;
 import caliniya.armavoke.core.UI;
+import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.game.type.UnitType;
 import caliniya.armavoke.system.BasicSystem;
 import caliniya.armavoke.system.render.MapRender;
@@ -83,6 +84,10 @@ public class Armavoke extends ApplicationCore {
     }
     scene.act();
     scene.draw();
+    if(WorldData.units.size>= 1) {
+    	WorldData.units.get(1).update();
+      WorldData.units.get(0).update();
+    }
   }
 
   @Override

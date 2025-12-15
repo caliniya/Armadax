@@ -15,6 +15,7 @@ public class InitGame {
 
   public static void testinit() {
     WorldData.initWorld();
+    RouteData.init();
     Armavoke.systems.add(new MapRender().init());
     Armavoke.systems.add(new UnitRender().init());
   }

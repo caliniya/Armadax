@@ -4,6 +4,7 @@ import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Fill;
 import arc.graphics.g2d.Lines;
+import caliniya.armavoke.ui.fragment.GameFragment;
 import caliniya.armavoke.ui.fragment.MenuFragment;
 
 import static arc.Core.*;
@@ -71,4 +72,10 @@ public class UI {
         // 如果没有这一行，你可能什么都看不到
         Draw.flush();
     }
+  
+  public static void Game() {
+  	scene.clear();
+    new GameFragment().build();
+  }
+  
 }

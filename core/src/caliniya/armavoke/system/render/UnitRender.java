@@ -41,8 +41,8 @@ public class UnitRender extends BasicSystem<UnitRender> {
     // 获取相机可视范围 (增加一点 buffer 防止边缘消失)
     float viewX = Core.camera.position.x;
     float viewY = Core.camera.position.y;
-    float w = Core.camera.width / 2f + u.type.hitSize * 2;
-    float h = Core.camera.height / 2f + u.type.hitSize * 2;
+    float w = Core.camera.width / 2f + u.type.w * 2;
+    float h = Core.camera.height / 2f + u.type.h * 2;
 
     // 简单的 AABB 碰撞检测
     return u.x > viewX - w && u.x < viewX + w && u.y > viewY - h && u.y < viewY + h;
@@ -52,7 +52,7 @@ public class UnitRender extends BasicSystem<UnitRender> {
     if (u.isSelected) {
       Draw.color(Color.green);
       // Lines.circle 需要导入 arc.graphics.g2d.Lines
-      Lines.circle(u.x, u.y, u.type.hitSize + 2);
+      Lines.circle(u.x, u.y, (u.type.w + u.type.h)/2 + 2);
       Draw.color(); // 重置颜色
     }
     // 1. 获取贴图 (直接从 Type 获取，不查哈希表，速度极快)

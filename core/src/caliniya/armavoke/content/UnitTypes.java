@@ -16,10 +16,5 @@ public class UnitTypes {
 		test = new UnitType("testunit"){{
       this.load();
     }};
-    
-    ttt = test.create();
-    ttt.x = 100;
-    ttt.y = 100;
-    WorldData.units.add(ttt);
 	}
 }
