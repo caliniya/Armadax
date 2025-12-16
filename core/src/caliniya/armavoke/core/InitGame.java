@@ -6,6 +6,7 @@ import caliniya.armavoke.Armavoke;
 import caliniya.armavoke.base.type.EventType;
 import caliniya.armavoke.game.data.*;
 import caliniya.armavoke.system.render.*;
+import caliniya.armavoke.system.world.*;
 
 public class InitGame {
 
@@ -18,5 +19,6 @@ public class InitGame {
     RouteData.init();
     Armavoke.systems.add(new MapRender().init());
     Armavoke.systems.add(new UnitRender().init());
+    new UnitMath().init();
   }
 }

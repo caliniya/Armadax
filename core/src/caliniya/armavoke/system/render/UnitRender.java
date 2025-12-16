@@ -51,18 +51,11 @@ public class UnitRender extends BasicSystem<UnitRender> {
   private void drawUnit(Unit u) {
     if (u.isSelected) {
       Draw.color(Color.green);
-      // Lines.circle 需要导入 arc.graphics.g2d.Lines
-      Lines.circle(u.x, u.y, (u.type.w + u.type.h)/2 + 2);
-      Draw.color(); // 重置颜色
+      Lines.circle(u.x, u.y, (u.w + u.h)/2 + 2);
+      Draw.color();
     }
-    // 1. 获取贴图 (直接从 Type 获取，不查哈希表，速度极快)
-    TextureRegion reg = u.type.region;
+    TextureRegion reg = u.region;
 
-    // 2. 绘制
-    // Draw.rect 会自动处理旋转
     Draw.rect(reg, u.x, u.y, u.rotation);
-
-    // 如果有阴影，可以先画阴影
-    // Draw.rect("shadow", u.x, u.y, u.rotation);
   }
 }

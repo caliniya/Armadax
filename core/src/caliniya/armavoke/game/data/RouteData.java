@@ -54,8 +54,6 @@ public class RouteData {
             }
         }
     }
-    
-    // --- 核心寻路方法 ---
 
     /**
      * 获取路径
@@ -71,11 +69,9 @@ public class RouteData {
         // 如果没找到路径，返回空
         if (rawPath == null || rawPath.isEmpty()) return new Ar<>();
         
-        // 3. 最后一步：合并路径 (平滑处理)
+        // 最后一步：合并路径 (平滑处理)
         return smoothPath(rawPath);
     }
-
-    // --- JPS 算法实现 (A* 框架) ---
 
     private static Ar<Point2> jpsSearch(int sx, int sy, int tx, int ty) {
         // 边界检查

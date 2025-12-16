@@ -56,11 +56,16 @@ public class Armavoke extends ApplicationCore {
       UI.Menu();
       scene.resize(graphics.getWidth(), graphics.getHeight());
       UnitControl unitCtrl = new UnitControl().init();
-    systems.add(unitCtrl);
+      systems.add(unitCtrl);
       camInput = new CameraInput().init();
       Log.info("loaded");
       InputMultiplexer multiplexer =
-          new InputMultiplexer(scene,new GestureDetector(unitCtrl) ,new GestureDetector(camInput),unitCtrl,camInput);
+          new InputMultiplexer(
+              scene,
+              new GestureDetector(unitCtrl),
+              new GestureDetector(camInput),
+              unitCtrl,
+              camInput);
       input.addProcessor(multiplexer);
       systems.add(camInput);
       UnitTypes.load();
@@ -72,20 +77,19 @@ public class Armavoke extends ApplicationCore {
       UI.Loading();
     } else {
       Draw.proj(camera);
-      
+
       for (int i = 0; i < systems.size; i++) {
         BasicSystem sys = systems.get(i);
         sys.update();
       }
-      
-      
+
       camera.update();
       Draw.flush();
     }
     scene.act();
     scene.draw();
-    if(WorldData.units.size>= 1) {
-    	WorldData.units.get(1).update();
+    if (WorldData.units.size >= 1) {
+      WorldData.units.get(1).update();
       WorldData.units.get(0).update();
     }
   }

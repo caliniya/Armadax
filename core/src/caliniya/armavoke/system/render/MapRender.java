@@ -9,7 +9,7 @@ import arc.math.Mathf;
 import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.world.World;
 import caliniya.armavoke.world.Floor;
-import caliniya.armavoke.world.ENVBlock; // 【1. 新增】导入 ENVBlock 类
+import caliniya.armavoke.world.ENVBlock;
 
 public class MapRender extends BasicSystem<MapRender> {
   public static final float TILE_SIZE = 32f;
@@ -40,7 +40,7 @@ public class MapRender extends BasicSystem<MapRender> {
       for (int x = startX; x <= endX; x++) {
         int index = world.coordToIndex(x, y);
 
-        // --- 绘制地板 (保持不变) ---
+        // 绘制地板
         if (index >= 0 && index < world.floors.size) {
             Floor floor = world.floors.get(index);
             if (floor != null) {
@@ -48,7 +48,7 @@ public class MapRender extends BasicSystem<MapRender> {
             }
         }
         
-        // --- 【2. 新增】绘制环境块 ---
+        // 绘制环境块
         if (index >= 0 && index < world.envblocks.size) {
             ENVBlock block = world.envblocks.get(index);
             // 如果这个位置有环境块，就绘制它
@@ -70,13 +70,12 @@ public class MapRender extends BasicSystem<MapRender> {
   }
 
   /**
-   * 【3. 新增】绘制环境块的方法
+   * 绘制环境块的方法
    * @param block 要绘制的方块
    * @param x 网格 X 坐标
    * @param y 网格 Y 坐标
    */
   private void drawBlock(ENVBlock block, int x, int y) {
-    // 假设 ENVBlock 也有一个 'name' 字段来获取纹理
     TextureRegion region = Core.atlas.find(block.name); 
     
     if (!Core.atlas.isFound(region)) return;

@@ -49,7 +49,6 @@ public class World {
       for (int y = 0; y < 50; y++) {
         int index = coordToIndex(5, y);
         envblocks.set(index, ENVBlocks.a);
-        Log.info(ENVBlocks.a);
       }
     }
   }
