@@ -8,7 +8,7 @@ import caliniya.armavoke.game.Unit;
 
 public class UnitType extends ContentType {
     
-    public float speed = 5f;
+    public float speed = 5f , health = 100f;
     public float w = 100f , h = 180f;
     
     // 渲染资源

@@ -33,14 +33,12 @@ public class Armavoke extends ApplicationCore {
   @Override
   public void setup() {
     graphics.clear(Color.black);
-    Init.init();
-    Floors.load();
-    ENVBlocks.load();
     camera.resize(graphics.getWidth(), graphics.getHeight());
   }
 
   @Override
   public void init() {
+    Init.init();
     super.init();
   }
 
@@ -69,6 +67,8 @@ public class Armavoke extends ApplicationCore {
       input.addProcessor(multiplexer);
       systems.add(camInput);
       UnitTypes.load();
+      Floors.load();
+      ENVBlocks.load();
       assinited = true;
     }
 

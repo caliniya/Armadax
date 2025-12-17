@@ -20,5 +20,6 @@ public class InitGame {
     Armavoke.systems.add(new MapRender().init());
     Armavoke.systems.add(new UnitRender().init());
     new UnitMath().init();
+    new UnitProces().init();
   }
 }

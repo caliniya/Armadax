@@ -37,7 +37,7 @@ public class Ar<T> implements Iterable<T>, Eachable<T> {
     this(true, 16);
   }
 
-  /** Creates an ordered array with the specified capacity. */
+  /** 创建具有指定容量的有序数组。 */
   public Ar(int capacity) {
     this(true, capacity);
   }

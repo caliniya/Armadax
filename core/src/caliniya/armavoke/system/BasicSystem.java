@@ -11,7 +11,7 @@ public abstract class BasicSystem<T extends BasicSystem<T>> {
   public boolean inited = false;
   public int priority = 0;
   
-  // 建议默认不开线程，或者通过构造/init参数指定
+  // 默认不开线程，或者通过构造/init参数指定
   protected boolean isThreaded = false;
 
   private volatile boolean threadRunning = false;

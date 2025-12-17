@@ -1,22 +1,7 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/world/UnitMath.java",
-      "selection": {
-        "end": {
-          "column": 29,
-          "index": 1151,
-          "line": 38
-        },
-        "start": {
-          "column": 29,
-          "index": 1151,
-          "line": 38
-        }
-      }
-    },
-    {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/Unit.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/render/MapRender.java",
       "selection": {
         "end": {
           "column": 0,
@@ -31,5 +16,5 @@
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/world/UnitMath.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/render/MapRender.java"
 }

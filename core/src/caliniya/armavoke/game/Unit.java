@@ -50,6 +50,7 @@ public class Unit implements Poolable {
     this.h = type.h;
     this.speed = type.speed;
     this.region = type.region;
+    this.health = type.health;
 
     this.rotation = 0f;
     this.speedX = 0f;
@@ -116,6 +117,5 @@ public class Unit implements Poolable {
   }
 
   public void update() {
-    updateChunkPosition();
   }
 }
