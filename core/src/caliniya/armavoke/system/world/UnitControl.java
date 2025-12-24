@@ -89,17 +89,49 @@ public class UnitControl extends BasicSystem<UnitControl>
 
   /** 下达移动指令 */
   private void issueMoveCommand(float tx, float ty) {
+    // 1. 获取地图的物理边界 (单位: 像素)
+    // 假设地图从 (0,0) 开始，到 (W*32, H*32) 结束
+    float mapMinX = 0;
+    float mapMinY = 0;
+    float mapMaxX = WorldData.world.W * WorldData.TILE_SIZE - 1; // 减1防止刚好压在边界导致数组越界
+    float mapMaxY = WorldData.world.H * WorldData.TILE_SIZE - 1;
+
+    // 2. 限制目标坐标在地图范围内 (Clamping)
+    // 使用 arc.math.Mathf.clamp
+    float clampedX = arc.math.Mathf.clamp(tx, mapMinX, mapMaxX);
+    float clampedY = arc.math.Mathf.clamp(ty, mapMinY, mapMaxY);
+
+    // 3. (可选优化) 检查目标点是否是墙壁
+    // 如果点击了墙壁，单位通常应该走到离墙最近的空地，或者直接不走。
+    // 这里简单的处理是：如果是墙，就不下达指令（或者你自己写一个搜索最近空地的方法）
+    if (isSolidAtWorldPos(clampedX, clampedY)) {
+      // 如果点到了墙里，暂时不做处理，或者让单位停下？
+      // return;
+    }
+
     for (int i = 0; i < selectedUnits.size; i++) {
       Unit u = selectedUnits.get(i);
-      // 设定目标坐标
-      u.targetX = tx;
-      u.targetY = ty;
-      synchronized(WorldData.moveunits){
-        WorldData.moveunits.add(u);//将其加入导航列表
+
+      // 设定修正后的目标坐标
+      u.targetX = clampedX;
+      u.targetY = clampedY;
+
+      synchronized (WorldData.moveunits) {
+        // 防止重复添加：如果单位已经在列表里了，就别加了
+        if (!WorldData.moveunits.contains(u)) {
+          WorldData.moveunits.add(u);
+        }
       }
-      u.pathed = false;//标记为尚未请求导航数据
+      u.pathed = false; // 标记为尚未请求导航数据
     }
     // TODO: 做个音效
+  }
+
+  // 辅助方法：判断世界像素坐标是否是障碍物
+  private boolean isSolidAtWorldPos(float wx, float wy) {
+    int gx = (int) (wx / WorldData.TILE_SIZE);
+    int gy = (int) (wy / WorldData.TILE_SIZE);
+    return WorldData.world.isSolid(gx, gy);
   }
 
   /** 清空所有选中状态 */
@@ -156,7 +188,6 @@ public class UnitControl extends BasicSystem<UnitControl>
     }
     return null;
   }
-
 
   @Override
   public void update() {}

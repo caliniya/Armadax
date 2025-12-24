@@ -28,6 +28,7 @@ public class Unit implements Poolable {
   public Ar<Point2> path;
   public int pathIndex = 0;
   public boolean pathed; // 真则当前已经请求过一次导航数据
+  public boolean velocityDirty = true; // 方向请求？
 
   // --- 状态属性 ---
   public boolean isSelected = false;
@@ -80,6 +81,7 @@ public class Unit implements Poolable {
     this.rotation = 0;
     this.health = 0;
     this.id = -1;
+    this.velocityDirty = true;
 
     this.currentChunkIndex = -1;
     this.isSelected = false;
@@ -116,6 +118,11 @@ public class Unit implements Poolable {
     Pools.free(this);
   }
 
-  public void update() {
+  public void update() {}
+
+  public void impuse(float knockX, float knockY) {
+    this.x += knockX;
+    this.y += knockY;
+    this.velocityDirty = true; // 位置变了，必须重算方向，否则会走偏
   }
 }

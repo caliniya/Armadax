@@ -1,50 +1,20 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/Weapon.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/world/UnitProces.java",
       "selection": {
         "end": {
-          "column": 1,
-          "index": 79,
-          "line": 4
+          "column": 55,
+          "index": 2042,
+          "line": 80
         },
         "start": {
-          "column": 1,
-          "index": 79,
-          "line": 4
-        }
-      }
-    },
-    {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/render/MapRender.java",
-      "selection": {
-        "end": {
-          "column": 2,
-          "index": 449,
-          "line": 15
-        },
-        "start": {
-          "column": 2,
-          "index": 449,
-          "line": 15
-        }
-      }
-    },
-    {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/base/game/MapChunk.java",
-      "selection": {
-        "end": {
-          "column": 37,
-          "index": 37,
-          "line": 0
-        },
-        "start": {
-          "column": 37,
-          "index": 37,
-          "line": 0
+          "column": 55,
+          "index": 2042,
+          "line": 80
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/base/game/MapChunk.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/world/UnitProces.java"
 }

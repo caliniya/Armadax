@@ -19,7 +19,7 @@ public class MapChunk implements Disposable {
     public FrameBuffer fbo;
     public boolean dirty = true;
     
-    // 【新增】专用的烘焙摄像机
+    // 烘焙摄像机
     private static Camera bakeCamera;
 
     public MapChunk(int chunkX, int chunkY) {
@@ -36,7 +36,7 @@ public class MapChunk implements Disposable {
     public void bake() {
         if (!dirty) return;
 
-        // 1. 设置烘焙摄像机
+        // 设置烘焙摄像机
         // 我们希望摄像机正好对准 FBO 的中心，视野大小完全覆盖 PIXEL_SIZE
         // FBO 的本地坐标系是左下角 (0,0)，右上角 (PIXEL_SIZE, PIXEL_SIZE)
         bakeCamera.width = PIXEL_SIZE;
@@ -44,10 +44,10 @@ public class MapChunk implements Disposable {
         bakeCamera.position.set(PIXEL_SIZE / 2f, PIXEL_SIZE / 2f);
         bakeCamera.update();
 
-        // 2. 开始捕获
+        // 开始捕获
         fbo.begin(Color.clear);
         
-        // 【关键】应用烘焙摄像机的投影矩阵
+        // 应用烘焙摄像机的投影矩阵
         // 保存之前的投影矩阵，绘制完后恢复，防止影响屏幕其他内容的绘制
         // Arc 的 Draw.proj() 会设置 Batch 的投影矩阵
         Draw.proj(bakeCamera);
@@ -85,7 +85,7 @@ public class MapChunk implements Disposable {
         fbo.end();
         dirty = false;
         
-        // 【关键】恢复主摄像机的投影矩阵
+        // 恢复主摄像机的投影矩阵
         // 否则会导致后续渲染（如单位）使用烘焙摄像机的矩阵，变得极小或不可见
         Draw.proj(Core.camera);
     }
