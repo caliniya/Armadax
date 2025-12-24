@@ -4,17 +4,47 @@
       "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/world/UnitProces.java",
       "selection": {
         "end": {
-          "column": 55,
-          "index": 2042,
-          "line": 80
+          "column": 0,
+          "index": 2036,
+          "line": 81
         },
         "start": {
-          "column": 55,
-          "index": 2042,
-          "line": 80
+          "column": 0,
+          "index": 2036,
+          "line": 81
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/world/UnitMath.java",
+      "selection": {
+        "end": {
+          "column": 57,
+          "index": 1437,
+          "line": 55
+        },
+        "start": {
+          "column": 57,
+          "index": 1437,
+          "line": 55
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/data/RouteData.java",
+      "selection": {
+        "end": {
+          "column": 5,
+          "index": 354,
+          "line": 13
+        },
+        "start": {
+          "column": 5,
+          "index": 354,
+          "line": 13
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/system/world/UnitProces.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/data/RouteData.java"
 }

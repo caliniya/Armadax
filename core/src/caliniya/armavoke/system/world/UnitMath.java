@@ -53,7 +53,7 @@ public class UnitMath extends BasicSystem<UnitMath> {
     int ty = (int) (u.targetY / WorldData.TILE_SIZE);
 
     if (sx != tx || sy != ty) {
-      u.path = RouteData.findPath(sx, sy, tx, ty);
+      u.path = RouteData.findPath(sx, sy, tx, ty , (int)2f);
       u.pathIndex = 0;
 
       if (u.path == null || u.path.isEmpty()) {
@@ -70,29 +70,51 @@ public class UnitMath extends BasicSystem<UnitMath> {
   }
 
   private void calculateVelocity(Unit u) {
-    if (u.path == null || u.path.isEmpty() || u.pathIndex >= u.path.size) {
+    if (u.path == null || u.path.isEmpty()) {
       handleFinalApproach(u);
       return;
     }
 
-    Point2 node = u.path.get(u.pathIndex);
-    float nextX = node.x * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
-    float nextY = node.y * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
+    // --- 路径跟随逻辑 ---
+    // 如果还没走完
+    if (u.pathIndex < u.path.size) {
 
-    float dist = Mathf.dst(u.x, u.y, nextX, nextY);
+      // 【核心修改】计算当前要去的那个点的"世界坐标"
+      float nextX, nextY;
 
-    if (dist <= u.speed) {
-      u.pathIndex++;
-      u.velocityDirty = true;
-      calculateVelocity(u);
-      return;
-    }
+      // 如果是路径列表的最后一个点 -> 使用用户的精确点击坐标 (targetX, targetY)
+      if (u.pathIndex == u.path.size - 1) {
+        nextX = u.targetX;
+        nextY = u.targetY;
+      }
+      // 否则 -> 使用网格中心坐标
+      else {
+        Point2 node = u.path.get(u.pathIndex);
+        nextX = node.x * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
+        nextY = node.y * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
+      }
 
-    if (u.velocityDirty) {
-      float angle = Angles.angle(u.x, u.y, nextX, nextY);
-      u.speedX = Mathf.cosDeg(angle) * u.speed;
-      u.speedY = Mathf.sinDeg(angle) * u.speed;
-      u.velocityDirty = false;
+      // --- 以下逻辑保持不变 ---
+      float dist = Mathf.dst(u.x, u.y, nextX, nextY);
+
+      if (dist <= u.speed) {
+        u.pathIndex++;
+        u.velocityDirty = true;
+        calculateVelocity(u); // 递归去下一个点
+        return;
+      }
+
+      if (u.velocityDirty) {
+        float angle = Angles.angle(u.x, u.y, nextX, nextY);
+        u.speedX = Mathf.cosDeg(angle) * u.speed;
+        u.speedY = Mathf.sinDeg(angle) * u.speed;
+        u.velocityDirty = false;
+      }
+    } else {
+      // 如果 pathIndex 超出了 list 大小，说明已经走完所有节点（包括最后一个）
+      // 这里的逻辑通常不会触发，因为上面最后一个点就是 targetX/Y，到达后就应该直接 stopAndRemove 了
+      // 但为了保险起见，或者应对 pathIndex 异常增加，这里再 check 一次
+      handleFinalApproach(u);
     }
   }
 
@@ -100,10 +122,7 @@ public class UnitMath extends BasicSystem<UnitMath> {
   private void handleFinalApproach(Unit u) {
     float distToFinal = Mathf.dst(u.x, u.y, u.targetX, u.targetY);
 
-    // 判断是否到达 (判定范围稍微比速度大一点点，或者包含速度)
     if (distToFinal > u.speed) {
-      // 只有在距离足够远（避免浮点数 singularity）且标记为脏时才计算
-      // 增加 distToFinal > 0.1f 检查，防止极近距离下的角度乱跳
       if (u.velocityDirty && distToFinal > 0.1f) {
         float angle = Angles.angle(u.x, u.y, u.targetX, u.targetY);
         u.speedX = Mathf.cosDeg(angle) * u.speed;
@@ -111,7 +130,7 @@ public class UnitMath extends BasicSystem<UnitMath> {
         u.velocityDirty = false;
       }
     } else {
-      // 【核心修复】彻底到达终点
+      // 彻底到达终点
       stopAndRemove(u);
     }
   }

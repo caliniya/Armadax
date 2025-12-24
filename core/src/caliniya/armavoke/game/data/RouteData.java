@@ -11,7 +11,7 @@ import java.util.PriorityQueue;
 public class RouteData {
 
   private static boolean[] solidMap;
-  // 【新增】间隙图：记录每个格子距离最近的障碍物有多少格
+  // 间隙图：记录每个格子距离最近的障碍物有多少格
   // 0 = 是墙, 1 = 挨着墙, 2 = 离墙2格远...
   private static int[] clearanceMap;
 
@@ -260,7 +260,7 @@ public class RouteData {
     return smoothed;
   }
 
-  /** 宽体射线检测 实现了你要求的"计算方向，偏移，检测环境块"的逻辑 但更高效的是直接利用 Clearance Map */
+  /** 宽体射线检测 实现了计算方向，偏移，检测环境块的逻辑 但更高效的是直接利用 Clearance Map */
   private static boolean lineCastWidth(int x0, int y0, int x1, int y1, int unitSize) {
     // 如果没有体积，使用普通检测
     if (unitSize == 0) return !lineCastSolid(x0, y0, x1, y1);
