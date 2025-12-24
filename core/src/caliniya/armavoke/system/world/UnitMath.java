@@ -28,26 +28,16 @@ public class UnitMath extends BasicSystem<UnitMath> {
       processList.addAll(WorldData.moveunits);
     }
 
-    // 2. 遍历处理每个单位
     for (int i = 0; i < processList.size; ++i) {
       Unit u = processList.get(i);
       
-      // 基础检查
       if (u == null || u.health <= 0) continue;
 
-      // -------------------------------------------------
-      // 第一阶段：路径规划 (Heavy)
-      // 如果还没路径，或者请求重新寻路，则计算整条路径
-      // -------------------------------------------------
       if (!u.pathed) {
           calculatePath(u);
           u.pathed = true; // 标记已规划
       }
 
-      // -------------------------------------------------
-      // 第二阶段：路径跟随与速度计算 (Light)
-      // 每一帧都计算，确保单位能沿着路径走
-      // -------------------------------------------------
       calculateVelocity(u);
     }
     

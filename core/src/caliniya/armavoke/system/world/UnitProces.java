@@ -20,7 +20,7 @@ public class UnitProces extends BasicSystem<UnitProces> {
   @Override
   public void update() {
     // 遍历所有单位
-    // 通常物理积分是对所有单位生效的
+    // 通常物理积分是对所有单位生效的？
     Ar<Unit> list = WorldData.units;
 
     for (int i = 0; i < list.size; i++) {

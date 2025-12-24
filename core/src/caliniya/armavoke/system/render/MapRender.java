@@ -1,96 +1,105 @@
 package caliniya.armavoke.system.render;
 
-import caliniya.armavoke.system.BasicSystem;
 import arc.Core;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.TextureRegion;
 import arc.graphics.Camera;
 import arc.math.Mathf;
 import caliniya.armavoke.game.data.WorldData;
+import caliniya.armavoke.system.BasicSystem;
 import caliniya.armavoke.world.World;
-import caliniya.armavoke.world.Floor;
-import caliniya.armavoke.world.ENVBlock;
+import caliniya.armavoke.base.game.*;
 
 public class MapRender extends BasicSystem<MapRender> {
   public static final float TILE_SIZE = 32f;
   public static World world;
   public Camera camera = Core.camera;
 
-  @Override
-  public void update() {
-    if (!inited) return;
-    
-    // ... (计算 startX, startY, endX, endY 的代码保持不变) ...
-    float viewLeft = camera.position.x - camera.width / 2f;
-    float viewBottom = camera.position.y - camera.height / 2f;
-    float viewRight = camera.position.x + camera.width / 2f;
-    float viewTop = camera.position.y + camera.height / 2f;
-
-    int startX = (int) Math.floor(viewLeft / TILE_SIZE) - 1;
-    int startY = (int) Math.floor(viewBottom / TILE_SIZE) - 1;
-    int endX = (int) Math.ceil(viewRight / TILE_SIZE) + 1;
-    int endY = (int) Math.ceil(viewTop / TILE_SIZE) + 1;
-
-    startX = Mathf.clamp(startX, 0, world.W - 1);
-    startY = Mathf.clamp(startY, 0, world.H - 1);
-    endX = Mathf.clamp(endX, 0, world.W - 1);
-    endY = Mathf.clamp(endY, 0, world.H - 1);
-
-    for (int y = startY; y <= endY; y++) {
-      for (int x = startX; x <= endX; x++) {
-        int index = world.coordToIndex(x, y);
-
-        // 绘制地板
-        if (index >= 0 && index < world.floors.size) {
-            Floor floor = world.floors.get(index);
-            if (floor != null) {
-                drawFloor(floor, x, y);
-            }
-        }
-        
-        // 绘制环境块
-        if (index >= 0 && index < world.envblocks.size) {
-            ENVBlock block = world.envblocks.get(index);
-            // 如果这个位置有环境块，就绘制它
-            if (block != null) {
-                drawBlock(block, x, y);
-            }
-        }
-      }
-    }
-  }
-
-  private void drawFloor(Floor floor, int x, int y) {
-    TextureRegion region = Core.atlas.find(floor.name);
-    if (!Core.atlas.isFound(region)) return;
-    
-    float drawX = x * TILE_SIZE + TILE_SIZE / 2f;
-    float drawY = y * TILE_SIZE + TILE_SIZE / 2f;
-    Draw.rect(region, drawX, drawY, TILE_SIZE, TILE_SIZE);
-  }
-
-  /**
-   * 绘制环境块的方法
-   * @param block 要绘制的方块
-   * @param x 网格 X 坐标
-   * @param y 网格 Y 坐标
-   */
-  private void drawBlock(ENVBlock block, int x, int y) {
-    TextureRegion region = Core.atlas.find(block.name); 
-    
-    if (!Core.atlas.isFound(region)) return;
-
-    // 绘制位置和地板一样
-    float drawX = x * TILE_SIZE + TILE_SIZE / 2f;
-    float drawY = y * TILE_SIZE + TILE_SIZE / 2f;
-    Draw.rect(region, drawX, drawY, TILE_SIZE, TILE_SIZE);
-  }
+  // 存储所有区块的二维数组
+  private MapChunk[][] chunks;
+  private int chunksW, chunksH;
 
   @Override
   public MapRender init() {
     WorldData.initWorld();
     world = WorldData.world;
     priority = 10;
+    
+    initChunks();
+    
     return super.init();
+  }
+
+  private void initChunks() {
+    // 计算横向和纵向有多少个区块
+    chunksW = Mathf.ceil((float)world.W / MapChunk.SIZE);
+    chunksH = Mathf.ceil((float)world.H / MapChunk.SIZE);
+    
+    chunks = new MapChunk[chunksW][chunksH];
+    
+    for(int x = 0; x < chunksW; x++){
+        for(int y = 0; y < chunksH; y++){
+            chunks[x][y] = new MapChunk(x, y);
+        }
+    }
+  }
+
+  @Override
+  public void update() {
+    if (!inited || chunks == null) return;
+    
+    // 计算摄像机视野范围内的 区块索引
+    float viewLeft = camera.position.x - camera.width / 2f;
+    float viewBottom = camera.position.y - camera.height / 2f;
+    float viewRight = camera.position.x + camera.width / 2f;
+    float viewTop = camera.position.y + camera.height / 2f;
+
+    // 将像素坐标转换为区块索引
+    int startX = (int) (viewLeft / MapChunk.PIXEL_SIZE);
+    int startY = (int) (viewBottom / MapChunk.PIXEL_SIZE);
+    int endX = (int) (viewRight / MapChunk.PIXEL_SIZE);
+    int endY = (int) (viewTop / MapChunk.PIXEL_SIZE);
+
+    // 限制在数组范围内
+    startX = Mathf.clamp(startX, 0, chunksW - 1);
+    startY = Mathf.clamp(startY, 0, chunksH - 1);
+    endX = Mathf.clamp(endX, 0, chunksW - 1);
+    endY = Mathf.clamp(endY, 0, chunksH - 1);
+
+    // 只渲染视野内的区块
+    for (int y = startY; y <= endY; y++) {
+      for (int x = startX; x <= endX; x++) {
+          // 每个区块内部会检查 dirty，如果脏了会自动重绘 FBO
+          // 如果没脏，直接画一张大图
+          chunks[x][y].render();
+      }
+    }
+  }
+  
+  /** 
+   * 当地图某个位置发生改变时调用此方法 
+   * 例如：玩家建造了墙，或者地形被破坏
+   */
+  public void flagUpdate(int worldGridX, int worldGridY) {
+      int cx = worldGridX / MapChunk.SIZE;
+      int cy = worldGridY / MapChunk.SIZE;
+      
+      if (cx >= 0 && cx < chunksW && cy >= 0 && cy < chunksH) {
+          chunks[cx][cy].dirty = true;
+          
+          // 边界处理：如果修改的块在区块边缘，可能由于纹理溢出(比如有些墙比较大)需要更新相邻区块
+          // 这里暂时只更新本格
+      }
+  }
+
+  @Override
+  public void dispose() {
+      // 释放显存资源
+      if(chunks != null){
+          for(int x = 0; x < chunksW; x++){
+              for(int y = 0; y < chunksH; y++){
+                  chunks[x][y].dispose();
+              }
+          }
+      }
+      super.dispose();
   }
 }
