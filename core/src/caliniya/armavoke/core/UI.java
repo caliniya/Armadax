@@ -16,12 +16,11 @@ public class UI {
         new MenuFragment().build();
     }
 
-    // 注意：这个方法需要在你的主渲染循环(ApplicationListener.draw)中每一帧调用
+    // 注意：这个方法需要在主渲染循环(ApplicationListener.draw)中每一帧调用
     public static void Loading() {
         
 
         // 2. 设置投影矩阵 (Orthographic Projection)
-        // 这一步至关重要，它将绘图坐标系映射到屏幕像素 (0,0 在左下角)
         //Draw.proj().setOrtho(0, 0, graphics.getWidth(), graphics.getHeight());
 
         // 3. 计算尺寸和位置
@@ -69,7 +68,6 @@ public class UI {
         }
 
         // 7. 强制刷新绘制批处理 (将指令发送给 GPU)
-        // 如果没有这一行，你可能什么都看不到
         Draw.flush();
     }
   

@@ -24,13 +24,12 @@ public class UnitRender extends BasicSystem<UnitRender> {
     // 如果没有设置，可以在这里调用 Draw.proj(Core.camera);
 
     // 遍历所有单位
-    // 使用 Ar 的直接访问方式比 Java 的 Iterator 快
     for (int i = 0; i < WorldData.units.size; i++) {
       Unit u = WorldData.units.get(i);
 
       // 视锥剔除 (Culling):
-      // 这是一个非常重要的优化！如果单位不在屏幕内，就不画它。
-      // 我们用一个简单的矩形判断。
+      // 如果单位不在屏幕内，就不画它。
+      // 我们用一个简单的矩形判断。AABB
       if (shouldDraw(u)) {
         drawUnit(u);
       }

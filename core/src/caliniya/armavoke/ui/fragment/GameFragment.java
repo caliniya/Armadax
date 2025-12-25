@@ -20,7 +20,7 @@ public class GameFragment {
     
     commandBtn =
         new Button(
-            "@指挥",
+            "@command",
             () -> {
               isCommandEnabled = !isCommandEnabled;
               Events.fire(new EventType.CommandChange(isCommandEnabled));

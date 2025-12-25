@@ -13,7 +13,5 @@ public class Button extends ImageButton {
     row();
     add(text).growX().wrap().center().get().setAlignment(Align.center, Align.center);
     setStyle(Styles.ibuttondef);
-  
-
-}
+  }
 }

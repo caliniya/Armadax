@@ -20,7 +20,7 @@ public class Unit implements Poolable {
 
   // --- 物理属性 ---
   public float x, y;
-  public float speedX, speedY; // 速度分量 (每帧移动的像素量)
+  public float speedX, speedY , angle; // 速度分量 (每帧移动的像素量),速度方向
   public float rotation; // 渲染朝向 (度)
 
   // --- 导航属性 ---

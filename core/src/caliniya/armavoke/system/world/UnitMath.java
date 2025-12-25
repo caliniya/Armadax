@@ -53,7 +53,7 @@ public class UnitMath extends BasicSystem<UnitMath> {
     int ty = (int) (u.targetY / WorldData.TILE_SIZE);
 
     if (sx != tx || sy != ty) {
-      u.path = RouteData.findPath(sx, sy, tx, ty , (int)2f);
+      u.path = RouteData.findPath(sx, sy, tx, ty , 2 , 1);
       u.pathIndex = 0;
 
       if (u.path == null || u.path.isEmpty()) {
@@ -79,10 +79,10 @@ public class UnitMath extends BasicSystem<UnitMath> {
     // 如果还没走完
     if (u.pathIndex < u.path.size) {
 
-      // 【核心修改】计算当前要去的那个点的"世界坐标"
+      // 计算当前要去的那个点的"世界坐标"
       float nextX, nextY;
 
-      // 如果是路径列表的最后一个点 -> 使用用户的精确点击坐标 (targetX, targetY)
+      // 如果是路径列表的最后一个点 -> 使用精确点击坐标 (targetX, targetY)
       if (u.pathIndex == u.path.size - 1) {
         nextX = u.targetX;
         nextY = u.targetY;
@@ -94,7 +94,6 @@ public class UnitMath extends BasicSystem<UnitMath> {
         nextY = node.y * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
       }
 
-      // --- 以下逻辑保持不变 ---
       float dist = Mathf.dst(u.x, u.y, nextX, nextY);
 
       if (dist <= u.speed) {
@@ -105,9 +104,9 @@ public class UnitMath extends BasicSystem<UnitMath> {
       }
 
       if (u.velocityDirty) {
-        float angle = Angles.angle(u.x, u.y, nextX, nextY);
-        u.speedX = Mathf.cosDeg(angle) * u.speed;
-        u.speedY = Mathf.sinDeg(angle) * u.speed;
+        u.angle = Angles.angle(u.x, u.y, nextX, nextY);
+        u.speedX = Mathf.cosDeg(u.angle) * u.speed;
+        u.speedY = Mathf.sinDeg(u.angle) * u.speed;
         u.velocityDirty = false;
       }
     } else {
@@ -124,9 +123,9 @@ public class UnitMath extends BasicSystem<UnitMath> {
 
     if (distToFinal > u.speed) {
       if (u.velocityDirty && distToFinal > 0.1f) {
-        float angle = Angles.angle(u.x, u.y, u.targetX, u.targetY);
-        u.speedX = Mathf.cosDeg(angle) * u.speed;
-        u.speedY = Mathf.sinDeg(angle) * u.speed;
+        u.angle = Angles.angle(u.x, u.y, u.targetX, u.targetY);
+        u.speedX = Mathf.cosDeg(u.angle) * u.speed;
+        u.speedY = Mathf.sinDeg(u.angle) * u.speed;
         u.velocityDirty = false;
       }
     } else {
@@ -142,7 +141,7 @@ public class UnitMath extends BasicSystem<UnitMath> {
     u.velocityDirty = false; // 重置标记
 
     // 从源列表移除，彻底停止计算
-    // 这样下一帧 update() 就不会再遍历到这个单位，杜绝任何抖动
+    // 这样下一帧 update() 就不会再遍历到这个单位
     synchronized (WorldData.moveunits) {
       WorldData.moveunits.remove(u);
     }

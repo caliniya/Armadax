@@ -6,8 +6,8 @@ import arc.util.*;
 import arc.struct.*;
 
 import java.util.*;
-//他和Seq除了名字以外没有任何不同……
-//但我喜欢这个名字…………
+//这和Seq除了名字以外没有任何不同……我甚至连注释都没动
+//但我喜欢这个名字…………管他的
 
 /**
  * A resizable, ordered or unordered array of objects. If unordered, this class

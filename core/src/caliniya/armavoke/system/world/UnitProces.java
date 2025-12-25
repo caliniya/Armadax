@@ -43,11 +43,12 @@ public class UnitProces extends BasicSystem<UnitProces> {
           u.speedY = 0;
 
           // 到达终点后，不再需要计算旋转，且防止后续误判
-          u.velocityDirty = false;
+          //u.velocityDirty = false;
         } else {
           // 正常移动
           u.x += u.speedX;
           u.y += u.speedY;
+          u.rotation = u.angle - 90;
         }
       }
 
@@ -55,11 +56,11 @@ public class UnitProces extends BasicSystem<UnitProces> {
       // 只有当 UnitMath 标记了方向改变(dirty)，且单位确实在运动时，才重新计算旋转
       if (u.velocityDirty && Mathf.len(u.speedX, u.speedY) > 0.01f) {
 
-        // 计算移动方向 (耗时操作，现在仅在拐点执行一次)
-        float moveAngle = Angles.angle(0, 0, u.speedX, u.speedY);
+        // 计算移动方向
+        //float moveAngle = Angles.angle(0, 0, u.speedX, u.speedY);
 
         // 更新朝向
-        u.rotation = moveAngle - 90;
+        u.rotation = u.angle - 90;
 
         // 由物理系统消费这个标记
         // 告诉 UnitMath 和 UnitProces：方向已经处理完毕，后续帧保持当前状态即可

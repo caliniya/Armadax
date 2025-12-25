@@ -40,7 +40,6 @@ public class MenuFragment {
                         ttt.x = 100;
                         ttt.y = 100;
                         WorldData.units.add(ttt);
-              
                       }));
               menu.row();
 
@@ -60,7 +59,7 @@ public class MenuFragment {
               menu.add(new Button("A3", () -> Log.info("A3")));
               menu.row();
 
-              menu.add(new Button("退出", () -> Core.app.exit()));
+              menu.add(new Button("@exit", () -> Core.app.exit()));
             })
         .width(menuWidth)
         .padLeft(20f)

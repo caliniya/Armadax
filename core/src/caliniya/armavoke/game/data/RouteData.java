@@ -2,7 +2,6 @@ package caliniya.armavoke.game.data;
 
 import arc.math.Mathf;
 import arc.math.geom.Point2;
-import arc.math.geom.Vec2; // 引入 Vec2 进行向量计算
 import caliniya.armavoke.base.tool.Ar;
 import caliniya.armavoke.world.ENVBlock;
 import caliniya.armavoke.world.World;
@@ -10,15 +9,28 @@ import java.util.PriorityQueue;
 
 public class RouteData {
 
-  private static boolean[] solidMap;
-  // 间隙图：记录每个格子距离最近的障碍物有多少格
-  // 0 = 是墙, 1 = 挨着墙, 2 = 离墙2格远...
-  private static int[] clearanceMap;
-
-  // 静态跳点标记 (针对标准 1x1 单位的优化)
-  private static boolean[] interestMap;
+  // 配置常量
+  private static final int MAX_PRECALC_RADIUS = 4; // 预计算跳点的最大半径 (0-4)
+  private static final int MAX_CAPABILITY = 2;     // 最大跨越等级 (0, 1, 2)
 
   public static int W, H;
+
+  // --- 数据结构类 ---
+  /** 导航层：代表一种特定的跨越能力 (例如普通、跨越1层墙、跨越2层墙) */
+  private static class NavLayer {
+    boolean[] solidMap;        // 当前能力的障碍物图
+    int[] clearanceMap;        // 当前能力的距离场
+    boolean[][] interestMaps;  // [半径][索引] 针对不同体积单位的跳点缓存
+
+    public NavLayer() {
+      solidMap = new boolean[W * H];
+      clearanceMap = new int[W * H];
+      interestMaps = new boolean[MAX_PRECALC_RADIUS + 1][W * H];
+    }
+  }
+
+  // 存储所有导航层：layers[capability]
+  private static NavLayer[] layers;
 
   private RouteData() {}
 
@@ -27,96 +39,139 @@ public class RouteData {
     W = world.W;
     H = world.H;
 
-    solidMap = new boolean[W * H];
-    interestMap = new boolean[W * H];
-    clearanceMap = new int[W * H];
+    layers = new NavLayer[MAX_CAPABILITY + 1];
 
-    // 1. 加载碰撞体
+    // 1. 初始化 Layer 0 (基础层，无跨越能力)
+    layers[0] = new NavLayer();
     Ar<ENVBlock> blocks = world.envblocks;
     for (int i = 0; i < blocks.size; i++) {
       ENVBlock b = blocks.get(i);
-      solidMap[i] = (b != null);
+      layers[0].solidMap[i] = (b != null); // 基础障碍物
     }
 
-    // 2. 计算距离场 (Clearance Map)
-    calcClearance();
-
-    // 3. 预计算 1x1 单位的跳点
-    loadJPoint();
-  }
-
-  /** 计算距离场 (Brushfire Algorithm 的简化版) 计算每个格子距离最近的障碍物的曼哈顿距离 */
-  private static void calcClearance() {
-    // 初始化：墙为 0，空地为最大值
-    for (int i = 0; i < W * H; i++) {
-      clearanceMap[i] = solidMap[i] ? 0 : 9999;
+    // 2. 初始化 Layer 1 ~ N (腐蚀层，为机甲提供能力)
+    for (int cap = 1; cap <= MAX_CAPABILITY; cap++) {
+      layers[cap] = new NavLayer();
+      // 基于上一层进行"腐蚀"操作 (墙壁变薄)
+      erodeMap(layers[cap - 1].solidMap, layers[cap].solidMap);
     }
 
-    // 第一遍扫描：从左上到右下
-    for (int y = 0; y < H; y++) {
-      for (int x = 0; x < W; x++) {
-        if (solidMap[coordToIndex(x, y)]) continue;
+    // 3. 为每一层计算距离场和跳点
+    for (int cap = 0; cap <= MAX_CAPABILITY; cap++) {
+      NavLayer layer = layers[cap];
+      
+      // A. 计算距离场 (Clearance)
+      calcClearance(layer);
 
-        int val = clearanceMap[coordToIndex(x, y)];
-        // 检查左边和上边
-        if (isValid(x - 1, y)) val = Math.min(val, clearanceMap[coordToIndex(x - 1, y)] + 1);
-        if (isValid(x, y - 1)) val = Math.min(val, clearanceMap[coordToIndex(x, y - 1)] + 1);
-
-        clearanceMap[coordToIndex(x, y)] = val;
-      }
-    }
-
-    // 第二遍扫描：从右下到左上
-    for (int y = H - 1; y >= 0; y--) {
-      for (int x = W - 1; x >= 0; x--) {
-        if (solidMap[coordToIndex(x, y)]) continue;
-
-        int val = clearanceMap[coordToIndex(x, y)];
-        // 检查右边和下边
-        if (isValid(x + 1, y)) val = Math.min(val, clearanceMap[coordToIndex(x + 1, y)] + 1);
-        if (isValid(x, y + 1)) val = Math.min(val, clearanceMap[coordToIndex(x, y + 1)] + 1);
-
-        clearanceMap[coordToIndex(x, y)] = val;
+      // B. 为不同半径预计算跳点
+      for (int r = 0; r <= MAX_PRECALC_RADIUS; r++) {
+        loadJPointsForRadius(layer, r);
       }
     }
   }
 
-  private static void loadJPoint() {
+  /** 地图腐蚀算法：只有当一个墙壁周围全是墙壁时，它在新地图中才保留为墙壁 */
+  private static void erodeMap(boolean[] source, boolean[] target) {
     for (int y = 0; y < H; y++) {
       for (int x = 0; x < W; x++) {
-        if (isSolid(x, y)) continue;
-        if (hasSolidNeighbor(x, y)) {
-          interestMap[coordToIndex(x, y)] = true;
+        int index = coordToIndex(x, y);
+        if (!source[index]) {
+          target[index] = false; // 本来就是空地
+        } else {
+          // 本来是墙，检查是否是边缘墙
+          // 如果上下左右有一个是空地，说明它是边缘，腐蚀掉(变为空地)
+          boolean isEdge = false;
+          if (isValid(x + 1, y) && !source[coordToIndex(x + 1, y)]) isEdge = true;
+          else if (isValid(x - 1, y) && !source[coordToIndex(x - 1, y)]) isEdge = true;
+          else if (isValid(x, y + 1) && !source[coordToIndex(x, y + 1)]) isEdge = true;
+          else if (isValid(x, y - 1) && !source[coordToIndex(x, y - 1)]) isEdge = true;
+          
+          target[index] = !isEdge; // 如果是边缘则移除，否则保留
         }
       }
     }
   }
 
-  /**
-   * 获取路径 (带体积支持)
-   *
-   * @param unitSize 单位占用格子的半径 (0=1x1单位, 1=3x3单位, 2=5x5单位) 如果你的单位是 32像素宽(1格)，传 0。 如果你的单位是
-   *     64像素宽(2格)，传 1。
-   */
-  public static Ar<Point2> findPath(int sx, int sy, int tx, int ty, int unitSize) {
-    // 1. 如果终点对于该体积单位来说太窄，直接返回空
-    if (!isPassable(tx, ty, unitSize)) return new Ar<>();
+  /** 计算距离场 */
+  private static void calcClearance(NavLayer layer) {
+    for (int i = 0; i < W * H; i++) {
+      layer.clearanceMap[i] = layer.solidMap[i] ? 0 : 9999;
+    }
+    // 左上 -> 右下
+    for (int y = 0; y < H; y++) {
+      for (int x = 0; x < W; x++) {
+        if (layer.solidMap[coordToIndex(x, y)]) continue;
+        int val = layer.clearanceMap[coordToIndex(x, y)];
+        if (isValid(x - 1, y)) val = Math.min(val, layer.clearanceMap[coordToIndex(x - 1, y)] + 1);
+        if (isValid(x, y - 1)) val = Math.min(val, layer.clearanceMap[coordToIndex(x, y - 1)] + 1);
+        layer.clearanceMap[coordToIndex(x, y)] = val;
+      }
+    }
+    // 右下 -> 左上
+    for (int y = H - 1; y >= 0; y--) {
+      for (int x = W - 1; x >= 0; x--) {
+        if (layer.solidMap[coordToIndex(x, y)]) continue;
+        int val = layer.clearanceMap[coordToIndex(x, y)];
+        if (isValid(x + 1, y)) val = Math.min(val, layer.clearanceMap[coordToIndex(x + 1, y)] + 1);
+        if (isValid(x, y + 1)) val = Math.min(val, layer.clearanceMap[coordToIndex(x, y + 1)] + 1);
+        layer.clearanceMap[coordToIndex(x, y)] = val;
+      }
+    }
+  }
 
-    // 2. JPS 搜索 (加入体积判断)
-    Ar<Point2> rawPath = jpsSearch(sx, sy, tx, ty, unitSize);
+  /** 为特定半径预计算跳点 */
+  private static void loadJPointsForRadius(NavLayer layer, int radius) {
+    for (int y = 0; y < H; y++) {
+      for (int x = 0; x < W; x++) {
+        // 核心：基于 radius 判断是否可通过
+        if (!isPassable(layer, x, y, radius)) continue;
+        
+        // 核心：基于 radius 判断是否产生强制邻居
+        // 这里的逻辑是：如果这是一个"拐角"点，对于体积为 radius 的单位来说，它就是一个跳点
+        if (hasForcedNeighbor(layer, x, y, radius)) {
+          layer.interestMaps[radius][coordToIndex(x, y)] = true;
+        }
+      }
+    }
+  }
+
+  /** 
+   * 获取路径
+   * @param rawSize 浮点数大小 (例如 1.5)
+   * @param capability 跨越能力 (0=普通, 1=机甲...)
+   */
+  public static Ar<Point2> findPath(int sx, int sy, int tx, int ty, float rawSize, int capability) {
+    // 1. 处理参数
+    int radius = Mathf.ceil(rawSize); // 向上取整作为半径
+    capability = Mathf.clamp(capability, 0, MAX_CAPABILITY);
+    
+    NavLayer layer = layers[capability];
+
+    // 2. 检查终点可行性
+    if (!isPassable(layer, tx, ty, radius)) return new Ar<>();
+
+    // 3. 选择寻路策略
+    Ar<Point2> rawPath;
+    
+    if (radius <= MAX_PRECALC_RADIUS) {
+        // [策略 A] 预计算 JPS
+        rawPath = jpsSearchPrecalc(layer, sx, sy, tx, ty, radius);
+    } else {
+        // [策略 B] 标准 A* (大单位回退)
+        // 对于巨型单位，跳点稀疏优势不明显，且预计算内存消耗过大，直接用 A* 配合 Clearance 即可
+        rawPath = aStarSearch(layer, sx, sy, tx, ty, radius);
+    }
 
     if (rawPath == null || rawPath.isEmpty()) return new Ar<>();
 
-    // 3. 路径平滑 (加入体积宽度的射线检测)
-    return smoothPath(rawPath, unitSize);
+    // 4. 路径平滑
+    return smoothPath(rawPath, layer, radius);
   }
 
-  // 重载旧方法以兼容
-  public static Ar<Point2> findPath(int sx, int sy, int tx, int ty) {
-    return findPath(sx, sy, tx, ty, 0);
-  }
+  // --- 核心算法实现 ---
 
-  private static Ar<Point2> jpsSearch(int sx, int sy, int tx, int ty, int unitSize) {
+  private static Ar<Point2> jpsSearchPrecalc(NavLayer layer, int sx, int sy, int tx, int ty, int radius) {
+    // 逻辑与之前的 JPS 类似，但使用 layer.interestMaps[radius]
     PriorityQueue<Node> openList = new PriorityQueue<>();
     boolean[] closedMap = new boolean[W * H];
     Node[] nodeIndex = new Node[W * H];
@@ -127,269 +182,188 @@ public class RouteData {
 
     while (!openList.isEmpty()) {
       Node current = openList.poll();
-
-      if (current.x == tx && current.y == ty) {
-        return reconstructPath(current);
-      }
-
+      if (current.x == tx && current.y == ty) return reconstructPath(current);
       closedMap[coordToIndex(current.x, current.y)] = true;
 
-      // 传入 unitSize
-      identifySuccessors(current, tx, ty, openList, closedMap, nodeIndex, unitSize);
+      identifySuccessorsJPS(layer, current, tx, ty, openList, closedMap, nodeIndex, radius);
     }
-
     return null;
   }
 
-  private static void identifySuccessors(
-      Node current,
-      int tx,
-      int ty,
-      PriorityQueue<Node> openList,
-      boolean[] closedMap,
-      Node[] nodeIndex,
-      int unitSize) {
-    int[] dirsX = {0, 0, -1, 1, -1, -1, 1, 1};
-    int[] dirsY = {1, -1, 0, 0, 1, -1, 1, -1};
+  private static Ar<Point2> aStarSearch(NavLayer layer, int sx, int sy, int tx, int ty, int radius) {
+    // 标准 A* 实现
+    PriorityQueue<Node> openList = new PriorityQueue<>();
+    boolean[] closedMap = new boolean[W * H];
+    Node[] nodeIndex = new Node[W * H];
 
-    for (int i = 0; i < 8; i++) {
-      // 传入 unitSize
-      Point2 jumpPoint = jump(current.x, current.y, dirsX[i], dirsY[i], tx, ty, unitSize);
+    openList.add(new Node(sx, sy, null, 0, dist(sx, sy, tx, ty)));
+    
+    int[] dirsX = {0, 0, -1, 1}; // 简化为4向，或者8向均可
+    int[] dirsY = {1, -1, 0, 0};
 
-      if (jumpPoint != null) {
-        int jx = (int) jumpPoint.x;
-        int jy = (int) jumpPoint.y;
-        int index = coordToIndex(jx, jy);
+    while (!openList.isEmpty()) {
+      Node current = openList.poll();
+      if (current.x == tx && current.y == ty) return reconstructPath(current);
+      
+      if (closedMap[coordToIndex(current.x, current.y)]) continue;
+      closedMap[coordToIndex(current.x, current.y)] = true;
 
-        if (closedMap[index]) continue;
-
-        float gScore = current.g + dist(current.x, current.y, jx, jy);
-        Node neighbor = nodeIndex[index];
-
-        if (neighbor == null) {
-          neighbor = new Node(jx, jy, current, gScore, dist(jx, jy, tx, ty));
-          nodeIndex[index] = neighbor;
-          openList.add(neighbor);
-        } else if (gScore < neighbor.g) {
-          neighbor.g = gScore;
-          neighbor.parent = current;
-          openList.remove(neighbor);
-          openList.add(neighbor);
-        }
-      }
-    }
-  }
-
-  private static Point2 jump(int cx, int cy, int dx, int dy, int tx, int ty, int unitSize) {
-    int nextX = cx + dx;
-    int nextY = cy + dy;
-
-    // 【修改】检测是否通过：不仅要不越界，还要满足 Clearance >= unitSize
-    if (!isPassable(nextX, nextY, unitSize)) return null;
-
-    if (nextX == tx && nextY == ty) return new Point2(nextX, nextY);
-
-    // 对于大体积单位，我们不能简单使用 interestMap (那是给 1x1 优化的)
-    // 必须回退到每步检查，或者重新计算针对该体积的 interestMap (太复杂)
-    // 这里采用简化逻辑：如果 unitSize > 0，则不做复杂的强制邻居跳跃优化，退化为普通 A* 步进检查
-    // 或者，仅当 unitSize == 0 时使用 interestMap，否则每步检查
-
-    if (unitSize == 0) {
-      // 标准 1x1 单位优化逻辑
-      if (interestMap[coordToIndex(nextX, nextY)]) {
-        if (dx != 0 && dy != 0) {
-          if ((isSolid(nextX - dx, nextY) && !isSolid(nextX - dx, nextY + dy))
-              || (isSolid(nextX, nextY - dy) && !isSolid(nextX + dx, nextY - dy))) {
-            return new Point2(nextX, nextY);
+      for(int i=0; i<4; i++) {
+          int nx = current.x + dirsX[i];
+          int ny = current.y + dirsY[i];
+          if(isPassable(layer, nx, ny, radius)) {
+              float newG = current.g + 1;
+              int index = coordToIndex(nx, ny);
+              if (closedMap[index]) continue;
+              
+              Node neighbor = nodeIndex[index];
+              if (neighbor == null || newG < neighbor.g) {
+                  neighbor = new Node(nx, ny, current, newG, dist(nx, ny, tx, ty));
+                  nodeIndex[index] = neighbor;
+                  openList.add(neighbor);
+              }
           }
-        } else {
-          if (dx != 0) {
-            if ((isSolid(nextX, nextY - 1) && !isSolid(nextX + dx, nextY - 1))
-                || (isSolid(nextX, nextY + 1) && !isSolid(nextX + dx, nextY + 1))) {
-              return new Point2(nextX, nextY);
-            }
-          } else {
-            if ((isSolid(nextX - 1, nextY) && !isSolid(nextX - 1, nextY + dy))
-                || (isSolid(nextX + 1, nextY) && !isSolid(nextX + 1, nextY + dy))) {
-              return new Point2(nextX, nextY);
-            }
+      }
+    }
+    return null;
+  }
+
+  // --- JPS 辅助 ---
+
+  private static void identifySuccessorsJPS(NavLayer layer, Node current, int tx, int ty, 
+      PriorityQueue<Node> openList, boolean[] closedMap, Node[] nodeIndex, int radius) {
+      
+      int[] dirsX = {0, 0, -1, 1, -1, -1, 1, 1};
+      int[] dirsY = {1, -1, 0, 0, 1, -1, 1, -1};
+
+      for (int i = 0; i < 8; i++) {
+          Point2 jumpPoint = jump(layer, current.x, current.y, dirsX[i], dirsY[i], tx, ty, radius);
+          if (jumpPoint != null) {
+              int jx = (int)jumpPoint.x;
+              int jy = (int)jumpPoint.y;
+              int index = coordToIndex(jx, jy);
+              if (closedMap[index]) continue;
+
+              float gScore = current.g + dist(current.x, current.y, jx, jy);
+              Node neighbor = nodeIndex[index];
+              if (neighbor == null) {
+                  neighbor = new Node(jx, jy, current, gScore, dist(jx, jy, tx, ty));
+                  nodeIndex[index] = neighbor;
+                  openList.add(neighbor);
+              } else if (gScore < neighbor.g) {
+                  neighbor.g = gScore;
+                  neighbor.parent = current;
+                  openList.remove(neighbor);
+                  openList.add(neighbor);
+              }
           }
+      }
+  }
+
+  private static Point2 jump(NavLayer layer, int cx, int cy, int dx, int dy, int tx, int ty, int radius) {
+      int nextX = cx + dx;
+      int nextY = cy + dy;
+
+      if (!isPassable(layer, nextX, nextY, radius)) return null;
+      if (nextX == tx && nextY == ty) return new Point2(nextX, nextY);
+
+      // 如果当前点是预计算好的跳点，直接返回
+      if (layer.interestMaps[radius][coordToIndex(nextX, nextY)]) {
+          return new Point2(nextX, nextY);
+      }
+
+      // 对角线递归
+      if (dx != 0 && dy != 0) {
+          if (jump(layer, nextX, nextY, dx, 0, tx, ty, radius) != null || 
+              jump(layer, nextX, nextY, 0, dy, tx, ty, radius) != null) {
+              return new Point2(nextX, nextY);
+          }
+      }
+
+      return jump(layer, nextX, nextY, dx, dy, tx, ty, radius);
+  }
+
+  // --- 路径平滑 ---
+  
+  private static Ar<Point2> smoothPath(Ar<Point2> path, NavLayer layer, int radius) {
+      if (path.size <= 2) return path;
+      Ar<Point2> smoothed = new Ar<>();
+      smoothed.add(path.get(0));
+      int inputIndex = 0;
+      while (inputIndex < path.size - 1) {
+          int nextIndex = inputIndex + 1;
+          for (int i = path.size - 1; i > inputIndex + 1; i--) {
+              Point2 start = path.get(inputIndex);
+              Point2 end = path.get(i);
+              if (lineCast(layer, (int)start.x, (int)start.y, (int)end.x, (int)end.y, radius)) {
+                  nextIndex = i;
+                  break;
+              }
+          }
+          smoothed.add(path.get(nextIndex));
+          inputIndex = nextIndex;
+      }
+      return smoothed;
+  }
+
+  /** 射线检测：利用 clearanceMap  */
+  private static boolean lineCast(NavLayer layer, int x0, int y0, int x1, int y1, int radius) {
+      int dx = Math.abs(x1 - x0);
+      int dy = Math.abs(y1 - y0);
+      int sx = x0 < x1 ? 1 : -1;
+      int sy = y0 < y1 ? 1 : -1;
+      int err = dx - dy;
+      int cx = x0;
+      int cy = y0;
+
+      while (true) {
+          if (!isPassable(layer, cx, cy, radius)) return false;
+          if (cx == x1 && cy == y1) break;
+          int e2 = 2 * err;
+          if (e2 > -dy) { err -= dy; cx += sx; }
+          if (e2 < dx) { err += dx; cy += sy; }
+      }
+      return true;
+  }
+
+  // --- 通用辅助 ---
+
+  private static boolean isPassable(NavLayer layer, int x, int y, int radius) {
+      if (!isValid(x, y)) return false;
+      // clearance 必须 > radius
+      return layer.clearanceMap[coordToIndex(x, y)] > radius;
+  }
+
+  // 这里的 hasForcedNeighbor 需要根据 radius 判断虚拟墙壁
+  // 简单实现：检查周围8格的 isPassable 状态变化
+  private static boolean hasForcedNeighbor(NavLayer layer, int x, int y, int radius) {
+      // 简化判断：如果周围有阻挡，且该点是空地，则可能是拐点
+      // 严格的 JPS 定义比较复杂，这里可以用一个近似：
+      // 只要该点可通过，且周围 8 邻域内有"不可通过"的点，就视为潜在跳点
+      // 这会产生比严格 JPS 稍多的跳点，但预计算速度快且逻辑安全
+      if (!isPassable(layer, x, y, radius)) return false;
+      
+      for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (i==0 && j==0) continue;
+            if (!isPassable(layer, x+i, y+j, radius)) return true;
         }
       }
-    } else {
-      // 【大单位逻辑】：简单地作为节点返回（退化为 A*），或者你可以实现更复杂的宽体强制邻居判断
-      // 为了代码稳健性，如果体积大，我们每一步都允许作为跳点（损失性能但保证不穿墙）
-      return new Point2(nextX, nextY);
-    }
-
-    if (dx != 0 && dy != 0) {
-      if (jump(nextX, nextY, dx, 0, tx, ty, unitSize) != null
-          || jump(nextX, nextY, 0, dy, tx, ty, unitSize) != null) {
-        return new Point2(nextX, nextY);
-      }
-    }
-
-    return jump(nextX, nextY, dx, dy, tx, ty, unitSize);
+      return false;
   }
-
-  // --- 路径平滑 (带宽度检测) ---
-
-  private static Ar<Point2> smoothPath(Ar<Point2> path, int unitSize) {
-    if (path.size <= 2) return path;
-
-    Ar<Point2> smoothed = new Ar<>();
-    smoothed.add(path.get(0));
-
-    int inputIndex = 0;
-    while (inputIndex < path.size - 1) {
-      int nextIndex = inputIndex + 1;
-      for (int i = path.size - 1; i > inputIndex + 1; i--) {
-        Point2 start = path.get(inputIndex);
-        Point2 end = path.get(i);
-
-        // 【修改】检测宽体直线
-        if (lineCastWidth((int) start.x, (int) start.y, (int) end.x, (int) end.y, unitSize)) {
-          nextIndex = i;
-          break;
-        }
-      }
-      smoothed.add(path.get(nextIndex));
-      inputIndex = nextIndex;
-    }
-
-    return smoothed;
-  }
-
-  /** 宽体射线检测 实现了计算方向，偏移，检测环境块的逻辑 但更高效的是直接利用 Clearance Map */
-  private static boolean lineCastWidth(int x0, int y0, int x1, int y1, int unitSize) {
-    // 如果没有体积，使用普通检测
-    if (unitSize == 0) return !lineCastSolid(x0, y0, x1, y1);
-
-    // 使用 Bresenham 算法遍历线上的每个点
-    // 对于线上的每个点，检查 clearanceMap[i] >= unitSize
-    // 这等价于：以此线为中心，半径为 unitSize 的管道内是否有墙
-
-    int dx = Math.abs(x1 - x0);
-    int dy = Math.abs(y1 - y0);
-    int sx = x0 < x1 ? 1 : -1;
-    int sy = y0 < y1 ? 1 : -1;
-    int err = dx - dy;
-
-    int cx = x0;
-    int cy = y0;
-
-    while (true) {
-      // 【核心检查】如果路径上任意一点的间隙小于单位体积，则无法直线通过
-      if (!isPassable(cx, cy, unitSize)) return false;
-
-      if (cx == x1 && cy == y1) break;
-      int e2 = 2 * err;
-      if (e2 > -dy) {
-        err -= dy;
-        cx += sx;
-      }
-      if (e2 < dx) {
-        err += dx;
-        cy += sy;
-      }
-    }
-    return true;
-  }
-
-  private static boolean lineCastSolid(int x0, int y0, int x1, int y1) {
-    // ... (保持之前的实现，用于 unitSize=0) ...
-    // 为了篇幅这里省略，逻辑同上，只是把 check 改为 isSolid
-    int dx = Math.abs(x1 - x0);
-    int dy = Math.abs(y1 - y0);
-    int sx = x0 < x1 ? 1 : -1;
-    int sy = y0 < y1 ? 1 : -1;
-    int err = dx - dy;
-
-    while (true) {
-      if (isSolid(x0, y0)) return true;
-      if (x0 == x1 && y0 == y1) break;
-      int e2 = 2 * err;
-      if (e2 > -dy) {
-        err -= dy;
-        x0 += sx;
-      }
-      if (e2 < dx) {
-        err += dx;
-        y0 += sy;
-      }
-    }
-    return false;
-  }
-
-  // --- 辅助方法 ---
-
-  /** 判断某点是否允许特定体积的单位通过 */
-  public static boolean isPassable(int x, int y, int unitSize) {
-    if (!isValid(x, y)) return false;
-    // 如果 unitSize 为 0，只要不是墙就行
-    // 如果 unitSize > 0，必须 clearance >= unitSize
-    // 例如：unitSize=1，需要该点本身不是墙(clearance>0)，且离墙至少1格远
-    return clearanceMap[coordToIndex(x, y)] > unitSize;
-  }
-
+  
+  
+  public static int coordToIndex(int x, int y) { return y * W + x; }
+  public static boolean isValid(int x, int y) { return x >= 0 && x < W && y >= 0 && y < H; }
+  private static float dist(int x1, int y1, int x2, int y2) { return Math.abs(x1 - x2) + Math.abs(y1 - y2); }
   private static Ar<Point2> reconstructPath(Node current) {
-    Ar<Point2> path = new Ar<>();
-    while (current != null) {
-      path.add(new Point2(current.x, current.y));
-      current = current.parent;
-    }
-    path.reverse();
-    return path;
+      Ar<Point2> p = new Ar<>();
+      while(current!=null){ p.add(new Point2(current.x, current.y)); current=current.parent; }
+      p.reverse(); return p;
   }
-
-  public static int coordToIndex(int x, int y) {
-    return y * W + x;
-  }
-
-  public static boolean isValid(int x, int y) {
-    return x >= 0 && x < W && y >= 0 && y < H;
-  }
-
-  public static boolean isSolid(int x, int y) {
-    if (!isValid(x, y)) return true;
-    return solidMap[coordToIndex(x, y)];
-  }
-
-  private static boolean hasSolidNeighbor(int x, int y) {
-    // 检查周围8个点是否有墙
-    for (int i = -1; i <= 1; i++) {
-      for (int j = -1; j <= 1; j++) {
-        if (i == 0 && j == 0) continue;
-        if (isSolid(x + i, y + j)) return true;
-      }
-    }
-    return false;
-  }
-
-  private static float dist(int x1, int y1, int x2, int y2) {
-    // 曼哈顿距离用于启发式通常在4向移动好，欧几里得距离在任意角度好
-    // 这里为了速度可以用曼哈顿或者切比雪夫
-    return Math.abs(x1 - x2) + Math.abs(y1 - y2);
-  }
-
-  // A* 节点内部类
   private static class Node implements Comparable<Node> {
-    int x, y;
-    Node parent;
-    float g; // 离起点距离
-    float h; // 离终点估算距离
-
-    public Node(int x, int y, Node parent, float g, float h) {
-      this.x = x;
-      this.y = y;
-      this.parent = parent;
-      this.g = g;
-      this.h = h;
-    }
-
-    @Override
-    public int compareTo(Node other) {
-      return Float.compare(this.g + this.h, other.g + other.h);
-    }
+      int x, y; Node parent; float g, h;
+      public Node(int x, int y, Node parent, float g, float h) { this.x=x; this.y=y; this.parent=parent; this.g=g; this.h=h; }
+      @Override public int compareTo(Node o) { return Float.compare(g+h, o.g+o.h); }
   }
 }
