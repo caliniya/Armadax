@@ -22,30 +22,62 @@ public class MapRender extends BasicSystem<MapRender> {
     WorldData.initWorld();
     world = WorldData.world;
     priority = 10;
-    
+
     initChunks();
-    
+
     return super.init();
   }
 
   private void initChunks() {
     // 计算横向和纵向有多少个区块
-    chunksW = Mathf.ceil((float)world.W / MapChunk.SIZE);
-    chunksH = Mathf.ceil((float)world.H / MapChunk.SIZE);
-    
+    chunksW = Mathf.ceil((float) world.W / MapChunk.SIZE);
+    chunksH = Mathf.ceil((float) world.H / MapChunk.SIZE);
+
     chunks = new MapChunk[chunksW][chunksH];
-    
-    for(int x = 0; x < chunksW; x++){
-        for(int y = 0; y < chunksH; y++){
-            chunks[x][y] = new MapChunk(x, y);
+
+    for (int x = 0; x < chunksW; x++) {
+      for (int y = 0; y < chunksH; y++) {
+        chunks[x][y] = new MapChunk(x, y);
+      }
+    }
+  }
+
+  /** 重新开始渲染 通常在加载新存档后调用，用于适应新的地图尺寸并重绘内容 注意：必须在 GL 线程(主线程)调用，或者使用 Core.app.post() */
+  public void rebuildAll() {
+    if (chunks != null) {
+      for (int x = 0; x < chunksW; x++) {
+        for (int y = 0; y < chunksH; y++) {
+          if (chunks[x][y] != null) {
+            chunks[x][y].dispose();
+          }
         }
+      }
+    }
+
+    // 2. 更新世界引用 (防止指向旧的 World 对象)
+    world = WorldData.world;
+
+    // 3. 重新初始化区块数组结构
+    initChunks();
+  }
+
+  /** 仅重新渲染 适用于地图尺寸没变，但想强制重绘所有画面的情况 */
+  public void flagAllDirty() {
+    if (chunks == null) return;
+
+    for (int x = 0; x < chunksW; x++) {
+      for (int y = 0; y < chunksH; y++) {
+        if (chunks[x][y] != null) {
+          chunks[x][y].dirty = true;
+        }
+      }
     }
   }
 
   @Override
   public void update() {
     if (!inited || chunks == null) return;
-    
+
     // 计算摄像机视野范围内的 区块索引
     float viewLeft = camera.position.x - camera.width / 2f;
     float viewBottom = camera.position.y - camera.height / 2f;
@@ -67,39 +99,33 @@ public class MapRender extends BasicSystem<MapRender> {
     // 只渲染视野内的区块
     for (int y = startY; y <= endY; y++) {
       for (int x = startX; x <= endX; x++) {
-          // 每个区块内部会检查 dirty，如果脏了会自动重绘 FBO
-          // 如果没脏，直接画一张大图
+        if (chunks[x][y] != null) {
           chunks[x][y].render();
+        }
       }
     }
   }
-  
-  /** 
-   * 当地图某个位置发生改变时调用此方法 
-   * 例如：玩家建造了墙，或者地形被破坏
-   */
+
   public void flagUpdate(int worldGridX, int worldGridY) {
-      int cx = worldGridX / MapChunk.SIZE;
-      int cy = worldGridY / MapChunk.SIZE;
-      
-      if (cx >= 0 && cx < chunksW && cy >= 0 && cy < chunksH) {
-          chunks[cx][cy].dirty = true;
-          
-          // 边界处理：如果修改的块在区块边缘，可能由于纹理溢出(比如有些墙比较大)需要更新相邻区块
-          // 这里暂时只更新本格
+    int cx = worldGridX / MapChunk.SIZE;
+    int cy = worldGridY / MapChunk.SIZE;
+
+    if (cx >= 0 && cx < chunksW && cy >= 0 && cy < chunksH) {
+      if (chunks[cx][cy] != null) {
+        chunks[cx][cy].dirty = true;
       }
+    }
   }
 
   @Override
   public void dispose() {
-      // 释放显存资源
-      if(chunks != null){
-          for(int x = 0; x < chunksW; x++){
-              for(int y = 0; y < chunksH; y++){
-                  chunks[x][y].dispose();
-              }
-          }
+    if (chunks != null) {
+      for (int x = 0; x < chunksW; x++) {
+        for (int y = 0; y < chunksH; y++) {
+          if (chunks[x][y] != null) chunks[x][y].dispose();
+        }
       }
-      super.dispose();
+    }
+    super.dispose();
   }
 }

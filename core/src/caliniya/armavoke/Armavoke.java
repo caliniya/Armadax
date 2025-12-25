@@ -88,10 +88,6 @@ public class Armavoke extends ApplicationCore {
     }
     scene.act();
     scene.draw();
-    if (WorldData.units.size >= 1) {
-      WorldData.units.get(1).update();
-      WorldData.units.get(0).update();
-    }
   }
 
   @Override

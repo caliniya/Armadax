@@ -1,17 +1,19 @@
 package caliniya.armavoke.game;
 
 import arc.graphics.g2d.TextureRegion;
+import arc.math.Angles;
+import arc.math.Mathf;
 import arc.math.Rand;
+import arc.math.geom.Point2;
 import arc.util.Log;
+import arc.util.io.Reads;
+import arc.util.io.Writes;
 import arc.util.pooling.Pool.Poolable;
 import arc.util.pooling.Pools;
 import caliniya.armavoke.base.tool.Ar;
+import caliniya.armavoke.game.data.RouteData;
 import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.game.type.UnitType;
-import arc.math.geom.Point2;
-import arc.math.Mathf;
-import arc.math.Angles;
-import caliniya.armavoke.game.data.RouteData;
 
 public class Unit implements Poolable {
 
@@ -20,7 +22,7 @@ public class Unit implements Poolable {
 
   // --- 物理属性 ---
   public float x, y;
-  public float speedX, speedY , angle; // 速度分量 (每帧移动的像素量),速度方向
+  public float speedX, speedY, angle; // 速度分量 (每帧移动的像素量),速度方向
   public float rotation; // 渲染朝向 (度)
 
   // --- 导航属性 ---
@@ -28,7 +30,7 @@ public class Unit implements Poolable {
   public Ar<Point2> path;
   public int pathIndex = 0;
   public boolean pathed; // 真则当前已经请求过一次导航数据
-  public boolean velocityDirty = true; // 方向请求？
+  public boolean velocityDirty = true; // 方向请求否
 
   // --- 状态属性 ---
   public boolean isSelected = false;
@@ -123,6 +125,33 @@ public class Unit implements Poolable {
   public void impuse(float knockX, float knockY) {
     this.x += knockX;
     this.y += knockY;
-    this.velocityDirty = true; // 位置变了，必须重算方向，否则会走偏
+    this.velocityDirty = true;
+  }
+
+  public void write(Writes w) {
+    w.f(x); w.f(y);
+    w.f(rotation);
+    w.f(health);
+    w.f(targetX); w.f(targetY);
+  }
+
+  public void read(Reads r) {
+    this.x = r.f();
+    this.y = r.f();
+    this.rotation = r.f();
+    this.health = r.f();
+    this.targetX = r.f();
+    this.targetY = r.f();
+    this.speedX = 0;
+    this.speedY = 0;
+    
+    // 重置寻路状态，让它重新计算路径
+    this.path = null; 
+    this.pathIndex = 0;
+    this.pathed = false; 
+    this.velocityDirty = true; // 标记方向脏，以便下次移动时修正朝向
+
+    // 立即更新网格位置
+    updateChunkPosition();
   }
 }

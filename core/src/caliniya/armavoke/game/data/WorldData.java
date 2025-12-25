@@ -10,9 +10,9 @@ public class WorldData {
 
   // 全局单位列表 (用于逻辑更新)
   public static Ar<Unit> units = new Ar<>(1000);
-  //有移动目标的单位
+  // 有移动目标的单位
   public static Ar<Unit> moveunits = new Ar<>(500);
-  
+
   // --- 空间划分网格相关 ---
   // 每个区块包含的瓦片数量 (32x32个地块)
   public static final int CHUNK_SIZE = 32;
@@ -83,5 +83,43 @@ public class WorldData {
     if (unitGrid == null) return null;
     int index = getChunkIndex(x, y);
     return unitGrid[index];
+  }
+
+  /**
+   * 彻底清理并准备接收新数据的环境
+   *
+   * @param newW 新地图的宽
+   * @param newH 新地图的高
+   */
+  public static void reBuildAll(int newW, int newH) {
+    if (units != null) {
+      units.each(
+        unit -> {
+          unit.reset();
+        }
+      );
+      units.clear();
+    }
+    if (moveunits != null) {
+      moveunits.clear();
+    }
+    unitGrid = null;
+
+    // 2. 创建新世界对象
+    world = new World(newW, newH, false);
+    // 预先分配内存，防止 add 时频繁扩容
+    world.floors = new Ar<>(newW * newH);
+    world.envblocks = new Ar<>(newW * newH);
+
+    // 3. 重置空间网格 (Spatial Grid)
+    // 这一步至关重要！如果新地图尺寸变了，旧网格会导致越界
+    gridW = Mathf.ceil((float) newW / CHUNK_SIZE);
+    gridH = Mathf.ceil((float) newH / CHUNK_SIZE);
+
+    int totalChunks = gridW * gridH;
+    unitGrid = new Ar[totalChunks];
+    for (int i = 0; i < totalChunks; i++) {
+      unitGrid[i] = new Ar<>(16);
+    }
   }
 }
