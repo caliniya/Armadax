@@ -71,6 +71,8 @@ public class Unit implements Poolable {
     this.speed = this.type.speed;
     this.region = this.type.region;
     this.health = this.type.health;
+    
+    this.team = TeamTypes.Evoke;
 
     this.rotation = 0f;
     this.speedX = 0f;
@@ -169,7 +171,7 @@ public class Unit implements Poolable {
     if (teamId >= 0 && teamId < TeamTypes.values().length) {
       this.team = TeamTypes.values()[teamId];
     } else {
-      this.team = TeamTypes.Derelict; // 默认回退
+      this.team = TeamTypes.Abort; // 默认回退
     }
 
     this.speedX = 0;
@@ -177,14 +179,13 @@ public class Unit implements Poolable {
 
     updateTeamData();
 
-    updateChunkPosition();
-
     // 重置寻路状态，让它重新计算路径
     this.path = null;
     this.pathIndex = 0;
     this.pathed = false;
     this.velocityDirty = true;
     WorldData.moveunits.add(this); // 加入以强制应用导航数据
+    Log.info(WorldData.moveunits.toString());
 
     // 立即更新网格位置
     updateChunkPosition();
@@ -192,7 +193,7 @@ public class Unit implements Poolable {
 
   /** 更新团队数据引用并注册 */
   public void updateTeamData() {
-    if (this.team == null) this.team = TeamTypes.Derelict; // 默认中立
+    if (this.team == null) this.team = TeamTypes.Abort; // 默认中立
 
     this.teamData = this.team.data();
     Teams.register(this);

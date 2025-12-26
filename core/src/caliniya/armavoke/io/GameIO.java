@@ -1,173 +1,193 @@
 package caliniya.armavoke.io;
 
 import arc.files.Fi;
-import arc.struct.ObjectIntMap; // Arc的高效 Map
-import arc.struct.Seq;          // Arc的高效 List
+import arc.struct.ObjectIntMap;
+import arc.struct.Seq;
+import arc.struct.StringMap;
 import arc.util.Log;
+import arc.util.Nullable;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import caliniya.armavoke.base.tool.Ar;
-import caliniya.armavoke.core.*;
+import caliniya.armavoke.core.ContentVar;
 import caliniya.armavoke.game.Unit;
-import caliniya.armavoke.game.data.*;
+import caliniya.armavoke.game.data.RouteData;
+import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.game.type.UnitType;
+import caliniya.armavoke.map.Map;
+import caliniya.armavoke.world.Block;
 import caliniya.armavoke.world.ENVBlock;
 import caliniya.armavoke.world.Floor;
-import caliniya.armavoke.world.World;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class GameIO {
+  private static final String MAGIC = "AMVK";
   private static final int SAVE_VERSION = 1;
 
-  public static void save(Fi file) {
+  public static Map readMeta(Fi file) {
+    try (DataInputStream stream = new DataInputStream(file.read())) {
+        Reads r = new Reads(stream);
+        String magic = new String(r.b(4));
+        if (!magic.equals(MAGIC)) return null;
+        int ver = r.i();
+        int w = r.i();
+        int h = r.i();
+        StringMap tags = new StringMap();
+        int tagCount = r.s();
+        for (int i = 0; i < tagCount; i++) tags.put(r.str(), r.str());
+        return new Map(file, w, h, tags, true);
+    } catch (IOException e) { return null; }
+  }
+
+  public static void save(Fi file, @Nullable StringMap tags) {
     try (DataOutputStream stream = new DataOutputStream(file.write(false))) {
       Writes w = new Writes(stream);
 
-      // 头信息
+      // Magic & Header
+      w.b(MAGIC.getBytes());
       w.i(SAVE_VERSION);
       w.i(WorldData.world.W);
       w.i(WorldData.world.H);
 
-      // 调色板
-      // 我们需要统计地图里究竟用到了哪些方块，给它们分配一个短 ID (0, 1, 2...)
+      // Tags
+      if (tags == null) tags = new StringMap();
+      w.s(tags.size);
+      for (var entry : tags) {
+        w.str(entry.key);
+        w.str(entry.value);
+      }
       
-      // 临时存储唯一的 Floor 和 Block
-      Seq<Floor> floorPalette = new Seq<>();
-      Seq<ENVBlock> blockPalette = new Seq<>();
-      
-      // 映射表：对象 -> ID
+      Ar<Floor> floorPalette = new Ar<>();
       ObjectIntMap<Floor> floorMap = new ObjectIntMap<>();
+      
+      Ar<ENVBlock> blockPalette = new Ar<>();
       ObjectIntMap<ENVBlock> blockMap = new ObjectIntMap<>();
 
-      int totalTiles = WorldData.world.W * WorldData.world.H;
+      floorPalette.add((Floor)null); 
+      blockPalette.add((ENVBlock)null);
+      // floorMap.put(null, 0);
+      // blockMap.put(null, 0);
 
-      // 第一遍扫描：收集所有出现的非空内容
-      for (int i = 0; i < totalTiles; i++) {
-        Floor f = WorldData.world.floors.get(i);
-        ENVBlock b = WorldData.world.envblocks.get(i);
+      int total = WorldData.world.W * WorldData.world.H;
 
-        if (f != null && !floorMap.containsKey(f)) {
-            floorMap.put(f, floorPalette.size);
-            floorPalette.add(f);
+      // 第一遍扫描：统计用到了哪些方块
+      for (int i = 0; i < total; i++) {
+        Floor floor = WorldData.world.floors.get(i);
+        ENVBlock block = WorldData.world.envblocks.get(i);
+
+        // 只处理非空对象
+        if (floor != null && !floorMap.containsKey(floor)) {
+          floorMap.put(floor, floorPalette.size);
+          floorPalette.add(floor);
         }
         
-        if (b != null && !blockMap.containsKey(b)) {
-            blockMap.put(b, blockPalette.size);
-            blockPalette.add(b);
+        if (block != null && !blockMap.containsKey(block)) {
+          blockMap.put(block, blockPalette.size);
+          blockPalette.add(block);
         }
       }
       
-      // 写入 Floor 调色板
-      w.s(floorPalette.size); // 写入数量 (short)
-      for (Floor f : floorPalette) {
-          w.str(f.getLName());
+      w.s(floorPalette.size); 
+      for (int i = 0; i < floorPalette.size; i++) {
+          Floor f = floorPalette.get(i);
+          w.str(f == null ? "null" : f.getLName());
       }
 
-      // 写入 Block 调色板
-      w.s(blockPalette.size); // 写入数量 (short)
-      for (ENVBlock b : blockPalette) {
-          w.str(b.getLName());
+      w.s(blockPalette.size);
+      for (int i = 0; i < blockPalette.size; i++) {
+          ENVBlock b = blockPalette.get(i);
+          w.str(b == null ? "null" : b.getLName());
       }
 
-      // 写入地图索引数据
-      // 第二遍扫描：写入 ID
-      for (int i = 0; i < totalTiles; i++) {
-        Floor f = WorldData.world.floors.get(i);
-        ENVBlock b = WorldData.world.envblocks.get(i);
+      for (int i = 0; i < total; i++) {
+        Floor floor = WorldData.world.floors.get(i);
+        ENVBlock block = WorldData.world.envblocks.get(i);
 
-        // 如果是 null 写 -1，否则写 Map 里的 ID
-        w.s(f == null ? -1 : floorMap.get(f));
-        w.s(b == null ? -1 : blockMap.get(b));
+        w.s(floor == null ? 0 : floorMap.get(floor)); 
+        w.s(block == null ? 0 : blockMap.get(block)); 
       }
 
-      // 写入单位
-      int validUnitCount = 0;
+      // 6. Units
+      w.i(WorldData.units.size);
       for (Unit u : WorldData.units) {
-        if (u != null && u.health > 0) validUnitCount++;
-      }
-      w.i(validUnitCount);
-
-      for (Unit u : WorldData.units) {
-        if (u == null || u.health <= 0) continue;
         w.str(u.type.getLName());
         u.write(w);
       }
 
-      Log.info("Saved world to @ (Palette Mode)", file.path());
+      Log.info("Saved to @", file.path());
 
     } catch (IOException e) {
       Log.err("Save failed", e);
     }
   }
 
+  public static void load(Map map) {
+    Log.info("Loading map: @", map.name());
+    load(map.file);
+  }
+
   public static void load(Fi file) {
     try (DataInputStream stream = new DataInputStream(file.read())) {
       Reads r = new Reads(stream);
 
-      // 头信息
+      // Magic
+      String magic = new String(r.b(4));
+      if (!magic.equals(MAGIC)) throw new IOException("Invalid file format");
+
       int ver = r.i();
-      
       int width = r.i();
       int height = r.i();
 
-      // 清理并初始化
+      // Tags
+      int tagCount = r.s();
+      for (int i = 0; i < tagCount; i++) { r.str(); r.str(); }
+
       WorldData.reBuildAll(width, height);
-
-      // 读取调色板
+      //这里会自动处理导航数据
       
-      // 读取 Floor 映射表
-      int floorCount = r.s();
-      Floor[] floorLookup = new Floor[floorCount];
-      for(int i=0; i<floorCount; i++){
+      // 读取地板映射表
+      int floorPaletteSize = r.s();
+      Floor[] floorLookup = new Floor[floorPaletteSize];
+      for(int i=0; i<floorPaletteSize; i++){
           String name = r.str();
-          floorLookup[i] = ContentVar.get(name, Floor.class);
-      }
-      
-      // 读取 Block 映射表
-      int blockCount = r.s();
-      ENVBlock[] blockLookup = new ENVBlock[blockCount];
-      for(int i=0; i<blockCount; i++){
-          String name = r.str();
-          blockLookup[i] = ContentVar.get(name, ENVBlock.class);
+          floorLookup[i] = name.equals("null") ? null : ContentVar.get(name, Floor.class);
       }
 
-      // 读取地图索引数据
+      // 读取环境块映射表
+      int blockPaletteSize = r.s();
+      ENVBlock[] blockLookup = new ENVBlock[blockPaletteSize];
+      for(int i=0; i<blockPaletteSize; i++){
+          String name = r.str();
+          blockLookup[i] = name.equals("null") ? null : ContentVar.get(name, ENVBlock.class);
+      }
+
       int total = width * height;
       for (int i = 0; i < total; i++) {
         short floorId = r.s();
         short blockId = r.s();
 
-        // 通过 ID 查数组，-1 则为 null
-        Floor floor = (floorId == -1) ? null : floorLookup[floorId];
-        ENVBlock block = (blockId == -1) ? null : blockLookup[blockId];
+        // 查表获取真实对象
+        Floor floor = (floorId >= 0 && floorId < floorLookup.length) ? floorLookup[floorId] : null;
+        ENVBlock block = (blockId >= 0 && blockId < blockLookup.length) ? blockLookup[blockId] : null;
 
         WorldData.world.floors.add(floor);
         WorldData.world.envblocks.add(block);
       }
 
-      //读取单位
+      // Units
       int unitCount = r.i();
       for (int i = 0; i < unitCount; i++) {
         String typeName = r.str();
         UnitType type = ContentVar.get(typeName, UnitType.class);
-
         if (type != null) {
           Unit u = Unit.create(type);
           u.read(r);
-        } else {
-          // TODO: 如何解决
-          Log.err("Unknown unit type: @", typeName);
         }
       }
       
-      // 后处理 
-      RouteData.init();
-      // MapRender.rebuild(); 记得调用
-
-      Log.info("Loaded world from @", file.path());
 
     } catch (IOException e) {
       Log.err("Load failed", e);

@@ -1,8 +1,11 @@
 package caliniya.armavoke.game.data;
 
+import arc.Events;
+import caliniya.armavoke.base.type.EventType;
 import caliniya.armavoke.core.*;
 import caliniya.armavoke.base.tool.Ar;
 import caliniya.armavoke.game.Unit;
+import caliniya.armavoke.system.render.MapRender;
 import caliniya.armavoke.world.World;
 import arc.math.Mathf;
 
@@ -10,9 +13,9 @@ public class WorldData {
   public static World world;
 
   // 全局单位列表 (用于逻辑更新)
-  public static Ar<Unit> units = new Ar<>(1000);
+  public static Ar<Unit> units = new Ar<>(10);
   // 有移动目标的单位
-  public static Ar<Unit> moveunits = new Ar<>(500);
+  public static Ar<Unit> moveunits = new Ar<>(5);
 
   // --- 空间划分网格相关 ---
   // 每个区块包含的瓦片数量 (32x32个地块)
@@ -125,5 +128,7 @@ public class WorldData {
     for (int i = 0; i < totalChunks; i++) {
       unitGrid[i] = new Ar<>(16);
     }
+    Events.fire(EventType.events.Mapinit);
+    RouteData.init();
   }
 }

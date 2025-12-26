@@ -1,0 +1,90 @@
+{
+  "toolchains": [
+    {
+      "id": "dart_default",
+      "name": "Dart (默认)",
+      "languageId": "dart",
+      "values": {}
+    },
+    {
+      "id": "cpp_default",
+      "name": "C/C++ (默认)",
+      "languageId": "cpp",
+      "values": {
+        "generator": "Unix Makefiles"
+      }
+    },
+    {
+      "id": "python_default",
+      "name": "Python (默认)",
+      "languageId": "python",
+      "values": {
+        "interpreter": "/usr/bin/python3"
+      }
+    },
+    {
+      "id": "go_default",
+      "name": "Go (默认)",
+      "languageId": "go",
+      "values": {}
+    },
+    {
+      "id": "rust_default",
+      "name": "Rust (默认)",
+      "languageId": "rust",
+      "values": {
+        "toolchain": "stable"
+      }
+    },
+    {
+      "id": "kotlin_default",
+      "name": "Kotlin (默认)",
+      "languageId": "kotlin",
+      "values": {
+        "java": "/usr/bin/java"
+      }
+    },
+    {
+      "id": "csharp_default",
+      "name": "C# (默认)",
+      "languageId": "csharp",
+      "values": {}
+    },
+    {
+      "id": "java_default",
+      "name": "Java",
+      "languageId": "java",
+      "values": {
+        "java": "/usr/local/bin/jdtls",
+        "javac": "/usr/bin/javac"
+      }
+    },
+    {
+      "id": "typescript_default",
+      "name": "TypeScript/JavaScript (默认)",
+      "languageId": "typescript",
+      "values": {}
+    },
+    {
+      "id": "lua_default",
+      "name": "Lua (默认)",
+      "languageId": "lua",
+      "values": {}
+    }
+  ],
+  "runConfigs": [
+    {
+      "id": "1766764037625",
+      "name": "Gradle 运行",
+      "languageId": "java",
+      "templateId": "gradle_run",
+      "toolchainId": "java_default",
+      "values": {
+        "task": "build"
+      },
+      "beforeRunCommands": [],
+      "androidRunMode": "gui"
+    }
+  ],
+  "activeRunConfigId": "1766764037625"
+}

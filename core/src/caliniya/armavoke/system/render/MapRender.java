@@ -1,8 +1,10 @@
 package caliniya.armavoke.system.render;
 
 import arc.Core;
+import arc.Events;
 import arc.graphics.Camera;
 import arc.math.Mathf;
+import caliniya.armavoke.base.type.EventType;
 import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.system.BasicSystem;
 import caliniya.armavoke.world.World;
@@ -19,6 +21,7 @@ public class MapRender extends BasicSystem<MapRender> {
 
   @Override
   public MapRender init() {
+    Events.run(EventType.events.Mapinit , () -> rebuildAll());
     WorldData.initWorld();
     world = WorldData.world;
     priority = 10;

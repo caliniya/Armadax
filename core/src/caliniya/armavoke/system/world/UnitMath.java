@@ -3,6 +3,7 @@ package caliniya.armavoke.system.world;
 import arc.math.Angles;
 import arc.math.Mathf;
 import arc.math.geom.Point2;
+import arc.util.Log;
 import caliniya.armavoke.base.tool.Ar;
 import caliniya.armavoke.game.Unit;
 import caliniya.armavoke.game.data.RouteData;
@@ -53,6 +54,7 @@ public class UnitMath extends BasicSystem<UnitMath> {
 
     if (sx != tx || sy != ty) {
       u.path = RouteData.findPath(sx, sy, tx, ty, 2, 1);
+      Log.info(u.targetX + "  " +u.targetY +u.path.toString());
       
       //第一个点(起点)不要去
       if (u.path != null && !u.path.isEmpty()) {

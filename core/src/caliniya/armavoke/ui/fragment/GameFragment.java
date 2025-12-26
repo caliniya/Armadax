@@ -43,8 +43,7 @@ public class GameFragment {
         try {
             // 确保目录存在
             saveFile.parent().mkdirs();
-            GameIO.save(saveFile);
-            Log.info("Game saved to @", saveFile);
+            GameIO.save(saveFile , null);
         } catch (Exception e) {
             Log.err("Save failed", e);
         }
@@ -57,7 +56,6 @@ public class GameFragment {
         }
         try {
             GameIO.load(saveFile);
-            Log.info("Game loaded from @", saveFile);
         } catch (Exception e) {
             Log.err("Load failed", e);
         }
