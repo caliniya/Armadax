@@ -24,24 +24,24 @@ public class DebugFragment {
             t -> {
               t.label(
                       () -> {
-                        // 1. 基础系统信息 (始终可显示)
+                        // 基础系统信息 (始终可显示)
                         StringBuilder sb = new StringBuilder();
                         sb.append("FPS: ").append(Core.graphics.getFramesPerSecond()).append("\n");
                         sb.append("Mem: ")
                             .append(Core.app.getJavaHeap() / 1024 / 1024)
                             .append(" MB\n");
 
-                        // 2. 世界数据检查
+                        // 世界数据检查
                         if (WorldData.world == null) {
                           sb.append("World Data: null\n");
                         } else {
-                          // 安全访问 WorldData 属性
+                          
                           int unitCount = (WorldData.units != null) ? WorldData.units.size : 0;
                           int moveUnitCount =
                               (WorldData.moveunits != null) ? WorldData.moveunits.size : 0;
 
                           sb.append("Units: ").append(unitCount).append("\n");
-                          sb.append("Moving: ").append(moveUnitCount).append("\n"); // 可选：显示正在寻路的单位
+                          sb.append("Moving: ").append(moveUnitCount).append("\n");
                           sb.append("Map: ")
                               .append(WorldData.world.W)
                               .append("x")
