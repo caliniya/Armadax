@@ -25,18 +25,18 @@ public class Init {
 
   public static boolean android = app.isAndroid();
   public static boolean desktop = app.isDesktop();
-  
+
   public static boolean inited;
-  
+
   public static Locale locale = Locale.getDefault();
 
   @SuppressWarnings("unused")
   public static void init() {
     // assets.load("");
     inited = false;
-    
+
     settings.setAppName("Armavoke");
-    
+
     if (desktop) {
       // TODO: 在这里实现桌面端的日志处理器，但是桌面端长什么样?
     }
@@ -49,7 +49,14 @@ public class Init {
       Log.warn(
           "[Waning] device or video drivers do not support OpenGL 3. This will cause performance issues.");
     }
-    bundle = I18NBundle.createBundle(files.internal("language/language") , locale);
+    long ram = Runtime.getRuntime().maxMemory();
+    boolean gb = ram >= 1024 * 1024 * 1024;
+    Log.info(
+        "[RAM] Available: @ @",
+        Strings.fixed(gb ? ram / 1024f / 1024 / 1024f : ram / 1024f / 1024f, 1),
+        gb ? "GB" : "MB");
+
+    bundle = I18NBundle.createBundle(files.internal("language/language"), locale);
     assets = new AssetManager();
     camera = new Camera();
     scene = new Scene(new ScreenViewport(new Camera()));
@@ -58,18 +65,18 @@ public class Init {
     Fonts.loadSystem();
     Fonts.loadFonts();
     Log.info("inited basic system");
-    
+
     if (assets == null) {
       Log.info("init assets(unexpected)");
       assets = new AssetManager();
     }
-    
-    assets.load("sprites/white.png" , Texture.class);
+
+    assets.load("sprites/white.png", Texture.class);
     assets.finishLoading();
-    //在这里阻塞加载让加载界面能用
+    // 在这里阻塞加载让加载界面能用
     atlas = new TextureAtlas();
-    atlas.addRegion("white",assets.get("sprites/white.png") , 1,1,1,1);
-    
+    atlas.addRegion("white", assets.get("sprites/white.png"), 1, 1, 1, 1);
+
     assets.load("sprites/sprites.aatls", TextureAtlas.class);
     inited();
   }

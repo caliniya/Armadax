@@ -1,5 +1,6 @@
 package caliniya.armavoke.game.data;
 
+import caliniya.armavoke.core.*;
 import caliniya.armavoke.base.tool.Ar;
 import caliniya.armavoke.game.Unit;
 import caliniya.armavoke.world.World;
@@ -35,6 +36,7 @@ public class WorldData {
     world = new World();
     world.test = true;
     world.init();
+    Teams.init();
 
     // 1. 初始化网格尺寸
     // 即使地图大小不能整除32，也要向上取整多算一个格子，防止越界
@@ -50,10 +52,14 @@ public class WorldData {
   }
 
   public static void clearunits() {
-    for (int i = 0; i < units.size; i++) {
-      units.get(i).remove();
+    if (units != null) {
+      units.each(
+        unit -> {
+          unit.reset();
+        }
+      );
+      units.clear();
     }
-    units.clear();
 
     // 清理网格中的残留引用
     if (unitGrid != null) {
@@ -62,8 +68,6 @@ public class WorldData {
       }
     }
   }
-
-  // --- 辅助方法 ---
 
   /** 根据像素坐标计算网格索引 */
   public static int getChunkIndex(float x, float y) {
@@ -92,6 +96,7 @@ public class WorldData {
    * @param newH 新地图的高
    */
   public static void reBuildAll(int newW, int newH) {
+    
     if (units != null) {
       units.each(
         unit -> {
@@ -104,15 +109,14 @@ public class WorldData {
       moveunits.clear();
     }
     unitGrid = null;
+    
+    Teams.init();
 
-    // 2. 创建新世界对象
     world = new World(newW, newH, false);
-    // 预先分配内存，防止 add 时频繁扩容
     world.floors = new Ar<>(newW * newH);
     world.envblocks = new Ar<>(newW * newH);
 
-    // 3. 重置空间网格 (Spatial Grid)
-    // 这一步至关重要！如果新地图尺寸变了，旧网格会导致越界
+    // 重置空间网格 (Spatial Grid)
     gridW = Mathf.ceil((float) newW / CHUNK_SIZE);
     gridH = Mathf.ceil((float) newH / CHUNK_SIZE);
 

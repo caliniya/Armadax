@@ -2,8 +2,11 @@ package caliniya.armavoke.core;
 
 import arc.Core;
 import arc.Events;
+import arc.util.Log;
 import caliniya.armavoke.Armavoke;
 import caliniya.armavoke.base.type.EventType;
+import caliniya.armavoke.content.UnitTypes;
+import caliniya.armavoke.game.Unit;
 import caliniya.armavoke.game.data.*;
 import caliniya.armavoke.system.render.*;
 import caliniya.armavoke.system.world.*;
@@ -11,7 +14,7 @@ import caliniya.armavoke.system.world.*;
 public class InitGame {
 
   static {
-    Events.on(EventType.GameInit.class, evevt -> testinit());
+   Events.on(EventType.GameInit.class, evevt -> testinit());
   }
 
   public static void testinit() {
@@ -21,5 +24,6 @@ public class InitGame {
     Armavoke.systems.add(new UnitRender().init());
     new UnitMath().init();
     new UnitProces().init();
+    Unit ttt = UnitTypes.test.create(500 , 500);
   }
 }

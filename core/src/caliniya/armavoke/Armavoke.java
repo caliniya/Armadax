@@ -52,6 +52,7 @@ public class Armavoke extends ApplicationCore {
       atlas = assets.get("sprites/sprites.aatls", TextureAtlas.class);
       Styles.load();
       UI.Menu();
+      UI.Debug();
       scene.resize(graphics.getWidth(), graphics.getHeight());
       UnitControl unitCtrl = new UnitControl().init();
       systems.add(unitCtrl);

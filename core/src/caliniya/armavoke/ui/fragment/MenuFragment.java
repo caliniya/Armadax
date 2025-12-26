@@ -36,10 +36,6 @@ public class MenuFragment {
                       () -> {
                         InitGame.testinit();
                         UI.Game();
-                        Unit ttt = UnitTypes.test.create();
-                        ttt.x = 100;
-                        ttt.y = 100;
-                        WorldData.units.add(ttt);
                       }));
               menu.row();
 

@@ -11,14 +11,18 @@ import arc.util.io.Writes;
 import arc.util.pooling.Pool.Poolable;
 import arc.util.pooling.Pools;
 import caliniya.armavoke.base.tool.Ar;
-import caliniya.armavoke.game.data.RouteData;
-import caliniya.armavoke.game.data.WorldData;
+import caliniya.armavoke.base.type.TeamTypes;
+import caliniya.armavoke.content.UnitTypes;
+import caliniya.armavoke.game.data.*;
 import caliniya.armavoke.game.type.UnitType;
+import caliniya.armavoke.core.*;
 
 public class Unit implements Poolable {
 
   public UnitType type;
   public int id;
+  public TeamTypes team;
+  public TeamData teamData;
 
   // --- 物理属性 ---
   public float x, y;
@@ -41,19 +45,32 @@ public class Unit implements Poolable {
 
   protected Unit() {}
 
-  public static Unit create(UnitType type) {
+  public static Unit create(UnitType type, float x, float y) {
     Unit u = Pools.obtain(Unit.class, Unit::new);
-    u.init(type);
+    u.type = type;
+    u.init();
+    u.x = x;
+    u.y = y;
     return u;
   }
 
-  public void init(UnitType type) {
-    this.type = type;
-    this.w = type.w;
-    this.h = type.h;
-    this.speed = type.speed;
-    this.region = type.region;
-    this.health = type.health;
+  public static Unit create(UnitType type) {
+    Unit u = Pools.obtain(Unit.class, Unit::new);
+    u.type = type;
+    u.init();
+    return u;
+  }
+
+  public void init() {
+    if (this.type == null) {
+      this.type = UnitTypes.test;
+      Log.err(this.toString() + "@ No unitTpye used test");
+    }
+    this.w = this.type.w;
+    this.h = this.type.h;
+    this.speed = this.type.speed;
+    this.region = this.type.region;
+    this.health = this.type.health;
 
     this.rotation = 0f;
     this.speedX = 0f;
@@ -61,8 +78,8 @@ public class Unit implements Poolable {
     this.id = (new Rand().random(10000));
 
     // 初始化目标为当前位置，防止刚出生就归零
-    this.targetX = 50f;
-    this.targetY = 50f;
+    this.targetX = this.x;
+    this.targetY = this.y;
 
     // 加入世界列表
     WorldData.units.add(this);
@@ -110,6 +127,9 @@ public class Unit implements Poolable {
 
   public void remove() {
     WorldData.units.remove(this);
+    Teams.unregister(this);
+    this.team = null;
+    this.teamData = null;
     if (currentChunkIndex != -1
         && WorldData.unitGrid != null
         && currentChunkIndex < WorldData.unitGrid.length) {
@@ -129,10 +149,13 @@ public class Unit implements Poolable {
   }
 
   public void write(Writes w) {
-    w.f(x); w.f(y);
+    w.f(x);
+    w.f(y);
     w.f(rotation);
     w.f(health);
-    w.f(targetX); w.f(targetY);
+    w.f(targetX);
+    w.f(targetY);
+    w.b(team.ordinal());
   }
 
   public void read(Reads r) {
@@ -142,16 +165,47 @@ public class Unit implements Poolable {
     this.health = r.f();
     this.targetX = r.f();
     this.targetY = r.f();
+    byte teamId = r.b();
+    if (teamId >= 0 && teamId < TeamTypes.values().length) {
+      this.team = TeamTypes.values()[teamId];
+    } else {
+      this.team = TeamTypes.Derelict; // 默认回退
+    }
+
     this.speedX = 0;
     this.speedY = 0;
-    
+
+    updateTeamData();
+
+    updateChunkPosition();
+
     // 重置寻路状态，让它重新计算路径
-    this.path = null; 
+    this.path = null;
     this.pathIndex = 0;
-    this.pathed = false; 
-    this.velocityDirty = true; // 标记方向脏，以便下次移动时修正朝向
+    this.pathed = false;
+    this.velocityDirty = true;
+    WorldData.moveunits.add(this); // 加入以强制应用导航数据
 
     // 立即更新网格位置
     updateChunkPosition();
+  }
+
+  /** 更新团队数据引用并注册 */
+  public void updateTeamData() {
+    if (this.team == null) this.team = TeamTypes.Derelict; // 默认中立
+
+    this.teamData = this.team.data();
+    Teams.register(this);
+  }
+
+  public void setTeam(TeamTypes newTeam) {
+    if (this.team == newTeam) return;
+
+    // 从旧团队移除
+    Teams.unregister(this);
+    this.team = newTeam;
+
+    // 加入新团队
+    updateTeamData();
   }
 }

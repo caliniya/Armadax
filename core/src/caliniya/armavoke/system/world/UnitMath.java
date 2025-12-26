@@ -28,7 +28,6 @@ public class UnitMath extends BasicSystem<UnitMath> {
     for (int i = 0; i < processList.size; ++i) {
       Unit u = processList.get(i);
 
-      // 1. 如果单位死亡或失效，从源列表中移除，防止僵尸单位占用计算
       if (u == null || u.health <= 0) {
         synchronized (WorldData.moveunits) {
           WorldData.moveunits.remove(u);
@@ -53,15 +52,30 @@ public class UnitMath extends BasicSystem<UnitMath> {
     int ty = (int) (u.targetY / WorldData.TILE_SIZE);
 
     if (sx != tx || sy != ty) {
-      u.path = RouteData.findPath(sx, sy, tx, ty , 2 , 1);
+      u.path = RouteData.findPath(sx, sy, tx, ty, 2, 1);
+      
+      //第一个点(起点)不要去
+      if (u.path != null && !u.path.isEmpty()) {
+        u.path.remove(0);
+      }
+
       u.pathIndex = 0;
 
+      // 如果移除起点后路径变空了（说明起点和终点挨得很近或者逻辑重叠），
+      // 下面的 isEmpty 检查会处理它，让单位直接由 calculateVelocity 接管去往 targetX/Y
       if (u.path == null || u.path.isEmpty()) {
         u.pathFindCooldown = 60f;
         u.speedX = 0;
         u.speedY = 0;
-        // 寻路失败也应该视为"到达"(或者放弃)，移除出列表，避免单位卡在原地一直尝试计算
-        stopAndRemove(u);
+
+        // 注意：这里如果只是因为移除了起点导致为空，不代表"寻路失败"，
+        // 而是代表"剩下的路就是直线走过去"，所以这里不要急着 stopAndRemove。
+        // 下面的 calculateVelocity 会检测到 empty 并调用 handleFinalApproach，逻辑是闭环的。
+
+        // 只有当 findPath 本身返回 null (不可达) 时才视为失败
+        if (u.path == null) {
+          stopAndRemove(u);
+        }
       }
     } else {
       if (u.path != null) u.path.clear();
@@ -70,19 +84,17 @@ public class UnitMath extends BasicSystem<UnitMath> {
   }
 
   private void calculateVelocity(Unit u) {
+    // 如果路径为空（或者被移除了第一个点后变为空），直接进入最后逼近逻辑
     if (u.path == null || u.path.isEmpty()) {
       handleFinalApproach(u);
       return;
     }
 
-    // --- 路径跟随逻辑 ---
-    // 如果还没走完
     if (u.pathIndex < u.path.size) {
 
-      // 计算当前要去的那个点的"世界坐标"
       float nextX, nextY;
 
-      // 如果是路径列表的最后一个点 -> 使用精确点击坐标 (targetX, targetY)
+      // 如果是路径列表的最后一个点 -> 使用精确点击坐标
       if (u.pathIndex == u.path.size - 1) {
         nextX = u.targetX;
         nextY = u.targetY;
@@ -99,7 +111,7 @@ public class UnitMath extends BasicSystem<UnitMath> {
       if (dist <= u.speed) {
         u.pathIndex++;
         u.velocityDirty = true;
-        calculateVelocity(u); // 递归去下一个点
+        calculateVelocity(u); // 递归
         return;
       }
 
@@ -110,14 +122,10 @@ public class UnitMath extends BasicSystem<UnitMath> {
         u.velocityDirty = false;
       }
     } else {
-      // 如果 pathIndex 超出了 list 大小，说明已经走完所有节点（包括最后一个）
-      // 这里的逻辑通常不会触发，因为上面最后一个点就是 targetX/Y，到达后就应该直接 stopAndRemove 了
-      // 但为了保险起见，或者应对 pathIndex 异常增加，这里再 check 一次
       handleFinalApproach(u);
     }
   }
 
-  /** 处理最后一段路 */
   private void handleFinalApproach(Unit u) {
     float distToFinal = Mathf.dst(u.x, u.y, u.targetX, u.targetY);
 
@@ -129,19 +137,14 @@ public class UnitMath extends BasicSystem<UnitMath> {
         u.velocityDirty = false;
       }
     } else {
-      // 彻底到达终点
       stopAndRemove(u);
     }
   }
 
-  /** 辅助方法：停止单位并从导航列表移除 */
   private void stopAndRemove(Unit u) {
     u.speedX = 0;
     u.speedY = 0;
-    u.velocityDirty = false; // 重置标记
-
-    // 从源列表移除，彻底停止计算
-    // 这样下一帧 update() 就不会再遍历到这个单位
+    u.velocityDirty = false;
     synchronized (WorldData.moveunits) {
       WorldData.moveunits.remove(u);
     }
