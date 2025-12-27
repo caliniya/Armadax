@@ -6,7 +6,7 @@ import caliniya.armavoke.core.*;
 public enum TeamTypes {
   Evoke,
   Veto,
-  Abort, //中止(废墟)
+  Abort, 
   Mutex
   ;
 

@@ -6,9 +6,12 @@ import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Fill;
 import arc.graphics.g2d.Lines;
 import arc.graphics.g2d.TextureRegion;
+import arc.math.Angles;
 import arc.math.geom.Point2;
 import caliniya.armavoke.game.Unit;
+import caliniya.armavoke.game.Weapon;
 import caliniya.armavoke.game.data.WorldData;
+import caliniya.armavoke.game.type.WeaponType;
 import caliniya.armavoke.system.BasicSystem;
 
 public class UnitRender extends BasicSystem<UnitRender> {
@@ -59,6 +62,22 @@ public class UnitRender extends BasicSystem<UnitRender> {
 
     Draw.rect(u.region, u.x, u.y, u.rotation);
     Draw.rect(u.cell, u.x, u.y, u.rotation);
+    
+    //临时先写在这里
+    for (Weapon weapon : u.weapons) {
+      WeaponType w = weapon.type;
+      TextureRegion reg = w.region;
+      // 计算武器的世界位置
+      // 假设 type.x 是左右偏移，type.y 是前后偏移
+      // Angles.trnsx/y 计算旋转后的偏移量
+      float wx = u.x + Angles.trnsx(u.rotation - 90, w.x, w.y);
+      float wy = u.y + Angles.trnsy(u.rotation - 90, w.x, w.y);
+      // 武器的绝对朝向 = 单位朝向 + 武器相对朝向
+      float wRot = u.rotation + weapon.rotation;
+
+      Draw.rect(reg, wx, wy, wRot);
+    }
+    
   }
 
   /** 绘制调试信息 */

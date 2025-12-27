@@ -1,5 +1,6 @@
 package caliniya.armavoke.game.data;
 
+import arc.func.Cons;
 import arc.math.Mathf;
 import caliniya.armavoke.base.tool.Ar;
 import caliniya.armavoke.base.type.TeamTypes;
@@ -11,7 +12,7 @@ public class TeamData {
   // 该团队下的所有单位列表 (全局)
   public Ar<Unit> units = new Ar<>();
 
-  //空间划分网格 (Per-Team Spatial Grid)
+  // 空间划分网格 (Per-Team Spatial Grid)
   // 每个格子存储该区域内属于本团队的单位
   public Ar<Unit>[] unitGrid;
 
@@ -82,12 +83,66 @@ public class TeamData {
     }
   }
 
-  // --- 网格更新方法 ---
+  /**
+   * 在指定圆形范围内查找本团队的单位，并对结果执行操作
+   *
+   * @param x 搜索中心 X
+   * @param y 搜索中心 Y
+   * @param radius 搜索半径
+   * @param consumer 对找到的每个有效单位执行的操作
+   */
+  public void find(float x, float y, float radius, Cons<Unit> consumer) {
+    if (unitGrid == null) return;
+    
+    // AABB
+    float minX = x - radius;
+    float minY = y - radius;
+    float maxX = x + radius;
+    float maxY = y + radius;
+    
+    int startX = (int) (minX / WorldData.CHUNK_PIXEL_SIZE);
+    int startY = (int) (minY / WorldData.CHUNK_PIXEL_SIZE);
+    int endX = (int) (maxX / WorldData.CHUNK_PIXEL_SIZE);
+    int endY = (int) (maxY / WorldData.CHUNK_PIXEL_SIZE);
+
+    // 边界限制
+    startX = Mathf.clamp(startX, 0, WorldData.gridW - 1);
+    startY = Mathf.clamp(startY, 0, WorldData.gridH - 1);
+    endX = Mathf.clamp(endX, 0, WorldData.gridW - 1);
+    endY = Mathf.clamp(endY, 0, WorldData.gridH - 1);
+
+    float r2 = radius * radius;
+
+    for (int gy = startY; gy <= endY; gy++) {
+      for (int gx = startX; gx <= endX; gx++) {
+        int index = gy * WorldData.gridW + gx;
+        Ar<Unit> chunkUnits = unitGrid[index];
+        
+        for (int i = 0; i < chunkUnits.size; i++) {
+          Unit u = chunkUnits.get(i);
+
+          if (u == null || u.health <= 0) continue;
+
+          // 粗略矩形检查 (AABB) - 快速排除掉显然不在圆内的
+          if (u.x < minX || u.x > maxX || u.y < minY || u.y > maxY) continue;
+
+          // 精确圆形距离检查 (Distance Squared)
+          if (Mathf.dst2(x, y, u.x, u.y) <= r2) {
+            // 执行回调
+            consumer.get(u);
+          }
+        }
+      }
+    }
+  }
+
+  // 网格更新方法
   // 这些方法应该由 UnitProces.updateChunkPosition 调用
-  // 逻辑和 WorldData.unitGrid 一模一样
+  // 逻辑和 WorldData.unitGrid 一样
 
   /**
    * 更新单位在团队空间网格中的位置
+   *
    * @param u 单位对象
    * @param oldIndex 旧的区块索引 (如果刚生成则为 -1)
    * @param newIndex 新的区块索引

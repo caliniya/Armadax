@@ -5,6 +5,7 @@ import arc.math.Angles;
 import arc.math.Mathf;
 import arc.math.Rand;
 import arc.math.geom.Point2;
+import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
@@ -16,6 +17,7 @@ import caliniya.armavoke.content.UnitTypes;
 import caliniya.armavoke.game.data.*;
 import caliniya.armavoke.game.type.UnitType;
 import caliniya.armavoke.core.*;
+import caliniya.armavoke.game.type.WeaponType;
 
 public class Unit implements Poolable {
 
@@ -23,6 +25,8 @@ public class Unit implements Poolable {
   public int id;
   public TeamTypes team;
   public TeamData teamData;
+
+  public Ar<Weapon> weapons = new Ar<>();
 
   // --- 物理属性 ---
   public float x, y;
@@ -39,26 +43,29 @@ public class Unit implements Poolable {
   // --- 状态属性 ---
   public boolean isSelected = false;
   public float health, w, h, speed; // speed 这里指最大标量速度
-  public TextureRegion region , cell;
+  public TextureRegion region, cell;
   public int currentChunkIndex = -1;
   public float pathFindCooldown = 0f;
 
   protected Unit() {}
 
-  public static Unit create(UnitType type, float x, float y) {
+  public static Unit create(TeamTypes team, UnitType type, float x, float y) {
     Unit u = Pools.obtain(Unit.class, Unit::new);
     u.type = type;
+    u.team = team;
     u.init();
     u.x = x;
     u.y = y;
     return u;
   }
 
+  public static Unit create(UnitType type , float x , float y) {
+    return create(TeamTypes.Evoke ,type , x , y);
+    // TODO: 用于回调到玩家阵营的创建方法,需要删除
+  }
+  
   public static Unit create(UnitType type) {
-    Unit u = Pools.obtain(Unit.class, Unit::new);
-    u.type = type;
-    u.init();
-    return u;
+  	return create(type , 500 , 500);
   }
 
   public void init() {
@@ -71,10 +78,15 @@ public class Unit implements Poolable {
     this.speed = this.type.speed;
     this.region = this.type.region;
     this.cell = this.type.cell;
-    
+
     this.health = this.type.health;
-    
+
     this.team = TeamTypes.Evoke;
+
+    weapons.clear();
+    for (WeaponType wType : type.weapons) {
+      weapons.add(new Weapon(wType, this));
+    }
 
     this.rotation = 0f;
     this.speedX = 0f;
@@ -145,8 +157,13 @@ public class Unit implements Poolable {
   }
 
   public void update() {}
-  
-  
+
+  public void updateWeapons() {
+    for (Weapon weapon : weapons) {
+      weapon.update();
+    }
+  }
+
   // TODO: 不能用
   public void impuse(float knockX, float knockY) {
     this.x += knockX;
@@ -201,8 +218,8 @@ public class Unit implements Poolable {
     this.teamData = this.team.data();
     Teams.add(this);
   }
-  
-  public void updateTeamData(TeamTypes newTeam){
+
+  public void updateTeamData(TeamTypes newTeam) {
     this.team = newTeam;
     updateTeamData();
   }

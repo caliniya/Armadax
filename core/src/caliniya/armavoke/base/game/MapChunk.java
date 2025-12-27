@@ -1,4 +1,4 @@
-package caliniya.armavoke.system.render;
+package caliniya.armavoke.base.game;
 
 import arc.Core;
 import arc.graphics.Camera;
@@ -8,6 +8,7 @@ import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
 import arc.util.Disposable;
 import caliniya.armavoke.game.data.WorldData;
+import caliniya.armavoke.system.render.MapRender;
 import caliniya.armavoke.world.ENVBlock;
 import caliniya.armavoke.world.Floor;
 

@@ -1,35 +1,50 @@
 {
   "allFiles": [
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/Armavoke.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/core/Units.java",
       "selection": {
         "end": {
           "column": 0,
-          "index": 3172,
-          "line": 129
+          "index": 0,
+          "line": 0
         },
         "start": {
           "column": 0,
-          "index": 3172,
-          "line": 129
+          "index": 0,
+          "line": 0
         }
       }
     },
     {
-      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/core/InitGame.java",
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/type/WeaponType.java",
       "selection": {
         "end": {
-          "column": 22,
-          "index": 632,
-          "line": 24
+          "column": 0,
+          "index": 0,
+          "line": 0
         },
         "start": {
-          "column": 22,
-          "index": 632,
-          "line": 24
+          "column": 0,
+          "index": 0,
+          "line": 0
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/Weapon.java",
+      "selection": {
+        "end": {
+          "column": 30,
+          "index": 30,
+          "line": 0
+        },
+        "start": {
+          "column": 30,
+          "index": 30,
+          "line": 0
         }
       }
     }
   ],
-  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/core/InitGame.java"
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Armavoke/core/src/caliniya/armavoke/game/type/WeaponType.java"
 }

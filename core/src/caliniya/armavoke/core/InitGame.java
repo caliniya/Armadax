@@ -5,6 +5,7 @@ import arc.Events;
 import arc.util.Log;
 import caliniya.armavoke.Armavoke;
 import caliniya.armavoke.base.type.EventType;
+import caliniya.armavoke.base.type.TeamTypes;
 import caliniya.armavoke.content.UnitTypes;
 import caliniya.armavoke.game.Unit;
 import caliniya.armavoke.game.data.*;
@@ -26,5 +27,7 @@ public class InitGame {
     new UnitMath().init();
     new UnitProces().init();
     Unit ttt = UnitTypes.test.create(500 , 500);
+    Unit ta = UnitTypes.test.create(1000,1000);
+    ta.team = TeamTypes.Veto;
   }
 }
