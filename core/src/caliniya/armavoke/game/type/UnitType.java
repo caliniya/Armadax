@@ -12,7 +12,7 @@ public class UnitType extends ContentType {
   public float w = 100f, h = 180f;
 
   // 渲染资源
-  public TextureRegion region;
+  public TextureRegion region , cell;
 
   public UnitType(String name) {
     super(name, CType.Unit);
@@ -21,6 +21,7 @@ public class UnitType extends ContentType {
   // 加载资源 (在 Assets 加载完成后调用)
   public void load() {
     region = Core.atlas.find(name, "white");
+    cell = Core.atlas.find(name + "-cell" , "white");
   }
 
   // 工厂方法：创建一个该类型的单位

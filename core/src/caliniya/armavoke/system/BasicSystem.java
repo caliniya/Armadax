@@ -1,15 +1,13 @@
 package caliniya.armavoke.system;
 
+import arc.Events;
 import arc.util.Log;
 import arc.util.Threads;
+import caliniya.armavoke.base.type.EventType;
 
-// T 必须是 BasicSystem<T> 的子类
-//@SuppressWarnings("unchecked")
-// 压制整个类的unchecked警告，因为这种单例/系统模式很难避免
 public abstract class BasicSystem<T extends BasicSystem<T>> {
 
   public boolean inited = false;
-  public int priority = 0;
   
   // 默认不开线程，或者通过构造/init参数指定(注意，是this.)
   protected boolean isThreaded = false;
@@ -36,10 +34,9 @@ public abstract class BasicSystem<T extends BasicSystem<T>> {
     this.isThreaded = runInThread;
     this.inited = true;
     
-    // 初始化逻辑...
-    
     if (isThreaded) {
         startThread();
+        Events.run(EventType.events.ThreadedStop , ()-> stopThread());
     }
     
     return (T) this;

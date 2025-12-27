@@ -13,12 +13,11 @@ import caliniya.armavoke.system.BasicSystem;
 
 public class UnitRender extends BasicSystem<UnitRender> {
 
-  // 调试开关，可以通过控制台或UI切换它
+  // 调试开关
   public static boolean debug = true;
 
   @Override
   public UnitRender init() {
-    this.priority = 15;
     return super.init();
   }
 
@@ -28,10 +27,10 @@ public class UnitRender extends BasicSystem<UnitRender> {
       Unit u = WorldData.units.get(i);
       if (shouldDraw(u)) {
         drawUnit(u);
-        
+
         // 如果开启调试，绘制额外信息
         if (debug) {
-            drawDebug(u);
+          drawDebug(u);
         }
       }
     }
@@ -53,62 +52,56 @@ public class UnitRender extends BasicSystem<UnitRender> {
     if (u.isSelected) {
       Draw.color(Color.green);
       Lines.stroke(2f);
-      // 绘制虚线圈更有质感 (可选)
-      Lines.circle(u.x, u.y, (u.w + u.h)/2 + 4);
+      Lines.circle(u.x, u.y, (u.w + u.h) / 2 + 4);
       Draw.color();
     }
-    
-    TextureRegion reg = u.region;
-    if(reg != null) {
-        Draw.rect(reg, u.x, u.y, u.rotation);
-    }
+
+    Draw.rect(u.region, u.x, u.y, u.rotation);
+    Draw.rect(u.cell, u.x, u.y, u.rotation);
   }
 
   /** 绘制调试信息 */
   private void drawDebug(Unit u) {
-      // 1. 绘制碰撞体积 (矩形)
-      Draw.color(Color.yellow);
-      Lines.stroke(3f);
-      // Lines.rect 默认可能是左下角，这里我们需要绘制以 u.x, u.y 为中心的矩形
-      // 假设 u.w 和 u.h 是全宽全高
-      Lines.rect(u.x - u.w / 2f, u.y - u.h / 2f, u.w, u.h);
+    // 绘制碰撞体积
+    Draw.color(Color.yellow);
+    Lines.stroke(3f);
+    Lines.rect(u.x - u.w / 2f, u.y - u.h / 2f, u.w, u.h);
 
-      // 2. 绘制目标点连接线 (从单位中心到目标点)
-      // 仅当目标点不在原点或单位附近时绘制
-      if (u.targetX != 0 || u.targetY != 0) {
-          Draw.color(Color.orange);
-          Lines.line(u.x, u.y, u.targetX, u.targetY);
-          // 绘制目标点的一个小叉叉
-          float s = 8f;
-          Lines.line(u.targetX - s, u.targetY - s, u.targetX + s, u.targetY + s);
-          Lines.line(u.targetX - s, u.targetY + s, u.targetX + s, u.targetY - s);
+    // 绘制目标点连接线 (从单位中心到目标点)
+    // 仅当目标点不在原点或单位附近时绘制
+    if (u.targetX != 0 || u.targetY != 0) {
+      Draw.color(Color.orange);
+      Lines.line(u.x, u.y, u.targetX, u.targetY);
+      // 绘制目标点的一个小叉叉
+      float s = 8f;
+      Lines.line(u.targetX - s, u.targetY - s, u.targetX + s, u.targetY + s);
+      Lines.line(u.targetX - s, u.targetY + s, u.targetX + s, u.targetY - s);
+    }
+
+    // 绘制寻路路径
+    if (u.path != null && !u.path.isEmpty()) {
+      Draw.color(Color.cyan);
+
+      float lastX = u.x;
+      float lastY = u.y;
+
+      // 从当前路径索引开始绘制
+      for (int i = u.pathIndex; i < u.path.size; i++) {
+        Point2 p = u.path.get(i);
+        // 转换网格坐标到世界中心坐标
+        float wx = p.x * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
+        float wy = p.y * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
+
+        // 绘制连线
+        Lines.line(lastX, lastY, wx, wy);
+
+        // 绘制节点小方块
+        Fill.square(wx, wy, 3f);
+        lastX = wx;
+        lastY = wy;
       }
+    }
 
-      // 3. 绘制寻路路径 (Path)
-      if (u.path != null && !u.path.isEmpty()) {
-          Draw.color(Color.cyan);
-          
-          float lastX = u.x;
-          float lastY = u.y;
-          
-          // 从当前路径索引开始绘制
-          for (int i = u.pathIndex; i < u.path.size; i++) {
-              Point2 p = u.path.get(i);
-              // 转换网格坐标到世界中心坐标
-              float wx = p.x * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
-              float wy = p.y * WorldData.TILE_SIZE + WorldData.TILE_SIZE / 2f;
-              
-              // 绘制连线
-              Lines.line(lastX, lastY, wx, wy);
-              
-              // 绘制节点小方块
-              Fill.square(wx, wy, 3f);
-              lastX = wx;
-              lastY = wy;
-          }
-          
-      }
-
-      Draw.color(); // 重置颜色
+    Draw.color(); // 重置颜色
   }
 }

@@ -176,8 +176,7 @@ public class CameraInput extends BasicSystem<CameraInput> implements GestureList
   }
 
   @Override
-  public caliniya.armavoke.system.input.CameraInput init() {
-    priority = 1;
+  public CameraInput init() {
     return super.init();
   }
 }

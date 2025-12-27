@@ -39,7 +39,7 @@ public class Unit implements Poolable {
   // --- 状态属性 ---
   public boolean isSelected = false;
   public float health, w, h, speed; // speed 这里指最大标量速度
-  public TextureRegion region;
+  public TextureRegion region , cell;
   public int currentChunkIndex = -1;
   public float pathFindCooldown = 0f;
 
@@ -70,6 +70,8 @@ public class Unit implements Poolable {
     this.h = this.type.h;
     this.speed = this.type.speed;
     this.region = this.type.region;
+    this.cell = this.type.cell;
+    
     this.health = this.type.health;
     
     this.team = TeamTypes.Evoke;
@@ -129,7 +131,7 @@ public class Unit implements Poolable {
 
   public void remove() {
     WorldData.units.remove(this);
-    Teams.unregister(this);
+    Teams.remove(this);
     this.team = null;
     this.teamData = null;
     if (currentChunkIndex != -1
@@ -143,7 +145,9 @@ public class Unit implements Poolable {
   }
 
   public void update() {}
-
+  
+  
+  // TODO: 不能用
   public void impuse(float knockX, float knockY) {
     this.x += knockX;
     this.y += knockY;
@@ -171,7 +175,7 @@ public class Unit implements Poolable {
     if (teamId >= 0 && teamId < TeamTypes.values().length) {
       this.team = TeamTypes.values()[teamId];
     } else {
-      this.team = TeamTypes.Abort; // 默认回退
+      this.team = TeamTypes.Abort;
     }
 
     this.speedX = 0;
@@ -191,19 +195,24 @@ public class Unit implements Poolable {
     updateChunkPosition();
   }
 
-  /** 更新团队数据引用并注册 */
+  /** 更新团队数据引用并注册(不带团队参数) */
   public void updateTeamData() {
     if (this.team == null) this.team = TeamTypes.Abort; // 默认中立
 
     this.teamData = this.team.data();
-    Teams.register(this);
+    Teams.add(this);
+  }
+  
+  public void updateTeamData(TeamTypes newTeam){
+    this.team = newTeam;
+    updateTeamData();
   }
 
   public void setTeam(TeamTypes newTeam) {
     if (this.team == newTeam) return;
 
     // 从旧团队移除
-    Teams.unregister(this);
+    Teams.remove(this);
     this.team = newTeam;
 
     // 加入新团队

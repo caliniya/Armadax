@@ -5,6 +5,7 @@ import arc.math.Mathf;
 import arc.util.Log;
 import caliniya.armavoke.base.tool.Ar;
 import caliniya.armavoke.game.Unit;
+import caliniya.armavoke.game.data.TeamData;
 import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.system.BasicSystem;
 
@@ -83,6 +84,7 @@ public class UnitProces extends BasicSystem<UnitProces> {
         // 且 WorldData.unitGrid 通常只被用于读取(点击检测)，
         // 这里不加锁通常是可行的。但如果出现并发修改异常，请在这里加 synchronized
         WorldData.unitGrid[u.currentChunkIndex].remove(u);
+        u.team.data().updateChunk(u, u.currentChunkIndex , newIndex);
       }
 
       WorldData.unitGrid[newIndex].add(u);

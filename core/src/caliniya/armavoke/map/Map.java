@@ -54,8 +54,6 @@ public class Map implements Comparable<Map> {
   /** 获取预览图，如果没有则返回默认错误图 */
   public Texture safeTexture() {
     if (texture == null) {
-      // 这里应该尝试加载预览图，如果还没有则返回默认
-      // 简单起见，这里假设没有预览图
       //return Core.assets.get("sprites/error.png", Texture.class); // 需确保资源存在
       return null;
     }

@@ -18,7 +18,7 @@ public class Maps {
 
         // 遍历所有文件
         for (Fi file : mapDir.list()) {
-            if (file.extension().equals("aemap")) {
+            if (file.extension().equals(".aes")) {
                 // 只读取元数据()
                 Map map = GameIO.readMeta(file);
                 if (map != null) {

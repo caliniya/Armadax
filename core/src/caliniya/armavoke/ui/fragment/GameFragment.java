@@ -37,7 +37,7 @@ public class GameFragment {
     rightTable.bottom().right();
 
     // 定义存档文件路径
-    Fi saveFile = Core.settings.getDataDirectory().child("save.dd");
+    Fi saveFile = Core.settings.getDataDirectory().child("save.aes");
 
     saveBtn = new Button("Save", () -> {
         try {

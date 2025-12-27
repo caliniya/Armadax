@@ -25,7 +25,6 @@ public class UnitControl extends BasicSystem<UnitControl>
 
   @Override
   public UnitControl init() {
-    this.priority = 5;
 
     Events.on(
         EventType.CommandChange.class,

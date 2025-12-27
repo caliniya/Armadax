@@ -22,8 +22,8 @@ public class InitGame {
     Maps.load();
     WorldData.initWorld();
     RouteData.init();
-    Armavoke.systems.add(new MapRender().init());
-    Armavoke.systems.add(new UnitRender().init());
+    Armavoke.systems.set(2,new MapRender().init());
+    Armavoke.systems.set(5,new UnitRender().init());
     new UnitMath().init();
     new UnitProces().init();
     Unit ttt = UnitTypes.test.create(500 , 500);

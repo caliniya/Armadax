@@ -24,7 +24,6 @@ public class MapRender extends BasicSystem<MapRender> {
     Events.run(EventType.events.Mapinit , () -> rebuildAll());
     WorldData.initWorld();
     world = WorldData.world;
-    priority = 10;
 
     initChunks();
 

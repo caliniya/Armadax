@@ -3,7 +3,8 @@ package caliniya.armavoke.base.type;
 public class EventType {
   
   public enum events{
-    Mapinit;
+    Mapinit,
+    ThreadedStop;
   }
   
   public static class GameInit {}
