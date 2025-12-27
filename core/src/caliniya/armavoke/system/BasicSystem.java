@@ -5,10 +5,11 @@ import arc.util.Log;
 import arc.util.Threads;
 import caliniya.armavoke.base.type.EventType;
 
-public abstract class BasicSystem<T extends BasicSystem<T>> {
+public abstract class BasicSystem<T extends BasicSystem<T>> implements Comparable<BasicSystem<?>> {
 
   public boolean inited = false;
-  
+  public int index = 0;
+
   // 默认不开线程，或者通过构造/init参数指定(注意，是this.)
   protected boolean isThreaded = false;
 
@@ -16,29 +17,25 @@ public abstract class BasicSystem<T extends BasicSystem<T>> {
   private Thread systemThread;
   protected long threadSleepMs = 16; // 约60FPS
 
-  /** 
-   * 普通初始化
-   */
+  /** 普通初始化 */
   public T init() {
     // 如果子类在构造时就设置了 isThreaded = true，这里也会启动
     // 但更推荐使用带参数的 init(boolean threaded)
-    return init(this.isThreaded); 
+    return init(this.isThreaded);
   }
 
-  /** 
-   * 带参数初始化，显式决定是否开启线程
-   */
+  /** 带参数初始化，显式决定是否开启线程 */
   public T init(boolean runInThread) {
     if (inited) return (T) this; // 防止重复初始化
 
     this.isThreaded = runInThread;
     this.inited = true;
-    
+
     if (isThreaded) {
-        startThread();
-        Events.run(EventType.events.ThreadedStop , ()-> stopThread());
+      startThread();
+      Events.run(EventType.events.ThreadedStop, () -> stopThread());
     }
-    
+
     return (T) this;
   }
 
@@ -54,37 +51,40 @@ public abstract class BasicSystem<T extends BasicSystem<T>> {
     if (threadRunning) return; // 防止重复启动
 
     threadRunning = true;
-    
-    // 使用 Threads.daemon 确保主程序退出时线程自动结束
-    systemThread = Threads.daemon("System-" + this.getClass().getSimpleName(), () -> {
-          Log.info("System thread started: @", this.getClass().getSimpleName());
-          while (threadRunning) {
-            try {
-              long start = System.currentTimeMillis();
-              
-              update();
-              
-              // 简单的帧率控制：减去 update 耗时
-              long elapsed = System.currentTimeMillis() - start;
-              long sleep = threadSleepMs - elapsed;
-              
-              if (sleep > 0) {
-                  Thread.sleep(sleep);
-              } else {
-                  // 如果 update 太慢，可能会让出一下 CPU
-                  Thread.yield();
-              }
 
-            } catch (InterruptedException e) {
-              threadRunning = false;
-              // 恢复中断状态是好习惯，虽然这里已经是要退出了
-              Thread.currentThread().interrupt(); 
-            } catch (Exception e) {
-              Log.err("Error in system thread: @", this.getClass().getSimpleName(), e);
-            }
-          }
-          Log.info("System thread stopped: @", this.getClass().getSimpleName());
-        });
+    // 使用守护线程确保主程序退出时线程自动结束
+    systemThread =
+        Threads.daemon(
+            "System-" + this.getClass().getSimpleName(),
+            () -> {
+              Log.info("System thread started: @", this.getClass().getSimpleName());
+              while (threadRunning) {
+                try {
+                  long start = System.currentTimeMillis();
+
+                  update();
+
+                  // 简单的帧率控制：减去 update 耗时
+                  long elapsed = System.currentTimeMillis() - start;
+                  long sleep = threadSleepMs - elapsed;
+
+                  if (sleep > 0) {
+                    Thread.sleep(sleep);
+                  } else {
+                    // 如果 update 太慢，可能会让出一下 CPU
+                    Thread.yield();
+                  }
+
+                } catch (InterruptedException e) {
+                  threadRunning = false;
+                  // 恢复中断状态是好习惯，虽然这里已经是要退出了:)
+                  Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                  Log.err("Error in system thread: @", this.getClass().getSimpleName(), e);
+                }
+              }
+              Log.info("System thread stopped: @", this.getClass().getSimpleName());
+            });
   }
 
   private void stopThread() {
@@ -92,10 +92,16 @@ public abstract class BasicSystem<T extends BasicSystem<T>> {
     if (systemThread != null) {
       systemThread.interrupt();
       try {
-          // 等待线程真正结束(够用了)
-          systemThread.join(100); 
-      } catch (Exception ignored) {}
+        // 等待线程真正结束(够用了)
+        systemThread.join(100);
+      } catch (Exception ignored) {
+      }
       systemThread = null;
     }
   }
+
+  @Override
+  public int compareTo(BasicSystem<?> other) {
+    return this.index > other.index ? 1 : this.index < other.index ? -1 : 0;
+  } // 两个三元运算符的抽象语法()
 }

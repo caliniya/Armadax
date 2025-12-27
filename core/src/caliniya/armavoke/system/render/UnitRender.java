@@ -18,6 +18,7 @@ public class UnitRender extends BasicSystem<UnitRender> {
 
   @Override
   public UnitRender init() {
+    this.index = 9;
     return super.init();
   }
 

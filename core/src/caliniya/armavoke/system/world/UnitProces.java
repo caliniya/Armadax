@@ -31,9 +31,6 @@ public class UnitProces extends BasicSystem<UnitProces> {
       float oldX = u.x;
       float oldY = u.y;
 
-      // Log.info(u.targetX + " "+ u.targetY +"    ");
-
-      // --- 1. 终点吸附逻辑 ---
       if (!(u.path == null) && !u.path.isEmpty()) {
         float distToTarget = Mathf.dst(u.x, u.y, u.targetX, u.targetY);
         if (distToTarget <= u.speed) {
@@ -44,7 +41,6 @@ public class UnitProces extends BasicSystem<UnitProces> {
           u.speedY = 0;
 
           // 到达终点后，不再需要计算旋转，且防止后续误判
-          //u.velocityDirty = false;
         } else {
           // 正常移动
           u.x += u.speedX;
@@ -53,15 +49,9 @@ public class UnitProces extends BasicSystem<UnitProces> {
         }
       }
 
-      // --- 2. 旋转逻辑 (核心修改) ---
-      // 只有当 UnitMath 标记了方向改变(dirty)，且单位确实在运动时，才重新计算旋转
       if (u.velocityDirty && Mathf.len(u.speedX, u.speedY) > 0.01f) {
 
         u.rotation = u.angle - 90;
-
-        // 由物理系统消费这个标记
-        // 告诉 UnitMath 和 UnitProces：方向已经处理完毕，后续帧保持当前状态即可
-        //u.velocityDirty = false;
       }
 
       // --- 3. 网格更新 ---
@@ -84,7 +74,7 @@ public class UnitProces extends BasicSystem<UnitProces> {
         // 且 WorldData.unitGrid 通常只被用于读取(点击检测)，
         // 这里不加锁通常是可行的。但如果出现并发修改异常，请在这里加 synchronized
         WorldData.unitGrid[u.currentChunkIndex].remove(u);
-        u.team.data().updateChunk(u, u.currentChunkIndex , newIndex);
+        u.team.data().updateChunk(u, u.currentChunkIndex, newIndex);
       }
 
       WorldData.unitGrid[newIndex].add(u);

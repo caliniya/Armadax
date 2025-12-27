@@ -189,7 +189,6 @@ public class Unit implements Poolable {
     this.pathed = false;
     this.velocityDirty = true;
     WorldData.moveunits.add(this); // 加入以强制应用导航数据
-    Log.info(WorldData.moveunits.toString());
 
     // 立即更新网格位置
     updateChunkPosition();

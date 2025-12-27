@@ -9,7 +9,7 @@ import caliniya.armavoke.ui.fragment.*;
 import static arc.Core.*;
 
 public class UI {
-  // 保持单例
+  
   public static DebugFragment de;
   // 跟踪当前是否显示
   private static boolean isDebugShown = false;
@@ -17,11 +17,10 @@ public class UI {
   public static void Menu() {
     scene.clear();
     new MenuFragment().build();
-    // 菜单界面可能不需要显示 debug，可以移除，或者根据需求保留
     if (isDebugShown) de.add(); 
   }
 
-  // 加载界面渲染逻辑 (保持不变)
+  // 加载界面渲染逻辑
   public static void Loading() {
     float screenW = graphics.getWidth();
     float screenH = graphics.getHeight();

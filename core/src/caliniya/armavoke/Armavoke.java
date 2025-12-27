@@ -32,7 +32,6 @@ public class Armavoke extends ApplicationCore {
 
   @Override
   public void setup() {
-    systems.setSize(10);
     graphics.clear(Color.black);
     camera.resize(graphics.getWidth(), graphics.getHeight());
   }
@@ -56,7 +55,6 @@ public class Armavoke extends ApplicationCore {
       UI.Debug();
       scene.resize(graphics.getWidth(), graphics.getHeight());
       UnitControl unitCtrl = new UnitControl().init();
-      systems.add(unitCtrl);
       camInput = new CameraInput().init();
       Log.info("loaded");
       InputMultiplexer multiplexer =
@@ -67,7 +65,7 @@ public class Armavoke extends ApplicationCore {
               unitCtrl,
               camInput);
       input.addProcessor(multiplexer);
-      systems.add(camInput);
+      addSystem(camInput);
       UnitTypes.load();
       Floors.load();
       ENVBlocks.load();
@@ -82,15 +80,30 @@ public class Armavoke extends ApplicationCore {
 
       for (int i = 0; i < systems.size; i++) {
         BasicSystem sys = systems.get(i);
-        if(sys == null){continue;}
+        if (sys == null) {
+          continue;
+        }
         sys.update();
       }
-
       camera.update();
       Draw.flush();
     }
     scene.act();
     scene.draw();
+  }
+
+  public static void addSystem(BasicSystem<?>... newSystems) {
+    boolean added = false;
+    for (BasicSystem<?> s : newSystems) {
+      if (s != null && !systems.contains(s)) {
+        if (!s.inited) s.init();
+        systems.add(s);
+        added = true;
+      }// TODO: 应不应该重复添加
+    }
+    if (added) {
+      systems.sort();
+    }
   }
 
   @Override
@@ -100,7 +113,7 @@ public class Armavoke extends ApplicationCore {
       assets.load(l);
     }
   }
-  
+
   @Override
   public void dispose() {
     super.dispose();

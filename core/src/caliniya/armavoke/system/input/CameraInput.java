@@ -177,6 +177,7 @@ public class CameraInput extends BasicSystem<CameraInput> implements GestureList
 
   @Override
   public CameraInput init() {
+    this.index = 1;
     return super.init();
   }
 }

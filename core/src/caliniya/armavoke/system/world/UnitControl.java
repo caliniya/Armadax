@@ -12,8 +12,7 @@ import caliniya.armavoke.game.Unit;
 import caliniya.armavoke.game.data.WorldData;
 import caliniya.armavoke.system.BasicSystem;
 
-public class UnitControl extends BasicSystem<UnitControl>
-    implements InputProcessor, GestureListener {
+public class UnitControl implements InputProcessor, GestureListener {
 
   // 选中的单位列表
   public Ar<Unit> selectedUnits = new Ar<>(100);
@@ -23,9 +22,7 @@ public class UnitControl extends BasicSystem<UnitControl>
 
   private static final float MAX_UNIT_HALF_SIZE = 64f;
 
-  @Override
   public UnitControl init() {
-
     Events.on(
         EventType.CommandChange.class,
         event -> {
@@ -36,7 +33,7 @@ public class UnitControl extends BasicSystem<UnitControl>
           }
         });
 
-    return super.init();
+    return this;
   }
 
   @Override
@@ -173,8 +170,6 @@ public class UnitControl extends BasicSystem<UnitControl>
     return null;
   }
 
-  // 空接口实现...
-  @Override public void update() {}
   @Override public boolean touchDown(int x, int y, int p, KeyCode b) { return false; }
   @Override public boolean pinch(Vec2 i1, Vec2 i2, Vec2 p1, Vec2 p2) { return false; }
   @Override public boolean longPress(float x, float y) { return false; }
