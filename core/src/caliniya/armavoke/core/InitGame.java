@@ -8,6 +8,7 @@ import caliniya.armavoke.base.type.EventType;
 import caliniya.armavoke.content.UnitTypes;
 import caliniya.armavoke.game.Unit;
 import caliniya.armavoke.game.data.*;
+import caliniya.armavoke.map.Maps;
 import caliniya.armavoke.system.render.*;
 import caliniya.armavoke.system.world.*;
 
@@ -18,6 +19,7 @@ public class InitGame {
   }
 
   public static void testinit() {
+    Maps.load();
     WorldData.initWorld();
     RouteData.init();
     Armavoke.systems.add(new MapRender().init());
