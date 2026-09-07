@@ -4,10 +4,8 @@ import arc.Core;
 import arc.util.Nullable;
 import caliniya.vergvoke.base.api.TechNodeContent;
 import caliniya.vergvoke.base.type.*;
-import caliniya.vergvoke.core.*;
 import caliniya.vergvoke.core.meta.stat.StatStack;
 import caliniya.vergvoke.core.meta.stat.StatType;
-import caliniya.vergvoke.core.meta.stat.StatUnit;
 import caliniya.vergvoke.game.*;
 
 public class ContentType {
@@ -36,7 +34,8 @@ public class ContentType {
   }
 
   /**
-   * @param register 是否注册进内容表。战役等设计好的内容为 true（分配 ID）； 运行时临时/程序生成的内容可传 false，避免占用内容 ID。
+   * @param register 是否注册进内容表。战役等设计好的内容为 true（分配 ID）； 运行时临时/程序生成的内容可传 false，避免占用内容
+   *                 ID。
    */
   protected ContentType(String name, CType type, boolean register) {
     this.name = name;
@@ -58,7 +57,8 @@ public class ContentType {
     }
   }
 
-  public void load() {}
+  public void load() {
+  }
 
   public String getIdentity() {
     return internalName;
