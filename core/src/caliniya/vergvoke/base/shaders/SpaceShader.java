@@ -1,17 +1,12 @@
 package caliniya.vergvoke.base.shaders;
 
 import arc.Core;
-import arc.files.Fi;
 import arc.func.*;
 import arc.graphics.Camera;
 import arc.graphics.Texture;
 import arc.graphics.Texture.TextureWrap;
 import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.ScreenQuad;
-import arc.graphics.g2d.TextureRegion;
 import arc.graphics.gl.Shader;
-import arc.util.Log;
-import arc.util.Time;
 import caliniya.vergvoke.core.Render;
 
 //在绑定着色器之前任何的的setUniformf是无效的
@@ -26,7 +21,7 @@ public class SpaceShader extends Shader {
 
   public Camera cam;
   public float zoom;
-  
+
   public Floatp get;
 
   public SpaceShader() {
@@ -60,10 +55,9 @@ public class SpaceShader extends Shader {
     texture.bind(0);
     setUniformi("u_texture", 0);
   }
-  
-  //总之能用了
+
+  // 总之能用了
   public void render() {
-    float z = zoom * baseScale;
     // Draw.shader(this);
     Draw.blit(this);
     // Draw.rect(Draw.wrap(texture),cam.position.x,cam.position.y);
@@ -74,6 +68,7 @@ public class SpaceShader extends Shader {
   @Override
   public void dispose() {
     super.dispose(); // 调用父类释放 shader
-    if (texture != null) texture.dispose();
+    if (texture != null)
+      texture.dispose();
   }
 }

@@ -1,12 +1,10 @@
 package caliniya.vergvoke.base.game;
 
-import arc.math.Mathf;
 import arc.math.geom.QuadTree.QuadTreeObject;
 import arc.math.geom.Rect;
 import arc.util.pooling.Pool.Poolable;
 import caliniya.vergvoke.core.meta.stat.Stat;
 import caliniya.vergvoke.core.meta.stat.StatStack;
-import caliniya.vergvoke.core.meta.stat.StatUnit;
 import caliniya.vergvoke.game.data.TeamData;
 import caliniya.vergvoke.type.ability.*;
 import caliniya.vergvoke.type.ability.api.*;
@@ -87,10 +85,12 @@ public abstract class Entity implements Poolable, QuadTreeObject {
 
   /** 附加一个能力。 */
   public void addAbility(Ability ability) {
-    if (ability != null) abilities.add(ability.onCreate(this));
+    if (ability != null)
+      abilities.add(ability.onCreate(this));
   }
 
-  public Entity() {}
+  public Entity() {
+  }
 
   public abstract void update(float dt);
 
@@ -123,7 +123,8 @@ public abstract class Entity implements Poolable, QuadTreeObject {
   public volatile float knockX, knockY;
 
   /** 施加击退：方向（角度）+ 击退量。命中时调用，内部一次三角计算。很显然建筑不能被击退 */
-  public void knock(float dir, float force) {}
+  public void knock(float dir, float force) {
+  }
 
   /** 每帧更新战斗基础属性：能量恢复 + 能力更新（护盾回充/耗能等）。 */
   public void updateBase(float dt) {
@@ -167,7 +168,8 @@ public abstract class Entity implements Poolable, QuadTreeObject {
 
   /** 挂载一个强化模组（运行时安装/读档恢复）：绑实体 → 恢复绑定 → 入列表 → 需要每帧则入 updatable 列表 → 初始开启则应用。 */
   public void addEnhancement(Enhancement enh) {
-    if (enh == null) return;
+    if (enh == null)
+      return;
     enh.entity = this;
     enh.type.rebind(enh);
     enhancements.add(enh);
@@ -209,7 +211,8 @@ public abstract class Entity implements Poolable, QuadTreeObject {
   /** 批量开关所有可切换（toggleable）的能力。 */
   public void setAllAbilities(boolean enabled) {
     for (Ability a : abilities) {
-      if (a.toggleable) a.setEnabled(enabled);
+      if (a.toggleable)
+        a.setEnabled(enabled);
     }
   }
 
@@ -228,9 +231,9 @@ public abstract class Entity implements Poolable, QuadTreeObject {
    * 对实体造成一次伤害（三层结算：能力拦截 → 护甲 → 本体）。
    *
    * <ol>
-   *   <li>每个能力依次拦截（护盾吸收等），返回穿透到下一层的伤害；
-   *   <li>护甲层：对甲倍率 × (1 - 护甲对该类型抗性)，再减护甲强度（最低 0）；
-   *   <li>本体扣血，归零摧毁。
+   * <li>每个能力依次拦截（护盾吸收等），返回穿透到下一层的伤害；
+   * <li>护甲层：对甲倍率 × (1 - 护甲对该类型抗性)，再减护甲强度（最低 0）；
+   * <li>本体扣血，归零摧毁。
    * </ol>
    */
   public void applyDamage(float damage, DamageType type) {
@@ -240,9 +243,9 @@ public abstract class Entity implements Poolable, QuadTreeObject {
   /**
    * 对实体造成一次伤害（三层结算：能力拦截 → 护甲 → 本体）。
    *
-   * @param breakArmor 破甲：无视护甲的固定减伤值（护甲容量照扣）
-   * @param bypassArmor 穿甲：直接穿过护甲层攻击核心
-   * @param breakShield 破盾：无视护盾的强度减伤（护盾容量照扣）
+   * @param breakArmor   破甲：无视护甲的固定减伤值（护甲容量照扣）
+   * @param bypassArmor  穿甲：直接穿过护甲层攻击核心
+   * @param breakShield  破盾：无视护盾的强度减伤（护盾容量照扣）
    * @param bypassShield 穿盾：直接穿过护盾层
    */
   public void applyDamage(
@@ -256,15 +259,18 @@ public abstract class Entity implements Poolable, QuadTreeObject {
     for (Ability a : abilities) {
       damage = a.applyDamage(this, damage, type, breakShield, bypassShield);
     }
-    if (damage <= 0f) return;
+    if (damage <= 0f)
+      return;
 
     // 2. 护甲层（容量 > 0 时存在；穿甲直接跳过护甲打核心）
     if (!bypassArmor && armor > 0f) {
       float armorReduce = breakArmor ? 0f : armorValue;
       float actual = Math.max(0f, damage * type.armorMult * (1f - armorResist(type)) - armorReduce);
-      if (actual <= 0f) return; // 被护甲完全挡下
+      if (actual <= 0f)
+        return; // 被护甲完全挡下
       armor -= actual;
-      if (armor < 0f) armor = 0f;
+      if (armor < 0f)
+        armor = 0f;
       return; // 护甲破：剩余伤害不传递
     }
 
@@ -283,8 +289,10 @@ public abstract class Entity implements Poolable, QuadTreeObject {
     stat.get(Stat.armor, armor, armorMax).live = () -> armor;
     stat.get(Stat.shield, totalShield(), totalShieldMax()).live = () -> totalShield();
     stat.get(Stat.energy, energy, energyMax).live = () -> energy;
-    if (heatable) stat.get(Stat.heat, heat, heatMax).live = () -> heat;
-    if (power != null) stat.get(Stat.power, power.power, power.powerMax).live = () -> power.power;
+    if (heatable)
+      stat.get(Stat.heat, heat, heatMax).live = () -> heat;
+    if (power != null)
+      stat.get(Stat.power, power.power, power.powerMax).live = () -> power.power;
     for (Ability a : abilities) {
       a.statAbility(stat);
     }

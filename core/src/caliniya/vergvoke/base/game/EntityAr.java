@@ -3,27 +3,22 @@ package caliniya.vergvoke.base.game;
 import arc.func.*;
 import arc.math.geom.*;
 import arc.math.geom.QuadTree.*;
-import arc.math.geom.*;
-
-import arc.struct.*;
-import arc.util.Log;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import caliniya.vergvoke.base.game.*;
 import caliniya.vergvoke.base.tool.Ar;
 
 /**
  * 实体组 —— 管理同一类型实体的集合。
  *
- * <p>功能:
+ * <p>
+ * 功能:
  *
  * <ul>
- *   <li><b>平铺数组迭代</b> — O(n) 遍历所有实体，无序数组支持 O(1) 删除
- *   <li><b>四叉树空间查询</b> — O(log n + k) 矩形查询，自动维护空间索引
- *   <li><b>ID 映射</b> — O(1) 按 ID 查找实体，使用 ConcurrentHashMap 保证线程安全
+ * <li><b>平铺数组迭代</b> — O(n) 遍历所有实体，无序数组支持 O(1) 删除
+ * <li><b>四叉树空间查询</b> — O(log n + k) 矩形查询，自动维护空间索引
+ * <li><b>ID 映射</b> — O(1) 按 ID 查找实体，使用 ConcurrentHashMap 保证线程安全
  * </ul>
  *
  * <p>
@@ -53,9 +48,6 @@ public class EntityAr<T extends QuadTreeObject> implements Iterable<T> {
   /** 当前迭代索引，用于 remove 时修正 */
   private int iteratorIndex;
 
-  /** intersect 结果复用数组 */
-  private final Ar<T> intersectResult = new Ar<>(false, 32);
-
   /** 读写锁 —— 允许多个读操作并发，写操作互斥 */
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -68,7 +60,8 @@ public class EntityAr<T extends QuadTreeObject> implements Iterable<T> {
    * @param idGetter 从实体提取 ID 的函数
    */
   public EntityAr(Intf<T> idGetter) {
-    if (idGetter == null) throw new IllegalArgumentException("idGetter must not be null");
+    if (idGetter == null)
+      throw new IllegalArgumentException("idGetter must not be null");
 
     this.idGetter = idGetter;
     this.array = new Ar<>(false, DEFAULT_CAPACITY);
@@ -95,7 +88,8 @@ public class EntityAr<T extends QuadTreeObject> implements Iterable<T> {
    */
   @SafeVarargs
   public final void add(T... entities) {
-    if (entities == null || entities.length == 0) return;
+    if (entities == null || entities.length == 0)
+      return;
 
     // 检查是否有 null
     for (int i = 0; i < entities.length; i++) {
@@ -126,15 +120,18 @@ public class EntityAr<T extends QuadTreeObject> implements Iterable<T> {
   /** 从组中移除实体（同时从四叉树和 ID 映射注销） */
   @SafeVarargs
   public final void remove(T... entities) {
-    if (clearing || entities == null || entities.length == 0) return;
+    if (clearing || entities == null || entities.length == 0)
+      return;
 
     writeLock.lock();
     try {
       for (T entity : entities) {
-        if (entity == null) continue;
+        if (entity == null)
+          continue;
 
         int idx = array.indexOf(entity, true);
-        if (idx == -1) continue;
+        if (idx == -1)
+          continue;
 
         array.remove(entity);
         tree.remove(entity);
@@ -252,14 +249,15 @@ public class EntityAr<T extends QuadTreeObject> implements Iterable<T> {
    *
    * <pre>{@code
    * group.intersect(x, y, w, h, entity -> {
-   *     // 处理每个命中的 entity
+   *   // 处理每个命中的 entity
    * });
    * }</pre>
    */
   public void intersect(float x, float y, float w, float h, Cons<T> out) {
     readLock.lock();
     try {
-      if (isEmpty()) return;
+      if (isEmpty())
+        return;
       tree.intersect(x, y, w, h, out);
     } finally {
       readLock.unlock();
@@ -274,7 +272,8 @@ public class EntityAr<T extends QuadTreeObject> implements Iterable<T> {
   public boolean any(float x, float y, float w, float h) {
     readLock.lock();
     try {
-      if (isEmpty()) return false;
+      if (isEmpty())
+        return false;
       return tree.any(x, y, w, h);
     } finally {
       readLock.unlock();

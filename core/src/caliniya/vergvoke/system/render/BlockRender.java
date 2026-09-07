@@ -1,18 +1,10 @@
 package caliniya.vergvoke.system.render;
 
 import arc.*;
-import arc.util.*;
-import arc.graphics.*;
 import arc.graphics.g2d.*;
-import caliniya.vergvoke.ui.*;
-import caliniya.vergvoke.game.*;
 import caliniya.vergvoke.type.*;
-import caliniya.vergvoke.world.*;
-import caliniya.vergvoke.system.*;
-import caliniya.vergvoke.base.tool.*;
 import caliniya.vergvoke.base.type.*;
 import caliniya.vergvoke.game.data.*;
-import caliniya.vergvoke.ui.fragment.*;
 
 public class BlockRender extends caliniya.vergvoke.system.System<BlockRender> {
 
@@ -20,16 +12,18 @@ public class BlockRender extends caliniya.vergvoke.system.System<BlockRender> {
   public BlockRender init() {
     this.index = 12;
     Events.run(EventType.events.EnterUV, () -> paused = true);
-    Events.run(EventType.events.ExitUV, ()->paused = false);
-    return super.init(false,false);
+    Events.run(EventType.events.ExitUV, () -> paused = false);
+    return super.init(false, false);
   }
 
   @Override
   public void update() {
-    if (!inited || paused) return;
+    if (!inited || paused)
+      return;
     // 遍历所有建筑
     for (Building b : WorldData.buildings) {
-      if (b == null || b.block == null || b.health <= 0f) continue;
+      if (b == null || b.block == null || b.health <= 0f)
+        continue;
 
       // 剔除检测：如果不在视野内则跳过
       if (shouldDraw(b.x, b.y, b.block.psize)) {
