@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "gradle",
+            "id": "d:\\project\\Vergvokedesktop:builddesktop",
+            "script": "desktop:build",
+            "description": "Assembles and tests this project.",
+            "group": "build",
+            "project": "desktop",
+            "buildFile": "D:\\project\\Vergvoke\\desktop\\build.gradle",
+            "rootProject": "Vergvoke",
+            "projectFolder": "d:\\project\\Vergvoke",
+            "workspaceFolder": "d:\\project\\Vergvoke",
+            "args": "",
+            "javaDebug": false,
+            "problemMatcher": [
+                "$gradle"
+            ],
+            "label": "gradle: desktop:build"
+        }
+    ]
+}
