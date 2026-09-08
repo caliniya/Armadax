@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "启动",
             "mainClass": "caliniya.vergvoke.DesktopLauncher",
-            "args": [],
+            "args": null,
             "vmArgs": [],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole"
