@@ -14,46 +14,44 @@ import javax.lang.model.SourceVersion;
 @AnnoProc
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes({
-		"caliniya.vergvoke.annotation.Annotations.Component",
-		"caliniya.vergvoke.annotation.Annotations.Entity"
+    "caliniya.vergvoke.annotation.Annotations.Component",
+    "caliniya.vergvoke.annotation.Annotations.Entity"
 })
 public class ECProcessor extends Processor {
 
-	// 每种类型的实体都有哪些组件
-	public ObjectMap<String, ObjectSet<String>> ECMap = new ObjectMap<>();
-	public Ar<AType> entityDef = new Ar<>();
+  // 每种类型的实体都有哪些组件
+  public ObjectMap<String, ObjectSet<String>> ECMap = new ObjectMap<>();
+  public Ar<AType> entityDef = new Ar<>();
+  public String local = ""
 
-	{
-	}
+  @SuppressWarnings("unused")
+  @Override
+  protected void process() {
 
-	@SuppressWarnings("unused")
-	@Override
-	protected void process() {
+    entityDef.addAll(types(Entity.class));
 
-		entityDef.addAll(types(Entity.class));
+    for (AType a : entityDef) {
+      ObjectSet<String> map = new ObjectSet<>();
+      for (String c : compsOf(a)) {
+        String simple = c.substring(c.lastIndexOf('.') + 1);
+        if (map.contains(simple)) {
+          error("Duplicate component in entity: " + simple, a);
+        }
+        map.add(simple);
+      }
+      ECMap.put(a.annotation(Entity.class).name() + "Entity", map);
+    }
 
-		for (AType a : entityDef) {
-			ObjectSet<String> map = new ObjectSet<>();
-			for (String c : compsOf(a)) {
-				String simple = c.substring(c.lastIndexOf('.') + 1);
-				if (map.contains(simple)) {
-					error("Duplicate component in entity: " + simple, a);
-				}
-				map.add(simple);
-			}
-			ECMap.put(a.annotation(Entity.class).name() + "Entity", map);
-		}
-
-		for (AType T : types(Component.class)) {
-			for (AVar V : T.fields()) {
-				/**
-				 * if(nameMap.co) {
-				 *
-				 * <p>
-				 * }
-				 */
-			}
-		}
-	}
+    for (AType T : types(Component.class)) {
+      for (AVar V : T.fields()) {
+        /**
+         * if(nameMap.co) {
+         *
+         * <p>
+         * }
+         */
+      }
+    }
+  }
 
 }
